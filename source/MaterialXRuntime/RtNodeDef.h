@@ -31,21 +31,14 @@ public:
     /// Return the node category.
     const RtToken& getCategory() const;
 
-    /// Add a new input attribute.
-    RtAttribute addInputAttr(const RtToken& name, const RtToken& type,
-                         const RtValue& value = RtValue(), bool connectable = true);
+    /// Add a new attribute.
+    RtAttribute addAttribute(const RtToken& name, const RtToken& type,
+                             uint32_t flags = RtAttrFlag::INPUT | RtAttrFlag::CONNECTABLE,
+                             const RtValue& value = RtValue());
 
-    /// Add a new output attribute.
-    RtAttribute addOutputAttr(const RtToken& name, const RtToken& type,
-                          const RtValue& value = RtValue(), bool connectable = true);
-
-    /// Return an input attribute by name, or a null object
-    /// if no such input attribute exists.
-    RtAttribute getInputAttr(const RtToken& name) const;
-
-    /// Return an output attribute by name, or a null object
-    /// if no such output attribute exists.
-    RtAttribute getOutputAttr(const RtToken& name) const;
+    /// Return an attribute by name, or a null object
+    /// if no such attribute exists.
+    RtAttribute getAttribute(const RtToken& name) const;
 };
 
 }

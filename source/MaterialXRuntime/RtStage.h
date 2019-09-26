@@ -30,7 +30,7 @@ public:
     static RtStage create(const RtToken& name);
 
     /// Add a nodedef to this stage.
-    RtNodeDef addNodeDef(const RtToken& name);
+    RtNodeDef addNodeDef(const RtToken& name, const RtToken& category);
 
     /// Clear the stage from all contents,
     /// deallocating all of its contained data.

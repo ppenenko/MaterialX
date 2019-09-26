@@ -9,6 +9,7 @@
 #include <MaterialXRuntime/private/RtElementData.h>
 
 #include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtValue.h>
 
 /// @file
@@ -16,14 +17,6 @@
 
 namespace MaterialX
 {
-
-class RtAttrFlag
-{
-public:
-    static const uint32_t INPUT       = 0x00000001;
-    static const uint32_t OUTPUT      = 0x00000002;
-    static const uint32_t CONNECTABLE = 0x00000004;
-};
 
 class RtAttributeData : public RtElementData
 {
@@ -47,24 +40,14 @@ public:
         return _type;
     }
 
-    void setType(const RtToken& type)
-    {
-        _type = type;
-    }
-
     const RtValue& getValue() const
     {
         return _value;
     }
 
-    RtValue& getValue()
+    uint32_t getFlags() const
     {
-        return _value;
-    }
-
-    void setValue(const RtValue& value)
-    {
-        _value = value;
+        return _flags;
     }
 
     bool isInput() const
@@ -80,6 +63,13 @@ public:
     bool isConnectable() const
     {
         return _flags & RtAttrFlag::CONNECTABLE;
+    }
+
+    bool isConnectableTo(const RtAttributeData* other) const
+    {
+        // TODO: Optimize using direct bit matching
+        return (isConnectable() && other->isConnectable() &&
+            (isInput() && other->isOutput() || isOutput() && other->isInput()));
     }
 
 protected:

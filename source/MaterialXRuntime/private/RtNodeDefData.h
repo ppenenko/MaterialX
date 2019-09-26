@@ -21,82 +21,58 @@ namespace MaterialX
 class RtNodeDefData : public RtElementData
 {
 public:
-    RtNodeDefData(const RtToken& name, const RtToken& category) :
-        RtElementData(RtObjType::NODEDEF, name),
-        _category(category)
-    {
-    }
+    RtNodeDefData(const RtToken& name, const RtToken& category);
 
-    ~RtNodeDefData()
-    {
-        for (RtAttributeData* i : _inputs)
-        {
-            delete i;
-        }
-        _inputs.clear();
-        _inputsByName.clear();
-
-        for (RtAttributeData* o : _outputs)
-        {
-            delete o;
-        }
-        _outputs.clear();
-        _outputsByName.clear();
-    }
+    ~RtNodeDefData();
 
     const RtToken& getCategory() const
     {
         return _category;
     }
 
-    RtAttributeData* addInputAttr(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
+    const RtAttributeData* addAttribute(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
     {
-        auto it = _inputsByName.find(name);
-        if (it != _inputsByName.end())
+        auto it = _attributesByName.find(name);
+        if (it != _attributesByName.end())
         {
-            throw ExceptionRuntimeError("An input named '" + name + "' already exists for nodedef '" + getName() + "'");
+            throw ExceptionRuntimeError("An attribute named '" + name + "' already exists for nodedef '" + getName() + "'");
         }
 
-        RtAttributeData* attr = new RtAttributeData(name, type, value, flags | RtAttrFlag::INPUT);
-        _inputsByName[name] = _inputs.size();
-        _inputs.push_back(attr);
+        RtAttributeData* attr = new RtAttributeData(name, type, value, flags);
+        _attributesByName[name] = _attributes.size();
+        _attributes.push_back(attr);
 
         return attr;
     }
 
-    RtAttributeData* addOutputAttr(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
+    size_t numAttributes() const
     {
-        auto it = _outputsByName.find(name);
-        if (it != _outputsByName.end())
-        {
-            throw ExceptionRuntimeError("An output named '" + name + "' already exists for nodedef '" + getName() + "'");
-        }
-
-        RtAttributeData* attr = new RtAttributeData(name, type, value, flags | RtAttrFlag::OUTPUT);
-        _outputsByName[name] = _outputs.size();
-        _outputs.push_back(attr);
-
-        return attr;
+        return _attributes.size();
     }
 
-    RtAttributeData* getInputAttr(const RtToken& name)
+    const RtAttributeData* getAttribute(const RtToken& name) const
     {
-        auto it = _inputsByName.find(name);
-        return it != _inputsByName.end() ? _inputs[it->second] : nullptr;
+        auto it = _attributesByName.find(name);
+        return it != _attributesByName.end() ? _attributes[it->second] : nullptr;
     }
 
-    RtAttributeData* getOutputAttr(const RtToken& name)
+    const RtAttributeData* getAttribute(size_t index) const
     {
-        auto it = _outputsByName.find(name);
-        return it != _outputsByName.end() ? _outputs[it->second] : nullptr;
+        return _attributes.size() < index ? _attributes[index] : nullptr;
     }
+
+    size_t getAttributeIndex(const RtToken& name) const
+    {
+        auto it = _attributesByName.find(name);
+        return it != _attributesByName.end() ? it->second : INVALID_INDEX;
+    }
+
+    static const size_t INVALID_INDEX;
 
 protected:
     RtToken _category;
-    vector<RtAttributeData*> _inputs;
-    std::unordered_map<RtToken, size_t> _inputsByName;
-    vector<RtAttributeData*> _outputs;
-    std::unordered_map<RtToken, size_t> _outputsByName;
+    vector<RtAttributeData*> _attributes;
+    std::unordered_map<RtToken, size_t> _attributesByName;
 };
 
 }

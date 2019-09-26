@@ -25,7 +25,7 @@ public:
     {
     }
 
-    RtNodeDefData* addNodeDef(const RtToken& name)
+    RtNodeDefData* addNodeDef(const RtToken& name, const RtToken& category)
     {
         auto it = _nodedefsByName.find(name);
         if (it != _nodedefsByName.end())
@@ -34,7 +34,7 @@ public:
         }
 
         _nodedefsByName[name] = _nodedefs.size();
-        _nodedefs.push_back(RtNodeDefData(name));
+        _nodedefs.push_back(RtNodeDefData(name, category));
         return &_nodedefs.back();
     }
 

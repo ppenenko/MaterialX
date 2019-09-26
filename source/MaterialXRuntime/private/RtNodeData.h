@@ -17,27 +17,34 @@
 namespace MaterialX
 {
 
+class RtNodeData;
+
 class RtPortData
 {
 public:
-    RtPortData(RtNodeData* node, size_t index) :
-        _node(node),
-        _index(index)
+    RtPortData();
+    RtPortData(RtNodeData* node, size_t index);
+
+    bool isValid() const
     {
+        return _node != nullptr;
     }
 
+    const RtAttributeData* getAttribute() const;
 
+    RtValue& getValue();
 
-    bool connectTo(RtPortData* other)
-    {
+    void setValue(const RtValue& v);
+    void setValue(bool v);
+    void setValue(int v);
+    void setValue(unsigned int v);
+    void setValue(float v);
+    void setValue(const Color3& v);
+    void setValue(const Vector4& v);
+    void setValue(void* v);
 
-
-    }
-
-    RtAttributeData* getAttribute()
-    {
-        _node->getNodeDef();
-    }
+    void connectTo(RtPortData& other);
+    void disconnect();
 
 protected:
     RtNodeData* _node;
@@ -47,29 +54,32 @@ protected:
 class RtNodeData : public RtElementData
 {
 public:
-    RtNodeData(const RtToken& name, const RtNodeDefData* nodedef) :
-        RtElementData(RtObjType::NODE, name),
-        _nodedef(nodedef)
-    {
-    }
+    RtNodeData(const RtToken& name, const RtNodeDefData* nodedef);
 
     const RtNodeDefData* getNodeDef() const
     {
         return _nodedef;
     }
 
-    RtPortData* getInputPort(const RtToken& name)
+    RtPortData getInputPort(const RtToken& name)
     {
-        const RtAttribute* attr = _nodedef->getInputAttr(name);
+        const size_t index = _nodedef->getAttributeIndex(name);
+        const RtAttributeData* attr = _nodedef->getAttribute(index);
+        return attr && attr->isInput() ? RtPortData(this, index) : RtPortData();
     }
 
-    RtAttributeData* getOutputPort(const RtToken& name)
+    RtPortData getOutputPort(const RtToken& name)
     {
+        const size_t index = _nodedef->getAttributeIndex(name);
+        const RtAttributeData* attr = _nodedef->getAttribute(index);
+        return attr && attr->isOutput() ? RtPortData(this, index) : RtPortData();
     }
 
 protected:
+    friend class RtPortData;
     const RtNodeDefData* _nodedef;
     vector<RtValue> _values;
+    vector<RtPortData> _connections;
 };
 
 }

@@ -56,22 +56,24 @@ TEST_CASE("Runtime: Values", "[runtime]")
 TEST_CASE("Runtime: NodeDef", "[runtime]")
 {
     mx::RtStage stage = mx::RtStage::create("root");
-    mx::RtNodeDef nodeDef = stage.addNodeDef("ND_add_float");
+    mx::RtNodeDef nodeDef = stage.addNodeDef("ND_add_float", "add");
 
-    mx::RtAttribute out = nodeDef.addOutput("out", "float");
-    mx::RtAttribute in1 = nodeDef.addInput("in1", "float", mx::RtValue(0.0f));
-    mx::RtAttribute in2 = nodeDef.addInput("in2", "float", mx::RtValue(0.0f));
+    mx::RtAttribute out = nodeDef.addAttribute("out", "float", mx::RtAttrFlag::OUTPUT | mx::RtAttrFlag::CONNECTABLE);
+    mx::RtAttribute in1 = nodeDef.addAttribute("in1", "float", mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
+    mx::RtAttribute in2 = nodeDef.addAttribute("in2", "float", mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
     REQUIRE(out.isValid());
     REQUIRE(out.getType() == "float");
     REQUIRE(out.getValue().asFloat() == 0.0f);
 
-    mx::RtAttribute foo = nodeDef.getInput("foo");
+    mx::RtAttribute foo = nodeDef.getAttribute("foo");
     REQUIRE(!foo.isValid());
 
-    mx::RtAttribute tmp = nodeDef.getInput("in1");
+    mx::RtAttribute tmp = nodeDef.getAttribute("in1");
     REQUIRE(tmp.isValid());
     REQUIRE(tmp == in1);
     REQUIRE(tmp.getObject() == in1.getObject());
+
+
 
     in1.setValue(42.0f);
     REQUIRE(in1.getValue().asFloat() == 42.0f);

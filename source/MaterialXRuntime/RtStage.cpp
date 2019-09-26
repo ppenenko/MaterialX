@@ -25,10 +25,10 @@ RtStage RtStage::create(const RtToken& name)
     return RtApiBase::api<RtStage>(new RtStageData(name));
 }
 
-RtNodeDef RtStage::addNodeDef(const RtToken& name)
+RtNodeDef RtStage::addNodeDef(const RtToken& name, const RtToken& category)
 {
     RtStageData* ptr = data()->asA<RtStageData>();
-    RtNodeDefData* newNodeDef = ptr->addNodeDef(name);
+    RtNodeDefData* newNodeDef = ptr->addNodeDef(name, category);
     return RtApiBase::api<RtNodeDef>(newNodeDef);
 }
 

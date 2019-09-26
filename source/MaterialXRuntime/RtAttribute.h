@@ -18,13 +18,24 @@ class RtValue;
 
 /// @class RtAttribute
 /// TODO: Docs
+class RtAttrFlag
+{
+public:
+    static const uint32_t INPUT       = 0x00000001;
+    static const uint32_t OUTPUT      = 0x00000002;
+    static const uint32_t CONNECTABLE = 0x00000004;
+    static const uint32_t UNIFORM     = 0x00000008;
+};
+
+/// @class RtAttribute
+/// TODO: Docs
 class RtAttribute : public RtElement
 {
 public:
     /// Constructor attaching and object to the API.
     RtAttribute(const RtObject& obj);
 
-    /// Return the type for this object.
+    /// Return the type for this API.
     RtApiType getApiType() const override;
 
     /// Return the data type for this attribute.
@@ -33,20 +44,8 @@ public:
     /// Return the value for this attribute.
     const RtValue& getValue() const;
 
-    /// Return the value for this attribute.
-    RtValue& getValue();
-
-    /// Set the value for this attribute.
-    void setValue(const RtValue& v);
-
-    /// Set the value for this attribute.
-    void setValue(bool v);
-    void setValue(int v);
-    void setValue(unsigned int v);
-    void setValue(float v);
-    void setValue(const Color3& v);
-    void setValue(const Vector4& v);
-    void setValue(void* v);
+    /// Return the flags for this attribute.
+    int32_t getFlags() const;
 
     /// Return true if this is an input attribute.
     bool isInput() const;
@@ -56,6 +55,10 @@ public:
 
     /// Return true if this attribute is connectable.
     bool isConnectable() const;
+
+    /// Return true if this attribute is connectable
+    /// to the other given attribute.
+    bool isConnectableTo(const RtAttribute& other) const;
 };
 
 }

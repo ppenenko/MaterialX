@@ -6,6 +6,7 @@
 #ifndef MATERIALX_RT_OBJECTDATA_H
 #define MATERIALX_RT_OBJECTDATA_H
 
+#include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtToken.h>
 
 /// @file

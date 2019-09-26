@@ -30,49 +30,9 @@ const RtValue& RtAttribute::getValue() const
     return data()->asA<RtAttributeData>()->getValue();
 }
 
-RtValue& RtAttribute::getValue()
+int32_t RtAttribute::getFlags() const
 {
-    return data()->asA<RtAttributeData>()->getValue();
-}
-
-void RtAttribute::setValue(const RtValue& v)
-{
-    data()->asA<RtAttributeData>()->getValue() = v;
-}
-
-void RtAttribute::setValue(bool v)
-{
-    data()->asA<RtAttributeData>()->getValue().asBool() = v;
-}
-
-void RtAttribute::setValue(int v)
-{
-    data()->asA<RtAttributeData>()->getValue().asInt() = v;
-}
-
-void RtAttribute::setValue(unsigned int v)
-{
-    data()->asA<RtAttributeData>()->getValue().asUInt() = v;
-}
-
-void RtAttribute::setValue(float v)
-{
-    data()->asA<RtAttributeData>()->getValue().asFloat() = v;
-}
-
-void RtAttribute::setValue(const Color3& v)
-{
-    data()->asA<RtAttributeData>()->getValue().asColor3() = v;
-}
-
-void RtAttribute::setValue(const Vector4& v)
-{
-    data()->asA<RtAttributeData>()->getValue().asVector4() = v;
-}
-
-void RtAttribute::setValue(void* v)
-{
-    data()->asA<RtAttributeData>()->getValue().asPtr() = v;
+    return data()->asA<RtAttributeData>()->getFlags();
 }
 
 bool RtAttribute::isInput() const
@@ -88,6 +48,11 @@ bool RtAttribute::isOutput() const
 bool RtAttribute::isConnectable() const
 {
     return data()->asA<RtAttributeData>()->isConnectable();
+}
+
+bool RtAttribute::isConnectableTo(const RtAttribute& other) const
+{
+    return data()->asA<RtAttributeData>()->isConnectableTo(other.data()->asA<RtAttributeData>());
 }
 
 }
