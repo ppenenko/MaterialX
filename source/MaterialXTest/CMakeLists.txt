@@ -65,6 +65,7 @@ set_target_properties(
 set (LIBS
     MaterialXCore
     MaterialXFormat
+    MaterialXRuntime
     MaterialXGenShader
     MaterialXGenOsl
     MaterialXGenGlsl
