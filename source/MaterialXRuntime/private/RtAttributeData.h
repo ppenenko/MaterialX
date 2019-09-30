@@ -110,13 +110,6 @@ public:
         return _flags & RtAttrFlag::CONNECTABLE;
     }
 
-    bool isConnectableTo(const RtAttributeData* other) const
-    {
-        // TODO: Optimize using direct bit matching
-        return (isConnectable() && other->isConnectable() &&
-            (isInput() && other->isOutput() || isOutput() && other->isInput()));
-    }
-
     static RtDataHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
     {
         return std::make_shared<RtAttributeData>(name, type, value, flags);

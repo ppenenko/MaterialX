@@ -95,11 +95,6 @@ bool RtAttribute::isConnectable() const
     return data()->asA<RtAttributeData>()->isConnectable();
 }
 
-bool RtAttribute::isConnectableTo(const RtAttribute& other) const
-{
-    return data()->asA<RtAttributeData>()->isConnectableTo(other.data()->asA<RtAttributeData>());
-}
-
 RtObject RtAttribute::create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
 {
     return RtApiBase::object(RtAttributeData::create(name, type, value, flags));

@@ -47,4 +47,53 @@ RtPort RtNodeData::getOutputPort(const RtToken& name)
     return attr && attr->isOutput() ? RtPort(shared_from_this(), index) : RtPort();
 }
 
+void RtNodeData::connect(const RtPort& source, const RtPort& dest)
+{
+    if (dest.isConnected())
+    {
+        throw ExceptionRuntimeError("Destination port is already connected");
+    }
+    if (!(source.isOutput() && source.isConnectable()))
+    {
+        throw ExceptionRuntimeError("Source port is not a connectable output");
+    }
+    if (!(dest.isInput() && dest.isConnectable()))
+    {
+        throw ExceptionRuntimeError("Destination port is not a connectable input");
+    }
+
+    RtNodeData* sourceNode = source._data->asA<RtNodeData>();
+    RtNodeData* destNode = dest._data->asA<RtNodeData>();
+    RtPortArray& sourceConnections = sourceNode->_connections[source._index];
+    RtPortArray& destConnections = destNode->_connections[dest._index];
+
+    // Make room for the new source.
+    destConnections.resize(1);
+    destConnections[0] = source;
+    sourceConnections.push_back(dest);
+}
+
+void RtNodeData::disconnect(const RtPort& source, const RtPort& dest)
+{
+    RtNodeData* destNode = dest._data->asA<RtNodeData>();
+    RtPortArray& destConnections = destNode->_connections[dest._index];
+    if (destConnections.size() != 1 || destConnections[0] != source)
+    {
+        throw ExceptionRuntimeError("Given source and destination is not connected");
+    }
+
+    destConnections.clear();
+
+    RtNodeData* sourceNode = source._data->asA<RtNodeData>();
+    RtPortArray& sourceConnections = sourceNode->_connections[source._index];
+    for (auto it = sourceConnections.begin(); it != sourceConnections.end(); ++it)
+    {
+        if (*it == dest)
+        {
+            sourceConnections.erase(it);
+            break;
+        }
+    }
+}
+
 }

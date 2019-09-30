@@ -99,14 +99,13 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtPort add2_in1 = add2.getInputPort("in1");
     mx::RtPort add2_in2 = add2.getInputPort("in2");
     mx::RtPort add2_out = add2.getOutputPort("out");
-    REQUIRE(!add1_in1.isConnectableTo(add1_in1));
-    REQUIRE(!add1_in1.isConnectableTo(add1_in2));
-    REQUIRE(!add1_in1.isConnectableTo(add1_out));
-    REQUIRE(!add1_in1.isConnectableTo(add2_in1));
-    REQUIRE(!add1_out.isConnectableTo(add2_out));
-    REQUIRE(add1_out.isConnectableTo(add2_in1));
-    REQUIRE(add1_in1.isConnectableTo(add2_out));
 
-    add1_out.connectTo(add2_in1);
-    
+    mx::RtNode::connect(add1_out, add2_in1);
+    REQUIRE(add1_out.isConnected());
+    REQUIRE(add2_in1.isConnected());
+    REQUIRE_THROWS(mx::RtNode::connect(add1_out, add2_in1));
+
+    mx::RtNode::disconnect(add1_out, add2_in1);
+    REQUIRE(!add1_out.isConnected());
+    REQUIRE(!add2_in1.isConnected());
 }

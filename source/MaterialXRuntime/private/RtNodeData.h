@@ -37,6 +37,10 @@ public:
     RtPort getInputPort(const RtToken& name);
     RtPort getOutputPort(const RtToken& name);
 
+    static void connect(const RtPort& source, const RtPort& dest);
+
+    static void disconnect(const RtPort& source, const RtPort& dest);
+
 protected:
     // Short syntax getter for convenience.
     RtNodeDefData* nodedef() { return (RtNodeDefData*)_nodedef.get(); }
@@ -44,7 +48,7 @@ protected:
 
     RtDataHandle _nodedef;
     vector<RtValue> _values;
-    vector<RtPort> _connections;
+    vector<RtPortArray> _connections;
     friend class RtPort;
 };
 

@@ -12,6 +12,11 @@
 namespace MaterialX
 {
 
+namespace
+{
+    static const RtPortArray EMPTY_PORT_ARRAY;
+}
+
 RtPort::RtPort() :
     _data(nullptr),
     _index(RtNodeDefData::INVALID_INDEX)
@@ -67,19 +72,6 @@ bool RtPort::isConnectable() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
     return node->nodedef()->attribute(_index)->isConnectable();
-}
-
-bool RtPort::isConnectableTo(const RtPort& other) const
-{
-    if (_data == other._data)
-    {
-        return false;
-    }
-    RtNodeData* thisNode = _data->asA<RtNodeData>();
-    RtNodeData* otherNode = (RtNodeData*)other._data.get();
-    const RtAttributeData* thisAttr = thisNode->nodedef()->attribute(_index);
-    const RtAttributeData* otherAttr = otherNode->nodedef()->attribute(other._index);
-    return thisAttr->isConnectableTo(otherAttr);
 }
 
 const RtValue& RtPort::getValue() const
@@ -142,45 +134,50 @@ void RtPort::setValue(void* v)
     node->_values[_index].asPtr() = v;
 }
 
-void RtPort::connectTo(RtPort& other)
-{
-    if (_data == other._data)
-    {
-        throw ExceptionRuntimeError("Connecting a node to itself is not allowed");
-    }
-    if (!isConnectableTo(other))
-    {
-        throw ExceptionRuntimeError("Ports are not connectable");
-    }
-
-    RtNodeData* thisNode = _data->asA<RtNodeData>();
-    RtNodeData* otherNode = (RtNodeData*)other._data.get();
-
-    // Break any existing connections.
-    other.disconnect();
-    this->disconnect();
-
-    // Make new connections.
-    thisNode->_connections[_index] = other;
-    otherNode->_connections[other._index] = *this;
-}
-
-void RtPort::disconnect()
+bool RtPort::isConnected() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    RtPort& other = node->_connections[_index];
-    if (other.isValid())
-    {
-        RtNodeData* otherNode = (RtNodeData*)other._data.get();
-        otherNode->_connections[other._index] = RtPort();
-        other = RtPort();
-    }
+    return !node->_connections[_index].empty();
+}
+
+RtPort RtPort::getConnectionSource() const
+{
+    RtNodeData* node = _data->asA<RtNodeData>();
+    const RtPortArray& connections = node->_connections[_index];
+    return connections.size() ? connections[0] : RtPort();
+}
+
+const RtPortArray& RtPort::getConnectionDestinations() const
+{
+    RtNodeData* node = _data->asA<RtNodeData>();
+    const RtPortArray& connections = node->_connections[_index];
+    return connections.size() ? connections : EMPTY_PORT_ARRAY;
 }
 
 
 RtNode::RtNode(const RtObject& obj) :
     RtElement(obj)
 {
+}
+
+RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject stage)
+{
+    if (!nodedef.hasApi(RtApiType::NODEDEF))
+    {
+        throw ExceptionRuntimeError("Given object is not a valid nodedef");
+    }
+    if (!stage.hasApi(RtApiType::STAGE))
+    {
+        throw ExceptionRuntimeError("Given object is not a valid stage");
+    }
+
+    RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
+    // TODO: Check if name exists
+
+    RtDataHandle node = RtNodeData::create(name, RtApiBase::data(nodedef));
+    stagedata->addNode(node);
+
+    return RtApiBase::object(node);
 }
 
 RtApiType RtNode::getApiType() const
@@ -203,24 +200,14 @@ RtPort RtNode::getOutputPort(const RtToken& name) const
     return data()->asA<RtNodeData>()->getOutputPort(name);
 }
 
-RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject stage)
+void RtNode::connect(const RtPort& source, const RtPort& dest)
 {
-    if (!nodedef.hasApi(RtApiType::NODEDEF))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid nodedef");
-    }
-    if (!stage.hasApi(RtApiType::STAGE))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
-    }
+    RtNodeData::connect(source, dest);
+}
 
-    RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
-    // TODO: Check if name exists
-
-    RtDataHandle node = RtNodeData::create(name, RtApiBase::data(nodedef));
-    stagedata->addNode(node);
-
-    return RtApiBase::object(node);
+void RtNode::disconnect(const RtPort& source, const RtPort& dest)
+{
+    RtNodeData::disconnect(source, dest);
 }
 
 }

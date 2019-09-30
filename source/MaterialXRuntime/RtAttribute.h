@@ -69,10 +69,6 @@ public:
     /// Return true if this attribute is connectable.
     bool isConnectable() const;
 
-    /// Return true if this attribute is connectable
-    /// to the other given attribute.
-    bool isConnectableTo(const RtAttribute& other) const;
-
     /// Create a new attribute
     static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 };
