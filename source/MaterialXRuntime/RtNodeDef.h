@@ -31,14 +31,18 @@ public:
     /// Return the node category.
     const RtToken& getCategory() const;
 
-    /// Add a new attribute.
-    RtAttribute addAttribute(const RtToken& name, const RtToken& type,
-                             uint32_t flags = RtAttrFlag::INPUT | RtAttrFlag::CONNECTABLE,
-                             const RtValue& value = RtValue());
+    /// Add an attribute.
+    void RtNodeDef::addAttribute(RtObject attr);
 
     /// Return an attribute by name, or a null object
     /// if no such attribute exists.
-    RtAttribute getAttribute(const RtToken& name) const;
+    RtObject getAttribute(const RtToken& name) const;
+
+    /// Return the attribute count.
+    size_t numAttributes() const;
+
+    /// Create a new nodedef on the given stage.
+    static RtObject create(const RtToken& name, const RtToken& category, RtObject stage);
 };
 
 }

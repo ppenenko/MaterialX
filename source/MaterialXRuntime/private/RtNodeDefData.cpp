@@ -20,14 +20,9 @@ RtNodeDefData::RtNodeDefData(const RtToken& name, const RtToken& category) :
 {
 }
 
-RtNodeDefData::~RtNodeDefData()
+RtDataHandle RtNodeDefData::create(const RtToken& name, const RtToken& category)
 {
-    for (RtAttributeData* a : _attributes)
-    {
-        delete a;
-    }
-    _attributes.clear();
-    _attributesByName.clear();
+    return std::make_shared<RtNodeDefData>(name, category);
 }
 
 }

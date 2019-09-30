@@ -23,26 +23,27 @@ class RtNodeDefData : public RtElementData
 public:
     RtNodeDefData(const RtToken& name, const RtToken& category);
 
-    ~RtNodeDefData();
+    static RtDataHandle create(const RtToken& name, const RtToken& category);
 
     const RtToken& getCategory() const
     {
         return _category;
     }
 
-    const RtAttributeData* addAttribute(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
+    void addAttribute(RtDataHandle attr)
     {
-        auto it = _attributesByName.find(name);
+        if (!attr->hasApi(RtApiType::ATTRIBUTE))
+        {
+            throw ExceptionRuntimeError("Given object is not a valid attribute");
+        }
+        RtAttributeData* a = attr->asA<RtAttributeData>();
+        auto it = _attributesByName.find(a->getName());
         if (it != _attributesByName.end())
         {
-            throw ExceptionRuntimeError("An attribute named '" + name + "' already exists for nodedef '" + getName() + "'");
+            throw ExceptionRuntimeError("An attribute named '" + a->getName() + "' already exists for nodedef '" + getName() + "'");
         }
-
-        RtAttributeData* attr = new RtAttributeData(name, type, value, flags);
-        _attributesByName[name] = _attributes.size();
+        _attributesByName[a->getName()] = _attributes.size();
         _attributes.push_back(attr);
-
-        return attr;
     }
 
     size_t numAttributes() const
@@ -50,15 +51,15 @@ public:
         return _attributes.size();
     }
 
-    const RtAttributeData* getAttribute(const RtToken& name) const
+    RtDataHandle getAttribute(const RtToken& name) const
     {
         auto it = _attributesByName.find(name);
         return it != _attributesByName.end() ? _attributes[it->second] : nullptr;
     }
 
-    const RtAttributeData* getAttribute(size_t index) const
+    RtDataHandle getAttribute(size_t index) const
     {
-        return _attributes.size() < index ? _attributes[index] : nullptr;
+        return index < _attributes.size() ? _attributes[index] : nullptr;
     }
 
     size_t getAttributeIndex(const RtToken& name) const
@@ -70,9 +71,15 @@ public:
     static const size_t INVALID_INDEX;
 
 protected:
+    // Short syntax attribute getters for convenience.
+    inline RtAttributeData* attribute(const RtToken& name) { return (RtAttributeData*)getAttribute(name).get(); }
+    inline RtAttributeData* attribute(size_t index) { return (RtAttributeData*)getAttribute(index).get(); }
+
     RtToken _category;
-    vector<RtAttributeData*> _attributes;
-    std::unordered_map<RtToken, size_t> _attributesByName;
+    RtDataHandleArray _attributes;
+    RtDataHandleNameMap _attributesByName;
+    friend class RtNodeData;
+    friend class RtPort;
 };
 
 }

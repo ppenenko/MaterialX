@@ -35,12 +35,12 @@ bool RtObject::isValid() const
 
 RtObjType RtObject::getObjType() const
 {
-    return _data->getObjType();
+    return _data ? _data->getObjType() : RtObjType::INVALID;
 }
 
-bool RtObject::hasApi(RtObjType type) const
+bool RtObject::hasApi(RtApiType type) const
 {
-    return type == _data->getObjType();
+    return _data && _data->hasApi(type);
 }
 
 
@@ -82,11 +82,6 @@ bool RtApiBase::isValid() const
 void RtApiBase::setData(RtDataHandle data)
 {
     _data = data && isSupported(data->getObjType()) ? data : nullptr;
-}
-
-RtObject RtApiBase::object(RtDataHandle data)
-{
-    return RtObject(data);
 }
 
 }

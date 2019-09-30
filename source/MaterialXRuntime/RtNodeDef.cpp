@@ -8,6 +8,7 @@
 #include <MaterialXRuntime/RtObject.h>
 
 #include <MaterialXRuntime/private/RtNodeDefData.h>
+#include <MaterialXRuntime/private/RtStageData.h>
 
 namespace MaterialX
 {
@@ -22,18 +23,42 @@ RtApiType RtNodeDef::getApiType() const
     return RtApiType::NODEDEF;
 }
 
-RtAttribute RtNodeDef::addAttribute(const RtToken& name, const RtToken& type, uint32_t flags, const RtValue& value)
+const RtToken& RtNodeDef::getCategory() const
 {
-    RtNodeDefData* ptr = data()->asA<RtNodeDefData>();
-    const RtAttributeData* newAttr = ptr->addAttribute(name, type, value, flags);
-    return RtApiBase::api<RtAttribute>(const_cast<RtAttributeData*>(newAttr));
+    return data()->asA<RtNodeDefData>()->getCategory();
 }
 
-RtAttribute RtNodeDef::getAttribute(const RtToken& name) const
+void RtNodeDef::addAttribute(RtObject attr)
 {
-    RtNodeDefData* ptr = data()->asA<RtNodeDefData>();
-    const RtAttributeData* attr = ptr->getAttribute(name);
-    return RtApiBase::api<RtAttribute>(const_cast<RtAttributeData*>(attr));
+    RtNodeDefData* nodedef = data()->asA<RtNodeDefData>();
+    nodedef->addAttribute(RtApiBase::data(attr));
+}
+
+RtObject RtNodeDef::getAttribute(const RtToken& name) const
+{
+    RtNodeDefData* nodedef = data()->asA<RtNodeDefData>();
+    return RtApiBase::object(nodedef->getAttribute(name));
+}
+
+size_t RtNodeDef::numAttributes() const
+{
+    return data()->asA<RtNodeDefData>()->numAttributes();
+}
+
+RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObject stage)
+{
+    if (!stage.hasApi(RtApiType::STAGE))
+    {
+        throw ExceptionRuntimeError("Given object is not a valid stage");
+    }
+
+    RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
+    // TODO: Check if name exists
+
+    RtDataHandle nodedef = RtNodeDefData::create(name, category);
+    stagedata->addNodeDef(nodedef);
+
+    return RtApiBase::object(nodedef);
 }
 
 }

@@ -45,6 +45,51 @@ public:
         return _value;
     }
 
+    RtValue& getValue()
+    {
+        return _value;
+    }
+
+    void setValue(const RtValue& v)
+    {
+        _value = v;
+    }
+
+    void setValue(bool v)
+    {
+        _value.asBool() = v;
+    }
+
+    void setValue(int v)
+    {
+        _value.asInt() = v;
+    }
+
+    void setValue(unsigned int v)
+    {
+        _value.asUInt() = v;
+    }
+
+    void setValue(float v)
+    {
+        _value.asFloat() = v;
+    }
+
+    void setValue(const Color3& v)
+    {
+        _value.asColor3() = v;
+    }
+
+    void setValue(const Vector4& v)
+    {
+        _value.asVector4() = v;
+    }
+
+    void setValue(void* v)
+    {
+        _value.asPtr() = v;
+    }
+
     uint32_t getFlags() const
     {
         return _flags;
@@ -70,6 +115,11 @@ public:
         // TODO: Optimize using direct bit matching
         return (isConnectable() && other->isConnectable() &&
             (isInput() && other->isOutput() || isOutput() && other->isInput()));
+    }
+
+    static RtDataHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
+    {
+        return std::make_shared<RtAttributeData>(name, type, value, flags);
     }
 
 protected:

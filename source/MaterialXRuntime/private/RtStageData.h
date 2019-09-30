@@ -7,9 +7,6 @@
 #define MATERIALX_RT_STAGEDATA_H
 
 #include <MaterialXRuntime/private/RtElementData.h>
-#include <MaterialXRuntime/private/RtNodeDefData.h>
-
-#include <MaterialXRuntime/RtObject.h>
 
 /// @file
 /// TODO: Docs
@@ -20,33 +17,21 @@ namespace MaterialX
 class RtStageData : public RtElementData
 {
 public:
-    RtStageData(const RtToken& name) :
-        RtElementData(RtObjType::STAGE, name)
-    {
-    }
+    RtStageData(const RtToken& name);
 
-    RtNodeDefData* addNodeDef(const RtToken& name, const RtToken& category)
-    {
-        auto it = _nodedefsByName.find(name);
-        if (it != _nodedefsByName.end())
-        {
-            throw ExceptionRuntimeError("An nodedef named '" + name + "' already exists for stage '" + getName() + "'");
-        }
+    void addNodeDef(RtDataHandle nodedef);
+    void addNode(RtDataHandle node);
 
-        _nodedefsByName[name] = _nodedefs.size();
-        _nodedefs.push_back(RtNodeDefData(name, category));
-        return &_nodedefs.back();
-    }
+    void clear();
 
-    void clear()
-    {
-        _nodedefs.clear();
-        _nodedefsByName.clear();
-    }
+    static RtDataHandle create(const RtToken& name);
 
 protected:
-    vector<RtNodeDefData> _nodedefs;
-    std::unordered_map<RtToken, size_t> _nodedefsByName;
+    RtDataHandleArray _nodedefs;
+    RtDataHandleNameMap _nodedefsByName;
+
+    RtDataHandleArray _nodes;
+    RtDataHandleNameMap _nodesByName;
 };
 
 }

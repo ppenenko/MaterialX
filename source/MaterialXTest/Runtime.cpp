@@ -13,6 +13,8 @@
 
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtStage.h>
+#include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtNode.h>
 
 #include <cstdlib>
 #include <fstream>
@@ -53,30 +55,58 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(ptr.asPtr() == (void*)0);
 }
 
-TEST_CASE("Runtime: NodeDef", "[runtime]")
+TEST_CASE("Runtime: Nodes", "[runtime]")
 {
     mx::RtStage stage = mx::RtStage::create("root");
-    mx::RtNodeDef nodeDef = stage.addNodeDef("ND_add_float", "add");
 
-    mx::RtAttribute out = nodeDef.addAttribute("out", "float", mx::RtAttrFlag::OUTPUT | mx::RtAttrFlag::CONNECTABLE);
-    mx::RtAttribute in1 = nodeDef.addAttribute("in1", "float", mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
-    mx::RtAttribute in2 = nodeDef.addAttribute("in2", "float", mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
+    mx::RtObject nodedefObj = mx::RtNodeDef::create("ND_add_float", "add", stage.getObject());
+    REQUIRE(nodedefObj.hasApi(mx::RtApiType::NODEDEF));
+    mx::RtNodeDef nodedef(nodedefObj);
+
+    mx::RtAttribute in1 = mx::RtAttribute::create("in1", "float", mx::RtValue(1.0f), mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
+    mx::RtAttribute in2 = mx::RtAttribute::create("in2", "float", mx::RtValue(42.0f), mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
+    mx::RtAttribute out = mx::RtAttribute::create("out", "float", mx::RtValue(0.0f), mx::RtAttrFlag::OUTPUT | mx::RtAttrFlag::CONNECTABLE);
     REQUIRE(out.isValid());
     REQUIRE(out.getType() == "float");
     REQUIRE(out.getValue().asFloat() == 0.0f);
 
-    mx::RtAttribute foo = nodeDef.getAttribute("foo");
-    REQUIRE(!foo.isValid());
+    nodedef.addAttribute(in1.getObject());
+    nodedef.addAttribute(in2.getObject());
+    nodedef.addAttribute(out.getObject());
+    REQUIRE(nodedef.numAttributes() == 3);
 
-    mx::RtAttribute tmp = nodeDef.getAttribute("in1");
+    mx::RtAttribute fooAttr = nodedef.getAttribute("foo");
+    REQUIRE(!fooAttr.isValid());
+
+    mx::RtAttribute tmp = nodedef.getAttribute("in1");
     REQUIRE(tmp.isValid());
     REQUIRE(tmp == in1);
     REQUIRE(tmp.getObject() == in1.getObject());
 
+    in1.setValue(7.0f);
+    REQUIRE(in1.getValue().asFloat() == 7.0f);
 
+    REQUIRE_THROWS(mx::RtNode::create("foo", mx::RtObject(), stage.getObject()));
 
-    in1.setValue(42.0f);
-    REQUIRE(in1.getValue().asFloat() == 42.0f);
+    mx::RtNode add1 = mx::RtNode::create("add1", nodedef.getObject(), stage.getObject());
+    mx::RtNode add2 = mx::RtNode::create("add2", nodedef.getObject(), stage.getObject());
+    REQUIRE(add1.isValid());
+    REQUIRE(add2.isValid());
 
-    in1.addMetaData("uiName", "string", mx::RtValue());
+    mx::RtPort add1_in1 = add1.getInputPort("in1");
+    mx::RtPort add1_in2 = add1.getInputPort("in2");
+    mx::RtPort add1_out = add1.getOutputPort("out");
+    mx::RtPort add2_in1 = add2.getInputPort("in1");
+    mx::RtPort add2_in2 = add2.getInputPort("in2");
+    mx::RtPort add2_out = add2.getOutputPort("out");
+    REQUIRE(!add1_in1.isConnectableTo(add1_in1));
+    REQUIRE(!add1_in1.isConnectableTo(add1_in2));
+    REQUIRE(!add1_in1.isConnectableTo(add1_out));
+    REQUIRE(!add1_in1.isConnectableTo(add2_in1));
+    REQUIRE(!add1_out.isConnectableTo(add2_out));
+    REQUIRE(add1_out.isConnectableTo(add2_in1));
+    REQUIRE(add1_in1.isConnectableTo(add2_out));
+
+    add1_out.connectTo(add2_in1);
+    
 }

@@ -9,6 +9,8 @@
 #include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
 
+#include <memory>
+
 /// @file
 /// TODO: Docs
 
@@ -18,12 +20,25 @@ namespace MaterialX
 class RtObjectData;
 
 // A handle to private data
-using RtDataHandle = RtObjectData*;
+// TODO: implement a custom refcounted handle class
+using RtDataHandle = std::shared_ptr<RtObjectData>;
 
 /// Type identifiers for scene objects.
 enum class RtObjType
 {
     INVALID,
+    ATTRIBUTE,
+    NODEDEF,
+    NODE,
+    NODEGRAPH,
+    STAGE,
+    NUM_TYPES
+};
+
+/// Type identifiers for API attachable to objects.
+enum class RtApiType
+{
+    ELEMENT,
     ATTRIBUTE,
     NODEDEF,
     NODE,
@@ -50,7 +65,7 @@ public:
     RtObjType getObjType() const;
 
     /// Query if the given API type is supported by this object.
-    bool hasApi(RtObjType type) const;
+    bool hasApi(RtApiType type) const;
 
     /// Return true if the object is valid.
     bool isValid() const;
@@ -68,24 +83,10 @@ public:
     }
 
 private:
-    RtDataHandle _data;
-
     RtObject(RtDataHandle data);
 
+    RtDataHandle _data;
     friend class RtApiBase;
-};
-
-
-/// Type identifiers for API attachable to objects.
-enum class RtApiType
-{
-    ELEMENT,
-    ATTRIBUTE,
-    NODEDEF,
-    NODE,
-    NODEGRAPH,
-    STAGE,
-    NUM_TYPES
 };
 
 class RtApiBase
@@ -141,28 +142,25 @@ protected:
     /// Copy constructor.
     RtApiBase(const RtApiBase& other);
 
-    /// Set data for the API.
+    /// Set data for this API.
     void setData(RtDataHandle data);
 
-    /// Return data set for the API.
+    /// Return data set for this API.
     RtDataHandle data() { return _data; }
 
-    /// Return data set for the API.
+    /// Return data set for this API.
     const RtDataHandle data() const { return _data; }
 
-    /// Construct an object from a data handle.
-    static RtObject object(RtDataHandle data);
+    /// Return data for a given object.
+    static const RtDataHandle data(RtObject obj) { return obj._data; }
 
-    /// Construct a templated API from a data handle.
-    template<typename T>
-    static T api(RtDataHandle data)
-    {
-        return T(RtApiBase::object(data));
-    }
+    /// Construct an object from a data handle.
+    static RtObject object(RtDataHandle data) { return RtObject(data); }
 
 private:
     /// Internal data attached to the API.
     RtDataHandle _data;
+    friend class RtPort;
 };
 
 }

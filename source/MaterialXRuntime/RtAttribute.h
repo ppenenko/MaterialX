@@ -44,6 +44,19 @@ public:
     /// Return the value for this attribute.
     const RtValue& getValue() const;
 
+    /// Return the value for this attribute.
+    RtValue& getValue();
+
+    /// Set a new value on the attribute.
+    void setValue(const RtValue& v);
+    void setValue(bool v);
+    void setValue(int v);
+    void setValue(unsigned int v);
+    void setValue(float v);
+    void setValue(const Color3& v);
+    void setValue(const Vector4& v);
+    void setValue(void* v);
+
     /// Return the flags for this attribute.
     int32_t getFlags() const;
 
@@ -59,6 +72,9 @@ public:
     /// Return true if this attribute is connectable
     /// to the other given attribute.
     bool isConnectableTo(const RtAttribute& other) const;
+
+    /// Create a new attribute
+    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 };
 
 }

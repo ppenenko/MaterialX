@@ -27,10 +27,7 @@ public:
     RtApiType getApiType() const override;
 
     /// Create a new empty stage.
-    static RtStage create(const RtToken& name);
-
-    /// Add a nodedef to this stage.
-    RtNodeDef addNodeDef(const RtToken& name, const RtToken& category);
+    static RtObject create(const RtToken& name);
 
     /// Clear the stage from all contents,
     /// deallocating all of its contained data.

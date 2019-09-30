@@ -20,16 +20,9 @@ RtApiType RtStage::getApiType() const
     return RtApiType::STAGE;
 }
 
-RtStage RtStage::create(const RtToken& name)
+RtObject RtStage::create(const RtToken& name)
 {
-    return RtApiBase::api<RtStage>(new RtStageData(name));
-}
-
-RtNodeDef RtStage::addNodeDef(const RtToken& name, const RtToken& category)
-{
-    RtStageData* ptr = data()->asA<RtStageData>();
-    RtNodeDefData* newNodeDef = ptr->addNodeDef(name, category);
-    return RtApiBase::api<RtNodeDef>(newNodeDef);
+    return RtApiBase::object( RtStageData::create(name) );
 }
 
 void RtStage::clear()

@@ -30,6 +30,51 @@ const RtValue& RtAttribute::getValue() const
     return data()->asA<RtAttributeData>()->getValue();
 }
 
+RtValue& RtAttribute::getValue()
+{
+    return data()->asA<RtAttributeData>()->getValue();
+}
+
+void RtAttribute::setValue(const RtValue& v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(bool v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(int v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(unsigned int v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(float v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(const Color3& v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(const Vector4& v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
+void RtAttribute::setValue(void* v)
+{
+    return data()->asA<RtAttributeData>()->setValue(v);
+}
+
 int32_t RtAttribute::getFlags() const
 {
     return data()->asA<RtAttributeData>()->getFlags();
@@ -53,6 +98,11 @@ bool RtAttribute::isConnectable() const
 bool RtAttribute::isConnectableTo(const RtAttribute& other) const
 {
     return data()->asA<RtAttributeData>()->isConnectableTo(other.data()->asA<RtAttributeData>());
+}
+
+RtObject RtAttribute::create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
+{
+    return RtApiBase::object(RtAttributeData::create(name, type, value, flags));
 }
 
 }
