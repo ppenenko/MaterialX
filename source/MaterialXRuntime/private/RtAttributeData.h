@@ -6,7 +6,7 @@
 #ifndef MATERIALX_RT_ATTRIBUTEDATA_H
 #define MATERIALX_RT_ATTRIBUTEDATA_H
 
-#include <MaterialXRuntime/private/RtElementData.h>
+#include <MaterialXRuntime/private/RtObjectData.h>
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtAttribute.h>
@@ -18,21 +18,22 @@
 namespace MaterialX
 {
 
-class RtAttributeData : public RtElementData
+class RtAttributeData : public RtObjectData
 {
 public:
-    RtAttributeData() :
-        RtElementData(RtObjType::ATTRIBUTE),
-        _flags(0)
+    RtAttributeData();
+    RtAttributeData(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+
+    static RtDataHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+
+    const RtToken& getName() const
     {
+        return _name;
     }
 
-    RtAttributeData(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags) :
-        RtElementData(RtObjType::ATTRIBUTE, name),
-        _type(type),
-        _value(value),
-        _flags(flags)
+    void setName(const RtToken& name)
     {
+        _name = name;
     }
 
     const RtToken& getType() const
@@ -110,12 +111,8 @@ public:
         return _flags & RtAttrFlag::CONNECTABLE;
     }
 
-    static RtDataHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
-    {
-        return std::make_shared<RtAttributeData>(name, type, value, flags);
-    }
-
 protected:
+    RtToken _name;
     RtToken _type;
     RtValue _value;
     uint32_t _flags;

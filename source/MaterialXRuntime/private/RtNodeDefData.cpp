@@ -25,4 +25,21 @@ RtDataHandle RtNodeDefData::create(const RtToken& name, const RtToken& category)
     return std::make_shared<RtNodeDefData>(name, category);
 }
 
+void RtNodeDefData::addPortDef(RtDataHandle attr)
+{
+    if (!attr->hasApi(RtApiType::ATTRIBUTE))
+    {
+        throw ExceptionRuntimeError("Given object is not a valid attribute");
+    }
+    RtAttributeData* a = attr->asA<RtAttributeData>();
+    auto it = _portdefsByName.find(a->getName());
+    if (it != _portdefsByName.end())
+    {
+        throw ExceptionRuntimeError("A port named '" + a->getName() + "' already exists for nodedef '" + getName() + "'");
+    }
+    _portdefsByName[a->getName()] = _portdefs.size();
+    _portdefs.push_back(attr);
+}
+
+
 }

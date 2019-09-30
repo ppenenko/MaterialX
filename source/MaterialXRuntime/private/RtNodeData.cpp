@@ -15,14 +15,14 @@ RtNodeData::RtNodeData(const RtToken& name, const RtDataHandle& nd) :
     RtElementData(RtObjType::NODE, name),
     _nodedef(nd)
 {
-    const size_t numAttr = nodedef()->numAttributes();
-    _values.resize(numAttr);
-    _connections.resize(numAttr);
+    const size_t numPorts = nodedef()->numPorts();
+    _values.resize(numPorts);
+    _connections.resize(numPorts);
 
     // Set default values
-    for (size_t i = 0; i < numAttr; ++i)
+    for (size_t i = 0; i < numPorts; ++i)
     {
-        _values[i] = nodedef()->attribute(i)->getValue();
+        _values[i] = nodedef()->portdef(i)->getValue();
     }
 }
 
@@ -31,20 +31,19 @@ RtDataHandle RtNodeData::create(const RtToken& name, const RtDataHandle& nodedef
     return std::make_shared<RtNodeData>(name, nodedef);
 }
 
-RtPort RtNodeData::getInputPort(const RtToken& name)
+RtPort RtNodeData::getPort(size_t index)
 {
     RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
-    const size_t index = nodedef->getAttributeIndex(name);
-    RtAttributeData* attr = nodedef->getAttribute(index)->asA<RtAttributeData>();
-    return attr && attr->isInput() ? RtPort(shared_from_this(), index) : RtPort();
+    RtAttributeData* portdef = nodedef->portdef(index);
+    return portdef ? RtPort(shared_from_this(), index) : RtPort();
 }
 
-RtPort RtNodeData::getOutputPort(const RtToken& name)
+RtPort RtNodeData::getPort(const RtToken& name)
 {
     RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
-    const size_t index = nodedef->getAttributeIndex(name);
-    RtAttributeData* attr = nodedef->getAttribute(index)->asA<RtAttributeData>();
-    return attr && attr->isOutput() ? RtPort(shared_from_this(), index) : RtPort();
+    const size_t index = nodedef->getPortIndex(name);
+    RtAttributeData* portdef = nodedef->portdef(index);
+    return portdef ? RtPort(shared_from_this(), index) : RtPort();
 }
 
 void RtNodeData::connect(const RtPort& source, const RtPort& dest)

@@ -34,8 +34,13 @@ public:
         return nodedef()->getCategory();
     }
 
-    RtPort getInputPort(const RtToken& name);
-    RtPort getOutputPort(const RtToken& name);
+    size_t numPorts() const
+    {
+        return nodedef()->numPorts();
+    }
+
+    RtPort getPort(size_t index);
+    RtPort getPort(const RtToken& name);
 
     static void connect(const RtPort& source, const RtPort& dest);
 

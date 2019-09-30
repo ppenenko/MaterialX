@@ -70,7 +70,7 @@ public:
     bool isConnectable() const;
 
     /// Create a new attribute
-    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags = 0);
 };
 
 }

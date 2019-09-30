@@ -63,6 +63,10 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(nodedefObj.hasApi(mx::RtApiType::NODEDEF));
     mx::RtNodeDef nodedef(nodedefObj);
 
+    mx::RtAttribute attr = mx::RtAttribute::create("custom", "string", mx::RtValue());
+    nodedef.addAttribute(attr.getObject());
+    REQUIRE(nodedef.numAttributes() == 1);
+
     mx::RtAttribute in1 = mx::RtAttribute::create("in1", "float", mx::RtValue(1.0f), mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
     mx::RtAttribute in2 = mx::RtAttribute::create("in2", "float", mx::RtValue(42.0f), mx::RtAttrFlag::INPUT | mx::RtAttrFlag::CONNECTABLE);
     mx::RtAttribute out = mx::RtAttribute::create("out", "float", mx::RtValue(0.0f), mx::RtAttrFlag::OUTPUT | mx::RtAttrFlag::CONNECTABLE);
@@ -70,18 +74,17 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(out.getType() == "float");
     REQUIRE(out.getValue().asFloat() == 0.0f);
 
-    nodedef.addAttribute(in1.getObject());
-    nodedef.addAttribute(in2.getObject());
-    nodedef.addAttribute(out.getObject());
-    REQUIRE(nodedef.numAttributes() == 3);
+    nodedef.addPortDef(in1.getObject());
+    nodedef.addPortDef(in2.getObject());
+    nodedef.addPortDef(out.getObject());
+    REQUIRE(nodedef.numPorts() == 3);
 
-    mx::RtAttribute fooAttr = nodedef.getAttribute("foo");
+    mx::RtAttribute fooAttr = nodedef.getPortDef("foo");
     REQUIRE(!fooAttr.isValid());
 
-    mx::RtAttribute tmp = nodedef.getAttribute("in1");
+    mx::RtAttribute tmp = nodedef.getPortDef("in1");
     REQUIRE(tmp.isValid());
     REQUIRE(tmp == in1);
-    REQUIRE(tmp.getObject() == in1.getObject());
 
     in1.setValue(7.0f);
     REQUIRE(in1.getValue().asFloat() == 7.0f);
@@ -93,12 +96,12 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add1.isValid());
     REQUIRE(add2.isValid());
 
-    mx::RtPort add1_in1 = add1.getInputPort("in1");
-    mx::RtPort add1_in2 = add1.getInputPort("in2");
-    mx::RtPort add1_out = add1.getOutputPort("out");
-    mx::RtPort add2_in1 = add2.getInputPort("in1");
-    mx::RtPort add2_in2 = add2.getInputPort("in2");
-    mx::RtPort add2_out = add2.getOutputPort("out");
+    mx::RtPort add1_in1 = add1.getPort("in1");
+    mx::RtPort add1_in2 = add1.getPort("in2");
+    mx::RtPort add1_out = add1.getPort("out");
+    mx::RtPort add2_in1 = add2.getPort("in1");
+    mx::RtPort add2_in2 = add2.getPort("in2");
+    mx::RtPort add2_out = add2.getPort("out");
 
     mx::RtNode::connect(add1_out, add2_in1);
     REQUIRE(add1_out.isConnected());
@@ -108,4 +111,9 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtNode::disconnect(add1_out, add2_in1);
     REQUIRE(!add1_out.isConnected());
     REQUIRE(!add2_in1.isConnected());
+
+    mx::RtNode::connect(add1_out, add2_in1);
+    mx::RtNode::connect(add1_out, add2_in2);
+    REQUIRE(add2_in1.getConnectionSource() != mx::RtPort());
+    REQUIRE(add1_out.getConnectionDestinations().size() == 2);
 }

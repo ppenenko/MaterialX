@@ -34,7 +34,7 @@ bool RtPort::isValid() const
     if (_data)
     {
         RtNodeData* node = _data->asA<RtNodeData>();
-        return node->nodedef()->attribute(_index) != nullptr;
+        return node->nodedef()->portdef(_index) != nullptr;
     }
     return false;
 }
@@ -42,7 +42,7 @@ bool RtPort::isValid() const
 const RtToken& RtPort::getName() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    return node->nodedef()->attribute(_index)->getName();
+    return node->nodedef()->portdef(_index)->getName();
 }
 
 RtObject RtPort::getNode() const
@@ -53,25 +53,25 @@ RtObject RtPort::getNode() const
 int32_t RtPort::getFlags() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    return node->nodedef()->attribute(_index)->getFlags();
+    return node->nodedef()->portdef(_index)->getFlags();
 }
 
 bool RtPort::isInput() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    return node->nodedef()->attribute(_index)->isInput();
+    return node->nodedef()->portdef(_index)->isInput();
 }
 
 bool RtPort::isOutput() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    return node->nodedef()->attribute(_index)->isOutput();
+    return node->nodedef()->portdef(_index)->isOutput();
 }
 
 bool RtPort::isConnectable() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    return node->nodedef()->attribute(_index)->isConnectable();
+    return node->nodedef()->portdef(_index)->isConnectable();
 }
 
 const RtValue& RtPort::getValue() const
@@ -190,14 +190,19 @@ const RtToken& RtNode::getCategory() const
     return data()->asA<RtNodeData>()->getCategory();
 }
 
-RtPort RtNode::getInputPort(const RtToken& name) const
+RtPort RtNode::getPort(const RtToken& name) const
 {
-    return data()->asA<RtNodeData>()->getInputPort(name);
+    return data()->asA<RtNodeData>()->getPort(name);
 }
 
-RtPort RtNode::getOutputPort(const RtToken& name) const
+RtPort RtNode::getPort(size_t index) const
 {
-    return data()->asA<RtNodeData>()->getOutputPort(name);
+    return data()->asA<RtNodeData>()->getPort(index);
+}
+
+size_t RtNode::numPorts() const
+{
+    return data()->asA<RtNodeData>()->numPorts();
 }
 
 void RtNode::connect(const RtPort& source, const RtPort& dest)

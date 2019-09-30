@@ -120,13 +120,16 @@ public:
     /// Return the node category for this node.
     const RtToken& getCategory() const;
 
-    /// Return an input port by name, or a null object
-    /// if no such input attribute exists.
-    RtPort getInputPort(const RtToken& name) const;
+    /// Return a port by name, or a null object 
+    /// if no such port exists.
+    RtPort getPort(const RtToken& name) const;
 
-    /// Return an output attribute by name, or a null object
-    /// if no such output attribute exists.
-    RtPort getOutputPort(const RtToken& name) const;
+    /// Return a port by index, or a null object 
+    /// if no such port exists.
+    RtPort getPort(size_t index) const;
+
+    /// Return the port count.
+    size_t numPorts() const;
 
     /// Make a new connection between two ports.
     static void connect(const RtPort& source, const RtPort& dest);

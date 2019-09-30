@@ -30,54 +30,39 @@ public:
         return _category;
     }
 
-    void addAttribute(RtDataHandle attr)
+    void addPortDef(RtDataHandle attr);
+
+    RtDataHandle getPortDef(const RtToken& name) const
     {
-        if (!attr->hasApi(RtApiType::ATTRIBUTE))
-        {
-            throw ExceptionRuntimeError("Given object is not a valid attribute");
-        }
-        RtAttributeData* a = attr->asA<RtAttributeData>();
-        auto it = _attributesByName.find(a->getName());
-        if (it != _attributesByName.end())
-        {
-            throw ExceptionRuntimeError("An attribute named '" + a->getName() + "' already exists for nodedef '" + getName() + "'");
-        }
-        _attributesByName[a->getName()] = _attributes.size();
-        _attributes.push_back(attr);
+        auto it = _portdefsByName.find(name);
+        return it != _portdefsByName.end() ? _portdefs[it->second] : nullptr;
     }
 
-    size_t numAttributes() const
+    RtDataHandle getPortDef(size_t index) const
     {
-        return _attributes.size();
+        return index < _portdefs.size() ? _portdefs[index] : nullptr;
     }
 
-    RtDataHandle getAttribute(const RtToken& name) const
+    size_t numPorts() const
     {
-        auto it = _attributesByName.find(name);
-        return it != _attributesByName.end() ? _attributes[it->second] : nullptr;
+        return _portdefs.size();
     }
 
-    RtDataHandle getAttribute(size_t index) const
+    size_t getPortIndex(const RtToken& name) const
     {
-        return index < _attributes.size() ? _attributes[index] : nullptr;
-    }
-
-    size_t getAttributeIndex(const RtToken& name) const
-    {
-        auto it = _attributesByName.find(name);
-        return it != _attributesByName.end() ? it->second : INVALID_INDEX;
+        auto it = _portdefsByName.find(name);
+        return it != _portdefsByName.end() ? it->second : INVALID_INDEX;
     }
 
     static const size_t INVALID_INDEX;
 
 protected:
-    // Short syntax attribute getters for convenience.
-    inline RtAttributeData* attribute(const RtToken& name) { return (RtAttributeData*)getAttribute(name).get(); }
-    inline RtAttributeData* attribute(size_t index) { return (RtAttributeData*)getAttribute(index).get(); }
+    // Short syntax getter for convenience.
+    inline RtAttributeData* portdef(size_t index) { return (RtAttributeData*)getPortDef(index).get(); }
 
     RtToken _category;
-    RtDataHandleArray _attributes;
-    RtDataHandleNameMap _attributesByName;
+    RtDataHandleArray _portdefs;
+    RtDataHandleNameMap _portdefsByName;
     friend class RtNodeData;
     friend class RtPort;
 };

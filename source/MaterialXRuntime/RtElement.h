@@ -15,14 +15,6 @@
 namespace MaterialX
 {
 
-/// @struct RtMetaData
-/// Meta data attachable to any element.
-struct RtMetaData
-{
-    RtToken type;
-    RtValue value;
-};
-
 /// @class RtElement
 /// TODO: Docs
 class RtElement : public RtApiBase
@@ -40,12 +32,15 @@ public:
     /// Get element name.
     const RtToken& getName() const;
 
-    /// Return meta data of the given name, or nullptr
-    /// if no such data is attached to the element.
-    RtMetaData* getMetaData(const RtToken& name);
+    /// Add an attribute.
+    void addAttribute(RtObject attr);
 
-    /// Attach meta data to the element.
-    RtMetaData* addMetaData(const RtToken& name, const RtToken& type, const RtValue& value);
+    /// Return an attribute by name, or a null object
+    /// if no such attribute exists.
+    RtObject getAttribute(const RtToken& name) const;
+
+    /// Return the attribute count.
+    size_t numAttributes() const;
 };
 
 }

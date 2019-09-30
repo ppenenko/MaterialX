@@ -7,9 +7,9 @@
 #define MATERIALX_RT_ELEMENTDATA_H
 
 #include <MaterialXRuntime/private/RtObjectData.h>
+#include <MaterialXRuntime/private/RtAttributeData.h>
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/RtElement.h>
 
 /// @file
 /// TODO: Docs
@@ -20,24 +20,7 @@ namespace MaterialX
 class RtElementData : public RtObjectData
 {
 public:
-    RtElementData(RtObjType objType) :
-        RtObjectData(objType)
-    {
-    }
-
-    RtElementData(RtObjType objType, const RtToken& name) :
-        RtObjectData(objType),
-        _name(name)
-    {
-    }
-
-    ~RtElementData()
-    {
-        for (auto it : _metaData)
-        {
-            delete it.second;
-        }
-    }
+    RtElementData(RtObjType objType, const RtToken& name);
 
     const RtToken& getName() const
     {
@@ -49,31 +32,26 @@ public:
         _name = name;
     }
 
-    RtMetaData* getMetaData(const RtToken& name)
+    void addAttribute(RtDataHandle attr);
+
+    size_t numAttributes() const
     {
-        auto it = _metaData.find(name);
-        return it != _metaData.end() ? it->second : nullptr;
+        return _attributes.size();
     }
 
-    RtMetaData* addMetaData(const RtToken& name, const RtToken& type, const RtValue& value)
+    RtDataHandle getAttribute(const RtToken& name) const
     {
-        auto it = _metaData.find(name);
-        if (it != _metaData.end())
-        {
-            throw ExceptionRuntimeError("Meta data named '" + name + "' already exists for element '" + getName() + "'");
-        }
-
-        RtMetaData* md = new RtMetaData();
-        md->type = type;
-        md->value = value;
-        _metaData[name] = md;
-
-        return md;
+        auto it = _attributesByName.find(name);
+        return it != _attributesByName.end() ? _attributes[it->second] : nullptr;
     }
 
 protected:
+    // Short syntax attribute getter for convenience.
+    RtAttributeData* attribute(const RtToken& name) { return (RtAttributeData*)getAttribute(name).get(); }
+
     RtToken _name;
-    std::unordered_map<RtToken, RtMetaData*> _metaData;
+    RtDataHandleArray _attributes;
+    RtDataHandleNameMap _attributesByName;
 };
 
 }

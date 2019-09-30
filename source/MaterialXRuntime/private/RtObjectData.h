@@ -10,7 +10,7 @@
 #include <MaterialXRuntime/RtToken.h>
 
 #include <unordered_map>
-#include <set>
+#include <memory>
 
 /// @file
 /// TODO: Docs
@@ -18,23 +18,15 @@
 namespace MaterialX
 {
 
-static const std::set<RtApiType> objToApiRTTI[int(RtObjType::NUM_TYPES)] =
-{
-    {},                                         // INVALID
-    {RtApiType::ELEMENT, RtApiType::ATTRIBUTE}, // ATTRIBUTE
-    {RtApiType::ELEMENT, RtApiType::NODEDEF},   // NODEDEF
-    {RtApiType::ELEMENT, RtApiType::NODE},      // NODE
-    {RtApiType::ELEMENT, RtApiType::NODEGRAPH}, // NODEGRAPH
-    {RtApiType::ELEMENT, RtApiType::STAGE}      // STAGE
-};
+using RtDataHandleArray = vector<RtDataHandle>;
+using RtDataHandleNameMap = std::unordered_map<RtToken, size_t>;
 
 class RtObjectData : public std::enable_shared_from_this<RtObjectData>
 {
 public:
-    RtObjectData(RtObjType type) : 
-        _objType(type)
-    {
-    }
+    RtObjectData(RtObjType type);
+
+    virtual ~RtObjectData();
 
     /// Return the type for this object.
     RtObjType getObjType() const
@@ -43,10 +35,7 @@ public:
     }
 
     /// Query if the given API type is supported by this object.
-    bool hasApi(RtApiType type) const
-    {
-        return objToApiRTTI[int(_objType)].count(type) != 0;
-    }
+    bool hasApi(RtApiType type) const;
 
     /// Casting the object to a given type.
     /// NOTE: no type check if performed so the templated type 
@@ -59,9 +48,6 @@ public:
 protected:
     RtObjType _objType;
 };
-
-using RtDataHandleArray = vector<RtDataHandle>;
-using RtDataHandleNameMap = std::unordered_map<RtToken, size_t>;
 
 }
 

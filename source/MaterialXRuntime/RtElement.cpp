@@ -31,14 +31,21 @@ const RtToken& RtElement::getName() const
     return data()->asA<RtElementData>()->getName();
 }
 
-RtMetaData* RtElement::getMetaData(const RtToken& name)
+void RtElement::addAttribute(RtObject attr)
 {
-    return data()->asA<RtElementData>()->getMetaData(name);
+    RtElementData* elem = data()->asA<RtElementData>();
+    elem->addAttribute(RtApiBase::data(attr));
 }
 
-RtMetaData* RtElement::addMetaData(const RtToken& name, const RtToken& type, const RtValue& value)
+RtObject RtElement::getAttribute(const RtToken& name) const
 {
-    return data()->asA<RtElementData>()->addMetaData(name, type, value);
+    RtElementData* elem = data()->asA<RtElementData>();
+    return RtApiBase::object(elem->getAttribute(name));
+}
+
+size_t RtElement::numAttributes() const
+{
+    return data()->asA<RtElementData>()->numAttributes();
 }
 
 }

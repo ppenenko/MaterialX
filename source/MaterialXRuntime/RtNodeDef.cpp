@@ -18,33 +18,6 @@ RtNodeDef::RtNodeDef(const RtObject& obj) :
 {
 }
 
-RtApiType RtNodeDef::getApiType() const
-{
-    return RtApiType::NODEDEF;
-}
-
-const RtToken& RtNodeDef::getCategory() const
-{
-    return data()->asA<RtNodeDefData>()->getCategory();
-}
-
-void RtNodeDef::addAttribute(RtObject attr)
-{
-    RtNodeDefData* nodedef = data()->asA<RtNodeDefData>();
-    nodedef->addAttribute(RtApiBase::data(attr));
-}
-
-RtObject RtNodeDef::getAttribute(const RtToken& name) const
-{
-    RtNodeDefData* nodedef = data()->asA<RtNodeDefData>();
-    return RtApiBase::object(nodedef->getAttribute(name));
-}
-
-size_t RtNodeDef::numAttributes() const
-{
-    return data()->asA<RtNodeDefData>()->numAttributes();
-}
-
 RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObject stage)
 {
     if (!stage.hasApi(RtApiType::STAGE))
@@ -59,6 +32,38 @@ RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObjec
     stagedata->addNodeDef(nodedef);
 
     return RtApiBase::object(nodedef);
+}
+
+RtApiType RtNodeDef::getApiType() const
+{
+    return RtApiType::NODEDEF;
+}
+
+const RtToken& RtNodeDef::getCategory() const
+{
+    return data()->asA<RtNodeDefData>()->getCategory();
+}
+
+void RtNodeDef::addPortDef(RtObject attr)
+{
+    return data()->asA<RtNodeDefData>()->addPortDef(RtApiBase::data(attr));
+}
+
+RtObject RtNodeDef::getPortDef(const RtToken& name) const
+{
+    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getPortDef(name);
+    return RtApiBase::object(portdef);
+}
+
+RtObject RtNodeDef::getPortDef(size_t index) const
+{
+    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getPortDef(index);
+    return RtApiBase::object(portdef);
+}
+
+size_t RtNodeDef::numPorts() const
+{
+    return data()->asA<RtNodeDefData>()->numPorts();
 }
 
 }
