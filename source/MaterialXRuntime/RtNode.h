@@ -76,20 +76,20 @@ public:
     /// Return true if this port is connected.
     bool isConnected() const;
 
-    /// Return the port connected upstream.
-    RtPort getConnectionSource() const;
+    /// Return the source port connected upstream.
+    RtPort getSourcePort() const;
 
-    /// Return the ports connected downstream.
-    const RtPortArray& getConnectionDestinations() const;
+    /// Return the destination ports connected downstream.
+    RtPort* getDestinationPorts(size_t& numPorts) const;
 
     /// Equality operator
-    bool operator==(const RtPort& other)
+    bool operator==(const RtPort& other) const
     {
         return _data == other._data && _index == other._index;
     }
 
     /// Inequality operator
-    bool operator!=(const RtPort& other)
+    bool operator!=(const RtPort& other) const
     {
         return _data != other._data || _index != other._index;
     }

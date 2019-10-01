@@ -48,7 +48,7 @@ enum class RtApiType
 };
 
 /// @class RtObject
-/// Handle class for all scene objects.
+/// Handle class for all objects.
 class RtObject
 {
 public:
@@ -89,6 +89,8 @@ private:
     friend class RtApiBase;
 };
 
+/// @class RtObject
+/// Base class for all API supported on objects.
 class RtApiBase
 {
 public:

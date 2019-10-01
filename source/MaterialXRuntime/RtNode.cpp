@@ -140,18 +140,19 @@ bool RtPort::isConnected() const
     return !node->_connections[_index].empty();
 }
 
-RtPort RtPort::getConnectionSource() const
+RtPort RtPort::getSourcePort() const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
     const RtPortArray& connections = node->_connections[_index];
     return connections.size() ? connections[0] : RtPort();
 }
 
-const RtPortArray& RtPort::getConnectionDestinations() const
+RtPort* RtPort::getDestinationPorts(size_t& numPorts) const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
-    const RtPortArray& connections = node->_connections[_index];
-    return connections.size() ? connections : EMPTY_PORT_ARRAY;
+    RtPortArray& connections = node->_connections[_index];
+    numPorts = connections.size();
+    return numPorts>0 ? connections.data() : nullptr;
 }
 
 

@@ -114,6 +114,11 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
 
     mx::RtNode::connect(add1_out, add2_in1);
     mx::RtNode::connect(add1_out, add2_in2);
-    REQUIRE(add2_in1.getConnectionSource() != mx::RtPort());
-    REQUIRE(add1_out.getConnectionDestinations().size() == 2);
+    size_t numDest = 0;
+    const mx::RtPort* dest = add1_out.getDestinationPorts(numDest);
+    REQUIRE(numDest == 2);
+    REQUIRE(dest[0] == add2_in1);
+    REQUIRE(dest[1] == add2_in2);
+    REQUIRE(add2_in1.getSourcePort() == add1_out);
+    REQUIRE(add2_in2.getSourcePort() == add1_out);
 }
