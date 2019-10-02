@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRuntime/RtNodeDef.h>
-#include <MaterialXRuntime/RtAttribute.h>
 #include <MaterialXRuntime/RtObject.h>
 
 #include <MaterialXRuntime/private/RtNodeDefData.h>

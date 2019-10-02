@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_STAGEDATA_H
-#define MATERIALX_RT_STAGEDATA_H
+#ifndef MATERIALX_RTSTAGEDATA_H
+#define MATERIALX_RTSTAGEDATA_H
 
 #include <MaterialXRuntime/private/RtElementData.h>
 
@@ -21,6 +21,7 @@ public:
 
     void addNodeDef(RtDataHandle nodedef);
     void addNode(RtDataHandle node);
+    void addNodeGraph(RtDataHandle nodegraph);
 
     void clear();
 
@@ -28,10 +29,10 @@ public:
 
 protected:
     RtDataHandleArray _nodedefs;
-    RtDataHandleNameMap _nodedefsByName;
+    RtTokenIndexMap _nodedefsByName;
 
     RtDataHandleArray _nodes;
-    RtDataHandleNameMap _nodesByName;
+    RtTokenIndexMap _nodesByName;
 };
 
 }

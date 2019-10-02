@@ -3,14 +3,13 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_NODE_H
-#define MATERIALX_RT_NODE_H
+#ifndef MATERIALX_RTNODE_H
+#define MATERIALX_RTNODE_H
 
 /// @file
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtElement.h>
-#include <MaterialXRuntime/RtAttribute.h>
 
 namespace MaterialX
 {
@@ -79,8 +78,11 @@ public:
     /// Return the source port connected upstream.
     RtPort getSourcePort() const;
 
-    /// Return the destination ports connected downstream.
-    RtPort* getDestinationPorts(size_t& numPorts) const;
+    /// Return the number of destination ports connected downstream.
+    size_t numDestinationPorts() const;
+
+    /// Return a destination port connected downstream.
+    RtPort getDestinationPort(size_t index) const;
 
     /// Equality operator
     bool operator==(const RtPort& other) const

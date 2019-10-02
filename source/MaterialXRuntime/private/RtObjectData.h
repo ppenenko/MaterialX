@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_OBJECTDATA_H
-#define MATERIALX_RT_OBJECTDATA_H
+#ifndef MATERIALX_RTOBJECTDATA_H
+#define MATERIALX_RTOBJECTDATA_H
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtToken.h>
@@ -19,7 +19,7 @@ namespace MaterialX
 {
 
 using RtDataHandleArray = vector<RtDataHandle>;
-using RtDataHandleNameMap = std::unordered_map<RtToken, size_t>;
+using RtTokenIndexMap = std::unordered_map<RtToken, size_t>;
 
 class RtObjectData : public std::enable_shared_from_this<RtObjectData>
 {

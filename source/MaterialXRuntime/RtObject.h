@@ -23,11 +23,11 @@ class RtObjectData;
 // TODO: implement a custom refcounted handle class
 using RtDataHandle = std::shared_ptr<RtObjectData>;
 
-/// Type identifiers for scene objects.
+/// Type identifiers for concrete runtime objects.
 enum class RtObjType
 {
     INVALID,
-    ATTRIBUTE,
+    PORTDEF,
     NODEDEF,
     NODE,
     NODEGRAPH,
@@ -35,11 +35,11 @@ enum class RtObjType
     NUM_TYPES
 };
 
-/// Type identifiers for API attachable to objects.
+/// Type identifiers for API's attachable to runtime objects.
 enum class RtApiType
 {
     ELEMENT,
-    ATTRIBUTE,
+    PORTDEF,
     NODEDEF,
     NODE,
     NODEGRAPH,
@@ -48,7 +48,7 @@ enum class RtApiType
 };
 
 /// @class RtObject
-/// Handle class for all objects.
+/// Base class for all MaterialX runtime objects.
 class RtObject
 {
 public:

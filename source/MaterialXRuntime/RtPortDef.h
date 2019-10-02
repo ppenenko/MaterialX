@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_ATTRIBUTE_H
-#define MATERIALX_RT_ATTRIBUTE_H
+#ifndef MATERIALX_RTPORTDEF_H
+#define MATERIALX_RTPORTDEF_H
 
 /// @file
 /// TODO: Docs
@@ -16,38 +16,42 @@ namespace MaterialX
 
 class RtValue;
 
-/// @class RtAttribute
+/// @class RtPortFlag
 /// TODO: Docs
-class RtAttrFlag
+class RtPortFlag
 {
 public:
     static const uint32_t INPUT       = 0x00000001;
     static const uint32_t OUTPUT      = 0x00000002;
     static const uint32_t CONNECTABLE = 0x00000004;
     static const uint32_t UNIFORM     = 0x00000008;
+    static const uint32_t INTERFACE   = 0x00000010;
 };
 
-/// @class RtAttribute
+/// @class RtPortDef
 /// TODO: Docs
-class RtAttribute : public RtElement
+class RtPortDef : public RtElement
 {
 public:
     /// Constructor attaching and object to the API.
-    RtAttribute(const RtObject& obj);
+    RtPortDef(const RtObject& obj);
+
+    /// Create a new portdef on the given nodedef.
+    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject nodedef);
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
-    /// Return the data type for this attribute.
+    /// Return the data type for this port.
     const RtToken& getType() const;
 
-    /// Return the value for this attribute.
+    /// Return the default value for this port.
     const RtValue& getValue() const;
 
-    /// Return the value for this attribute.
+    /// Return the default value for this port.
     RtValue& getValue();
 
-    /// Set a new value on the attribute.
+    /// Set a new default value on the port.
     void setValue(const RtValue& v);
     void setValue(bool v);
     void setValue(int v);
@@ -57,20 +61,20 @@ public:
     void setValue(const Vector4& v);
     void setValue(void* v);
 
-    /// Return the flags for this attribute.
+    /// Return the flags for this port.
     int32_t getFlags() const;
 
-    /// Return true if this is an input attribute.
+    /// Return true if this is an input port.
     bool isInput() const;
 
-    /// Return true if this is an output attribute.
+    /// Return true if this is an output port.
     bool isOutput() const;
 
-    /// Return true if this attribute is connectable.
+    /// Return true if this port is connectable.
     bool isConnectable() const;
 
-    /// Create a new attribute
-    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags = 0);
+    /// Return true if this port is uniform.
+    bool isUniform() const;
 };
 
 }

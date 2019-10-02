@@ -3,13 +3,13 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_ATTRIBUTEDATA_H
-#define MATERIALX_RT_ATTRIBUTEDATA_H
+#ifndef MATERIALX_RTPORTDEFDATA_H
+#define MATERIALX_RTPORTDEFDATA_H
 
-#include <MaterialXRuntime/private/RtObjectData.h>
+#include <MaterialXRuntime/private/RtElementData.h>
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/RtAttribute.h>
+#include <MaterialXRuntime/RtPortDef.h>
 #include <MaterialXRuntime/RtValue.h>
 
 /// @file
@@ -18,23 +18,12 @@
 namespace MaterialX
 {
 
-class RtAttributeData : public RtObjectData
+class RtPortDefData : public RtElementData
 {
 public:
-    RtAttributeData();
-    RtAttributeData(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+    RtPortDefData(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 
     static RtDataHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
-
-    const RtToken& getName() const
-    {
-        return _name;
-    }
-
-    void setName(const RtToken& name)
-    {
-        _name = name;
-    }
 
     const RtToken& getType() const
     {
@@ -98,21 +87,25 @@ public:
 
     bool isInput() const
     {
-        return _flags & RtAttrFlag::INPUT;
+        return _flags & RtPortFlag::INPUT;
     }
 
     bool isOutput() const
     {
-        return _flags & RtAttrFlag::OUTPUT;
+        return _flags & RtPortFlag::OUTPUT;
     }
 
     bool isConnectable() const
     {
-        return _flags & RtAttrFlag::CONNECTABLE;
+        return _flags & RtPortFlag::CONNECTABLE;
+    }
+
+    bool isUniform() const
+    {
+        return _flags & RtPortFlag::UNIFORM;
     }
 
 protected:
-    RtToken _name;
     RtToken _type;
     RtValue _value;
     uint32_t _flags;

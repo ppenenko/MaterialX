@@ -18,7 +18,7 @@ namespace
     static const std::set<RtApiType> OBJ_TO_API_RTTI[int(RtObjType::NUM_TYPES)] =
     {
         {},                                         // INVALID
-        {RtApiType::ATTRIBUTE},                     // ATTRIBUTE
+        {RtApiType::ELEMENT, RtApiType::PORTDEF},   // PORTDEF
         {RtApiType::ELEMENT, RtApiType::NODEDEF},   // NODEDEF
         {RtApiType::ELEMENT, RtApiType::NODE},      // NODE
         {RtApiType::ELEMENT, RtApiType::NODEGRAPH}, // NODEGRAPH

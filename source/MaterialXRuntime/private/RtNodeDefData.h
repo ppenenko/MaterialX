@@ -3,11 +3,11 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_NODEDEFDATA_H
-#define MATERIALX_RT_NODEDEFDATA_H
+#ifndef MATERIALX_RTNODEDEFDATA_H
+#define MATERIALX_RTNODEDEFDATA_H
 
 #include <MaterialXRuntime/private/RtElementData.h>
-#include <MaterialXRuntime/private/RtAttributeData.h>
+#include <MaterialXRuntime/private/RtPortDefData.h>
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtValue.h>
@@ -54,16 +54,15 @@ public:
         return it != _portdefsByName.end() ? it->second : INVALID_INDEX;
     }
 
-    static const size_t INVALID_INDEX;
-
 protected:
     // Short syntax getter for convenience.
-    inline RtAttributeData* portdef(size_t index) { return (RtAttributeData*)getPortDef(index).get(); }
+    inline RtPortDefData* portdef(size_t index) { return (RtPortDefData*)getPortDef(index).get(); }
 
     RtToken _category;
     RtDataHandleArray _portdefs;
-    RtDataHandleNameMap _portdefsByName;
+    RtTokenIndexMap _portdefsByName;
     friend class RtNodeData;
+    friend class RtNodeGraphData;
     friend class RtPort;
 };
 

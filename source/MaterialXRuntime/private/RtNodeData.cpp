@@ -34,7 +34,7 @@ RtDataHandle RtNodeData::create(const RtToken& name, const RtDataHandle& nodedef
 RtPort RtNodeData::getPort(size_t index)
 {
     RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
-    RtAttributeData* portdef = nodedef->portdef(index);
+    RtPortDefData* portdef = nodedef->portdef(index);
     return portdef ? RtPort(shared_from_this(), index) : RtPort();
 }
 
@@ -42,7 +42,7 @@ RtPort RtNodeData::getPort(const RtToken& name)
 {
     RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
     const size_t index = nodedef->getPortIndex(name);
-    RtAttributeData* portdef = nodedef->portdef(index);
+    RtPortDefData* portdef = nodedef->portdef(index);
     return portdef ? RtPort(shared_from_this(), index) : RtPort();
 }
 

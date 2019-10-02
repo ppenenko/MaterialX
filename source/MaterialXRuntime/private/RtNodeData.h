@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_NODEDATA_H
-#define MATERIALX_RT_NODEDATA_H
+#ifndef MATERIALX_RTNODEDATA_H
+#define MATERIALX_RTNODEDATA_H
 
 #include <MaterialXRuntime/private/RtNodeDefData.h>
 

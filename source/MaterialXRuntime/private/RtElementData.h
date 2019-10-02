@@ -3,13 +3,12 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_ELEMENTDATA_H
-#define MATERIALX_RT_ELEMENTDATA_H
+#ifndef MATERIALX_RTELEMENTDATA_H
+#define MATERIALX_RTELEMENTDATA_H
 
 #include <MaterialXRuntime/private/RtObjectData.h>
-#include <MaterialXRuntime/private/RtAttributeData.h>
 
-#include <MaterialXRuntime/RtObject.h>
+#include <MaterialXRuntime/RtElement.h>
 
 /// @file
 /// TODO: Docs
@@ -27,31 +26,46 @@ public:
         return _name;
     }
 
-    void setName(const RtToken& name)
+    void addAttribute(const RtToken& name, const RtToken& type, const RtValue& value);
+
+    const RtAttribute* getAttribute(const RtToken& name) const
     {
-        _name = name;
+        auto it = _attributesByName.find(name);
+        return it != _attributesByName.end() ? &_attributes[it->second] : nullptr;
     }
 
-    void addAttribute(RtDataHandle attr);
+    RtAttribute* getAttribute(const RtToken& name)
+    {
+        auto it = _attributesByName.find(name);
+        return it != _attributesByName.end() ? &_attributes[it->second] : nullptr;
+    }
+
+    const RtAttribute* getAttribute(size_t index) const
+    {
+        return index < _attributes.size() ? &_attributes[index] : nullptr;
+    }
+
+    RtAttribute* getAttribute(size_t index)
+    {
+        return index < _attributes.size() ? &_attributes[index] : nullptr;
+    }
 
     size_t numAttributes() const
     {
         return _attributes.size();
     }
 
-    RtDataHandle getAttribute(const RtToken& name) const
-    {
-        auto it = _attributesByName.find(name);
-        return it != _attributesByName.end() ? _attributes[it->second] : nullptr;
-    }
 
 protected:
-    // Short syntax attribute getter for convenience.
-    RtAttributeData* attribute(const RtToken& name) { return (RtAttributeData*)getAttribute(name).get(); }
+    void setName(const RtToken& name)
+    {
+        _name = name;
+    }
 
     RtToken _name;
-    RtDataHandleArray _attributes;
-    RtDataHandleNameMap _attributesByName;
+    vector<RtAttribute> _attributes;
+    RtTokenIndexMap _attributesByName;
+    friend class RtStageData;
 };
 
 }

@@ -7,6 +7,7 @@
 #include <MaterialXRuntime/RtObject.h>
 
 #include <MaterialXRuntime/private/RtNodeData.h>
+#include <MaterialXRuntime/private/RtNodeGraphData.h>
 #include <MaterialXRuntime/private/RtStageData.h>
 
 namespace MaterialX
@@ -19,7 +20,7 @@ namespace
 
 RtPort::RtPort() :
     _data(nullptr),
-    _index(RtNodeDefData::INVALID_INDEX)
+    _index(INVALID_INDEX)
 {
 }
 
@@ -147,12 +148,17 @@ RtPort RtPort::getSourcePort() const
     return connections.size() ? connections[0] : RtPort();
 }
 
-RtPort* RtPort::getDestinationPorts(size_t& numPorts) const
+size_t RtPort::numDestinationPorts() const
+{
+    RtNodeData* node = _data->asA<RtNodeData>();
+    return node->_connections[_index].size();
+}
+
+RtPort RtPort::getDestinationPort(size_t index) const
 {
     RtNodeData* node = _data->asA<RtNodeData>();
     RtPortArray& connections = node->_connections[_index];
-    numPorts = connections.size();
-    return numPorts>0 ? connections.data() : nullptr;
+    return index < connections.size() ? connections[index] : RtPort();
 }
 
 
@@ -161,22 +167,28 @@ RtNode::RtNode(const RtObject& obj) :
 {
 }
 
-RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject stage)
+RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject parent)
 {
     if (!nodedef.hasApi(RtApiType::NODEDEF))
     {
-        throw ExceptionRuntimeError("Given object is not a valid nodedef");
+        throw ExceptionRuntimeError("Given nodedef object is not a valid nodedef");
     }
-    if (!stage.hasApi(RtApiType::STAGE))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
-    }
-
-    RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
-    // TODO: Check if name exists
 
     RtDataHandle node = RtNodeData::create(name, RtApiBase::data(nodedef));
-    stagedata->addNode(node);
+
+    RtDataHandle parentData = RtApiBase::data(parent);
+    if (parent.hasApi(RtApiType::STAGE))
+    {
+        parentData->asA<RtStageData>()->addNode(node);
+    }
+    else if (parent.hasApi(RtApiType::NODEGRAPH))
+    {
+        parentData->asA<RtNodeGraphData>()->addNode(node);
+    }
+    else
+    {
+        throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
+    }
 
     return RtApiBase::object(node);
 }

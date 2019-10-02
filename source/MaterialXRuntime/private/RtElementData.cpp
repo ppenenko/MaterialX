@@ -4,7 +4,6 @@
 //
 
 #include <MaterialXRuntime/private/RtElementData.h>
-#include <MaterialXRuntime/private/RtAttributeData.h>
 
 namespace MaterialX
 {
@@ -15,20 +14,15 @@ RtElementData::RtElementData(RtObjType objType, const RtToken& name) :
 {
 }
 
-void RtElementData::addAttribute(RtDataHandle attr)
+void RtElementData::addAttribute(const RtToken& name, const RtToken& type, const RtValue& value)
 {
-    if (!attr->hasApi(RtApiType::ATTRIBUTE))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid attribute");
-    }
-    RtAttributeData* a = attr->asA<RtAttributeData>();
-    auto it = _attributesByName.find(a->getName());
+    auto it = _attributesByName.find(name);
     if (it != _attributesByName.end())
     {
-        throw ExceptionRuntimeError("An attribute named '" + a->getName() + "' already exists for nodedef '" + getName() + "'");
+        throw ExceptionRuntimeError("An attribute named '" + name + "' already exists for '" + getName() + "'");
     }
-    _attributesByName[a->getName()] = _attributes.size();
-    _attributes.push_back(attr);
+    _attributesByName[name] = _attributes.size();
+    _attributes.push_back(RtAttribute(name, type, value));
 }
 
 }

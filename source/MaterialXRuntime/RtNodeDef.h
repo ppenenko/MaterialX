@@ -3,19 +3,16 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_NODEDEF_H
-#define MATERIALX_RT_NODEDEF_H
+#ifndef MATERIALX_RTNODEDEF_H
+#define MATERIALX_RTNODEDEF_H
 
 /// @file
 /// TODO: Docs
 
 #include <MaterialXRuntime/RtElement.h>
-#include <MaterialXRuntime/RtAttribute.h>
 
 namespace MaterialX
 {
-
-class RtAttribute;
 
 /// @class RtNodeDef API
 /// TODO: Docs

@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RT_LIBRARY_H
-#define MATERIALX_RT_LIBRARY_H
+#ifndef MATERIALX_RTLIBRARY_H
+#define MATERIALX_RTLIBRARY_H
 
 /// @file
 /// Library-wide includes and types.  This file should be the first include for
@@ -13,6 +13,9 @@
 
 namespace MaterialX
 {
+
+/// Number to match if an index is valid.
+const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();
 
 /// @class ExceptionRuntimeError
 /// An exception that is thrown when a runtime operation fails.
