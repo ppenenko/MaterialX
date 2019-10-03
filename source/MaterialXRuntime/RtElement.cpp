@@ -20,12 +20,6 @@ RtApiType RtElement::getApiType() const
     return RtApiType::ELEMENT;
 }
 
-bool RtElement::isSupported(RtObjType type) const
-{
-    // This API supports all objects
-    return type != RtObjType::INVALID;
-}
-
 const RtToken& RtElement::getName() const
 {
     return data()->asA<RtElementData>()->getName();

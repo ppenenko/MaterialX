@@ -14,25 +14,12 @@
 namespace MaterialX
 {
 
-class RtStageData : public RtElementData
+class RtStageData : public RtCompoundElementData
 {
 public:
     RtStageData(const RtToken& name);
 
-    void addNodeDef(RtDataHandle nodedef);
-    void addNode(RtDataHandle node);
-    void addNodeGraph(RtDataHandle nodegraph);
-
-    void clear();
-
     static RtDataHandle create(const RtToken& name);
-
-protected:
-    RtDataHandleArray _nodedefs;
-    RtTokenIndexMap _nodedefsByName;
-
-    RtDataHandleArray _nodes;
-    RtTokenIndexMap _nodesByName;
 };
 
 }

@@ -22,12 +22,19 @@ using RtPortArray = vector<RtPort>;
 class RtPort
 {
 public:
+    /// Default constructor.
     RtPort();
 
+    /// Construct a port from a node and a portdef.
+    RtPort(RtObject node, RtObject portdef);
+
+    /// Return true if the port is valid.
     bool isValid() const;
 
+    /// Return the name of the port.
     const RtToken& getName() const;
 
+    /// Return the node the port belongs to.
     RtObject getNode() const;
 
     /// Return the attribute flags for this port.
@@ -113,14 +120,19 @@ public:
     RtNode(const RtObject& obj);
 
     /// Create a new node instance of the given nodedef
-    /// and add it to a stage.
-    static RtObject create(const RtToken& name, RtObject nodedef, RtObject stage);
+    /// and add it to the parent object if specified.
+    /// The parent must be a stage or a nodegraph object.
+    static RtObject create(const RtToken& name, RtObject nodedef, RtObject parent = RtObject());
 
-    /// Return the type for this object.
+    /// Return the type for this API.
     RtApiType getApiType() const override;
 
     /// Return the node category for this node.
     const RtToken& getCategory() const;
+
+    /// Return a port corresponding to the given portdef,
+    /// or a null object if no such port exists.
+    RtPort getPort(RtObject portdef) const;
 
     /// Return a port by name, or a null object 
     /// if no such port exists.

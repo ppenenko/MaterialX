@@ -9,6 +9,52 @@
 namespace MaterialX
 {
 
+namespace
+{
+
+    static const std::set<RtObjType> API_TO_OBJ_RTTI[int(RtApiType::NUM_TYPES)] =
+    {
+        // RtApiType::ELEMENT
+        {
+            RtObjType::PORTDEF,
+            RtObjType::NODEDEF,
+            RtObjType::NODE,
+            RtObjType::NODEGRAPH,
+            RtObjType::STAGE
+        },
+        // RtApiType::COMPOUND_ELEMENT
+        {
+            RtObjType::NODEDEF,
+            RtObjType::NODEGRAPH,
+            RtObjType::STAGE
+        },
+        // RtApiType::PORTDEF
+        {
+            RtObjType::PORTDEF
+        },
+        // RtApiType::NODEDEF
+        {
+            RtObjType::NODEDEF
+        },
+        // RtApiType::NODE
+        {
+            RtObjType::NODE
+        },
+        // RtApiType::NODEGRAPH
+        {
+            RtObjType::NODEGRAPH
+        },
+        // RtApiType::STAGE
+        {
+            RtObjType::STAGE
+        },
+        // RtApiType::STAGE_CORE_IO
+        {
+            RtObjType::STAGE
+        }
+    };
+}
+
 RtObject::RtObject() :
     _data(RtDataHandle())
 {
@@ -64,6 +110,11 @@ RtApiBase::RtApiBase(const RtApiBase& other)
     setData(other._data);
 }
 
+bool RtApiBase::isSupported(RtObjType type) const
+{
+    return API_TO_OBJ_RTTI[(int)getApiType()].count(type) != 0;
+}
+
 void RtApiBase::setObject(const RtObject& obj)
 {
     setData(obj._data);
@@ -81,7 +132,11 @@ bool RtApiBase::isValid() const
 
 void RtApiBase::setData(RtDataHandle data)
 {
-    _data = data && isSupported(data->getObjType()) ? data : nullptr;
+    if (data && !isSupported(data->getObjType()))
+    {
+        throw ExceptionRuntimeError("Given object is not supported by this API");
+    }
+    _data = data;
 }
 
 }

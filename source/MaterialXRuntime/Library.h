@@ -11,8 +11,13 @@
 /// any public header in the MaterialXRuntime library.
 #include <MaterialXCore/Library.h>
 
+#include <string>
+
 namespace MaterialX
 {
+
+// TODO: Implement string class supporting for dynamic linkage
+using RtString = std::string;
 
 /// Number to match if an index is valid.
 const size_t INVALID_INDEX = std::numeric_limits<size_t>::max();

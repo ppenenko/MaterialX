@@ -34,13 +34,25 @@ public:
         return nodedef()->getCategory();
     }
 
-    size_t numPorts() const
+    RtPort getPort(const RtToken& name)
     {
-        return nodedef()->numPorts();
+        RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
+        const size_t index = nodedef->getElementIndex(name);
+        RtPortDefData* portdef = nodedef->portdef(index);
+        return portdef ? RtPort(shared_from_this(), index) : RtPort();
     }
 
-    RtPort getPort(size_t index);
-    RtPort getPort(const RtToken& name);
+    RtPort getPort(size_t index)
+    {
+        RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
+        RtPortDefData* portdef = nodedef->portdef(index);
+        return portdef ? RtPort(shared_from_this(), index) : RtPort();
+    }
+
+    size_t numPorts() const
+    {
+        return nodedef()->numElements();
+    }
 
     static void connect(const RtPort& source, const RtPort& dest);
 

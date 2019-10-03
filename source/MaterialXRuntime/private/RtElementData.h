@@ -68,6 +68,44 @@ protected:
     friend class RtStageData;
 };
 
+class RtCompoundElementData : public RtElementData
+{
+public:
+    RtCompoundElementData(RtObjType objType, const RtToken& name);
+
+    void addElement(RtDataHandle elem);
+
+    void removeElement(const RtToken& name);
+
+    RtDataHandle findElement(const RtString& path) const;
+
+    RtDataHandle getElement(const RtToken& name) const
+    {
+        auto it = _elementsByName.find(name);
+        return it != _elementsByName.end() ? _elements[it->second] : nullptr;
+    }
+
+    RtDataHandle getElement(size_t index) const
+    {
+        return index < _elements.size() ? _elements[index] : nullptr;
+    }
+
+    size_t numElements() const
+    {
+        return _elements.size();
+    }
+
+    size_t getElementIndex(const RtToken& name) const
+    {
+        auto it = _elementsByName.find(name);
+        return it != _elementsByName.end() ? it->second : INVALID_INDEX;
+    }
+
+protected:
+    RtDataHandleArray _elements;
+    RtTokenIndexMap _elementsByName;
+};
+
 }
 
 #endif

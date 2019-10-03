@@ -184,4 +184,22 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(inputs.getPort("a").numDestinationPorts() == 2);
     REQUIRE(inputs.getPort("b").numDestinationPorts() == 1);
     REQUIRE(outputs.getPort("out").getSourcePort() == add4.getPort("out"));
+
+    // Find object by path
+    mx::RtObject elem1 = stage.findElement("/add1/in2");
+    REQUIRE(elem1.isValid());
+    REQUIRE(elem1.hasApi(mx::RtApiType::PORTDEF));
+    REQUIRE(mx::RtPortDef(elem1).getName() == "in2");
+    REQUIRE(mx::RtPortDef(elem1).isInput());
+
+    mx::RtObject node = stage.findElement("/graph1/add4");
+    mx::RtObject port = stage.findElement("/graph1/add4/out");
+    REQUIRE(node.isValid());
+    REQUIRE(port.isValid());
+    REQUIRE(node.hasApi(mx::RtApiType::NODE));
+    REQUIRE(port.hasApi(mx::RtApiType::PORTDEF));
+
+    // Get a port instance from node and portdef
+    mx::RtPort port1(node, port);
+    REQUIRE(port1 == add4.getPort("out"));
 }

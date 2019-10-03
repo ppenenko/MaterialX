@@ -39,11 +39,13 @@ enum class RtObjType
 enum class RtApiType
 {
     ELEMENT,
+    COMPOUND_ELEMENT,
     PORTDEF,
     NODEDEF,
     NODE,
     NODEGRAPH,
     STAGE,
+    STAGE_CORE_IO,
     NUM_TYPES
 };
 
@@ -97,12 +99,12 @@ public:
     /// Destructor.
     virtual ~RtApiBase() {};
 
-    /// Return the type for this object.
+    /// Return the type for this API.
     virtual RtApiType getApiType() const = 0;
 
     /// Query if the given object type is supported by this API.
     /// Derived classes should override this.
-    virtual bool isSupported(RtObjType type) const = 0;
+    bool isSupported(RtObjType type) const;
 
     /// Query if the given object is supported by this API.
     bool isSupported(const RtObject& obj) const

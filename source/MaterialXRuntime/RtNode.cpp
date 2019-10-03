@@ -4,6 +4,7 @@
 //
 
 #include <MaterialXRuntime/RtNode.h>
+#include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtObject.h>
 
 #include <MaterialXRuntime/private/RtNodeData.h>
@@ -22,6 +23,19 @@ RtPort::RtPort() :
     _data(nullptr),
     _index(INVALID_INDEX)
 {
+}
+
+RtPort::RtPort(RtObject node, RtObject portdef) :
+    _data(nullptr),
+    _index(INVALID_INDEX)
+{
+    if (node.hasApi(RtApiType::NODE) && portdef.hasApi(RtApiType::PORTDEF))
+    {
+        _data = RtApiBase::data(node);
+        RtNodeDefData* nd = _data->asA<RtNodeData>()->nodedef();
+        RtPortDef pd(portdef);
+        _index = nd->getElementIndex(pd.getName());
+    }
 }
 
 RtPort::RtPort(RtDataHandle data, size_t index) :
@@ -176,18 +190,17 @@ RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject parent)
 
     RtDataHandle node = RtNodeData::create(name, RtApiBase::data(nodedef));
 
-    RtDataHandle parentData = RtApiBase::data(parent);
-    if (parent.hasApi(RtApiType::STAGE))
+    if (parent.isValid())
     {
-        parentData->asA<RtStageData>()->addNode(node);
-    }
-    else if (parent.hasApi(RtApiType::NODEGRAPH))
-    {
-        parentData->asA<RtNodeGraphData>()->addNode(node);
-    }
-    else
-    {
-        throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
+        if (parent.hasApi(RtApiType::STAGE) || parent.hasApi(RtApiType::NODEGRAPH))
+        {
+            RtDataHandle parentData = RtApiBase::data(parent);
+            parentData->asA<RtCompoundElementData>()->addElement(node);
+        }
+        else
+        {
+            throw ExceptionRuntimeError("Parent object must be a stage or a nodegraph");
+        }
     }
 
     return RtApiBase::object(node);
@@ -201,6 +214,16 @@ RtApiType RtNode::getApiType() const
 const RtToken& RtNode::getCategory() const
 {
     return data()->asA<RtNodeData>()->getCategory();
+}
+
+RtPort RtNode::getPort(RtObject portdef) const
+{
+    if (portdef.hasApi(RtApiType::PORTDEF))
+    {
+        RtPortDefData* pd = RtApiBase::data(portdef)->asA<RtPortDefData>();
+        return data()->asA<RtNodeData>()->getPort(pd->getName());
+    }
+    return RtPort();
 }
 
 RtPort RtNode::getPort(const RtToken& name) const

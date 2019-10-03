@@ -17,12 +17,37 @@ namespace
 {
     static const std::set<RtApiType> OBJ_TO_API_RTTI[int(RtObjType::NUM_TYPES)] =
     {
-        {},                                         // INVALID
-        {RtApiType::ELEMENT, RtApiType::PORTDEF},   // PORTDEF
-        {RtApiType::ELEMENT, RtApiType::NODEDEF},   // NODEDEF
-        {RtApiType::ELEMENT, RtApiType::NODE},      // NODE
-        {RtApiType::ELEMENT, RtApiType::NODEGRAPH}, // NODEGRAPH
-        {RtApiType::ELEMENT, RtApiType::STAGE}      // STAGE
+        // INVALID
+        {
+        },
+        // PORTDEF
+        {
+            RtApiType::ELEMENT,
+            RtApiType::PORTDEF
+        },
+        // NODEDEF
+        {
+            RtApiType::ELEMENT,
+            RtApiType::COMPOUND_ELEMENT,
+            RtApiType::NODEDEF
+        },
+        // NODE
+        {
+            RtApiType::ELEMENT,
+            RtApiType::NODE
+        },
+        // NODEGRAPH
+        {
+            RtApiType::ELEMENT,
+            RtApiType::COMPOUND_ELEMENT,
+            RtApiType::NODEGRAPH
+        },
+        // STAGE
+        {
+            RtApiType::ELEMENT,
+            RtApiType::COMPOUND_ELEMENT,
+            RtApiType::STAGE
+        }
     };
 }
 

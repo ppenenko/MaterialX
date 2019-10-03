@@ -22,12 +22,50 @@ RtApiType RtStage::getApiType() const
 
 RtObject RtStage::create(const RtToken& name)
 {
-    return RtApiBase::object( RtStageData::create(name) );
+    return RtApiBase::object(RtStageData::create(name));
 }
 
-void RtStage::clear()
+void RtStage::addElement(RtObject elem)
 {
-    data()->asA<RtStageData>()->clear();
+    data()->asA<RtStageData>()->addElement(RtApiBase::data(elem));
+}
+
+void RtStage::removeElement(const RtToken& name)
+{
+    data()->asA<RtStageData>()->removeElement(name);
+}
+
+RtObject RtStage::getElement(const RtToken& name) const
+{
+    RtDataHandle elem = data()->asA<RtStageData>()->getElement(name);
+    return RtApiBase::object(elem);
+}
+
+RtObject RtStage::getElement(size_t index) const
+{
+    RtDataHandle elem = data()->asA<RtStageData>()->getElement(index);
+    return RtApiBase::object(elem);
+}
+
+size_t RtStage::numElements() const
+{
+    return data()->asA<RtStageData>()->numElements();
+}
+
+RtObject RtStage::findElement(const RtString& path) const
+{
+    RtDataHandle elem = data()->asA<RtStageData>()->findElement(path);
+    return RtApiBase::object(elem);
+}
+
+void RtStage::addReference(RtObject stage)
+{
+    throw ExceptionRuntimeError("Not implemented");
+}
+
+void RtStage::removeReference(RtObject stage)
+{
+    throw ExceptionRuntimeError("Not implemented");
 }
 
 }

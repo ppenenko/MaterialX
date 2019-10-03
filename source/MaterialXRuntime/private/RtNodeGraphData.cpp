@@ -12,7 +12,7 @@ namespace MaterialX
 {
 
 RtNodeGraphData::RtNodeGraphData(const RtToken& name) :
-    RtElementData(RtObjType::NODEGRAPH, name)
+    RtCompoundElementData(RtObjType::NODEGRAPH, name)
 {
 }
 
@@ -28,13 +28,13 @@ void RtNodeGraphData::addNode(RtDataHandle node)
         throw ExceptionRuntimeError("Given object is not a valid node");
     }
     RtNodeData* n = node->asA<RtNodeData>();
-    auto it = _nodesByName.find(n->getName());
-    if (it != _nodesByName.end())
+    auto it = _elementsByName.find(n->getName());
+    if (it != _elementsByName.end())
     {
         throw ExceptionRuntimeError("A node named '" + n->getName() + "' already exists for nodegraph '" + getName() + "'");
     }
-    _nodesByName[n->getName()] = _nodes.size();
-    _nodes.push_back(node);
+    _elementsByName[n->getName()] = _elements.size();
+    _elements.push_back(node);
 }
 
 void RtNodeGraphData::setInterface(RtDataHandle nodedef)
@@ -51,7 +51,7 @@ void RtNodeGraphData::setInterface(RtDataHandle nodedef)
     _outputsDef = RtNodeDefData::create("outputs", "nodegraphoutputs");
 
     RtNodeDefData* def;
-    for (size_t i = 0; i < nd->numPorts(); ++i)
+    for (size_t i = 0; i < nd->numElements(); ++i)
     {
         const RtPortDefData* pd = nd->portdef(i);
         uint32_t flags = pd->getFlags();

@@ -22,10 +22,11 @@ public:
     /// Constructor attaching and object to the API.
     RtNodeGraph(const RtObject& obj);
 
-    /// Create a new nodegraph on the given stage.
-    static RtObject create(const RtToken& name, RtObject stage);
+    /// Create a new nodegraph and add it to
+    /// a stage if specified.
+    static RtObject create(const RtToken& name, RtObject stage = RtObject());
 
-    /// Return the type for this object.
+    /// Return the type for this API.
     RtApiType getApiType() const override;
 
     /// Add a node to the graph.

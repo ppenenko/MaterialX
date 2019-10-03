@@ -31,6 +31,7 @@ public:
     explicit RtValue(const Color3& v) { asColor3() = v; }
     explicit RtValue(const Vector4& v) { asVector4() = v; }
     explicit RtValue(void* v) { asPtr() = v; }
+    explicit RtValue(const ValuePtr& v);
 
     /// Return bool value.
     const bool& asBool() const

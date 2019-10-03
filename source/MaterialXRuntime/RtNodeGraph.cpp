@@ -19,20 +19,23 @@ RtNodeGraph::RtNodeGraph(const RtObject& obj) :
 
 RtObject RtNodeGraph::create(const RtToken& name, RtObject stage)
 {
-    if (!stage.hasApi(RtApiType::STAGE))
-    {
-        throw ExceptionRuntimeError("Given stage object is not a valid stage");
-    }
-
     RtDataHandle nodegraph = RtNodeGraphData::create(name);
-    RtApiBase::data(stage)->asA<RtStageData>()->addNodeGraph(nodegraph);
+
+    if (stage.isValid())
+    {
+        if (!stage.hasApi(RtApiType::STAGE))
+        {
+            throw ExceptionRuntimeError("Given stage object is not a valid stage");
+        }
+        RtApiBase::data(stage)->asA<RtStageData>()->addElement(nodegraph);
+    }
 
     return RtApiBase::object(nodegraph);
 }
 
 RtApiType RtNodeGraph::getApiType() const
 {
-    return RtApiType::NODEDEF;
+    return RtApiType::NODEGRAPH;
 }
 
 void RtNodeGraph::addNode(RtObject node)
@@ -42,19 +45,19 @@ void RtNodeGraph::addNode(RtObject node)
 
 RtObject RtNodeGraph::getNode(const RtToken& name) const
 {
-    RtDataHandle node = data()->asA<RtNodeGraphData>()->getNode(name);
+    RtDataHandle node = data()->asA<RtNodeGraphData>()->getElement(name);
     return RtApiBase::object(node);
 }
 
 RtObject RtNodeGraph::getNode(size_t index) const
 {
-    RtDataHandle node = data()->asA<RtNodeGraphData>()->getNode(index);
+    RtDataHandle node = data()->asA<RtNodeGraphData>()->getElement(index);
     return RtApiBase::object(node);
 }
 
 size_t RtNodeGraph::numNodes() const
 {
-    return data()->asA<RtNodeGraphData>()->numNodes();
+    return data()->asA<RtNodeGraphData>()->numElements();
 }
 
 void RtNodeGraph::setInterface(RtObject nodedef)
@@ -73,6 +76,5 @@ RtObject RtNodeGraph::getOutputInterface() const
     RtDataHandle node = data()->asA<RtNodeGraphData>()->getOutputInterface();
     return RtApiBase::object(node);
 }
-
 
 }

@@ -19,16 +19,17 @@ RtNodeDef::RtNodeDef(const RtObject& obj) :
 
 RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObject stage)
 {
-    if (!stage.hasApi(RtApiType::STAGE))
-    {
-        throw ExceptionRuntimeError("Given object is not a valid stage");
-    }
-
-    RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
-    // TODO: Check if name exists
-
     RtDataHandle nodedef = RtNodeDefData::create(name, category);
-    stagedata->addNodeDef(nodedef);
+
+    if (stage.isValid())
+    {
+        if (!stage.hasApi(RtApiType::STAGE))
+        {
+            throw ExceptionRuntimeError("Given object is not a valid stage");
+        }
+        RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
+        stagedata->addElement(nodedef);
+    }
 
     return RtApiBase::object(nodedef);
 }
@@ -50,19 +51,24 @@ void RtNodeDef::addPortDef(RtObject attr)
 
 RtObject RtNodeDef::getPortDef(const RtToken& name) const
 {
-    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getPortDef(name);
+    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getElement(name);
     return RtApiBase::object(portdef);
 }
 
 RtObject RtNodeDef::getPortDef(size_t index) const
 {
-    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getPortDef(index);
+    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getElement(index);
     return RtApiBase::object(portdef);
 }
 
 size_t RtNodeDef::numPorts() const
 {
-    return data()->asA<RtNodeDefData>()->numPorts();
+    return data()->asA<RtNodeDefData>()->numElements();
+}
+
+size_t RtNodeDef::getPortIndex(const RtToken& name) const
+{
+    return data()->asA<RtNodeDefData>()->getElementIndex(name);
 }
 
 }

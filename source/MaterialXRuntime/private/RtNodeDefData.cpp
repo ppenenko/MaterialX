@@ -13,7 +13,7 @@ namespace MaterialX
 {
 
 RtNodeDefData::RtNodeDefData(const RtToken& name, const RtToken& category) :
-    RtElementData(RtObjType::NODEDEF, name),
+    RtCompoundElementData(RtObjType::NODEDEF, name),
     _category(category)
 {
 }
@@ -30,14 +30,13 @@ void RtNodeDefData::addPortDef(RtDataHandle portdef)
         throw ExceptionRuntimeError("Given object is not a valid portdef");
     }
     RtPortDefData* pd = portdef->asA<RtPortDefData>();
-    auto it = _portdefsByName.find(pd->getName());
-    if (it != _portdefsByName.end())
+    auto it = _elementsByName.find(pd->getName());
+    if (it != _elementsByName.end())
     {
         throw ExceptionRuntimeError("A port named '" + pd->getName() + "' already exists for nodedef '" + getName() + "'");
     }
-    _portdefsByName[pd->getName()] = _portdefs.size();
-    _portdefs.push_back(portdef);
+    _elementsByName[pd->getName()] = _elements.size();
+    _elements.push_back(portdef);
 }
-
 
 }

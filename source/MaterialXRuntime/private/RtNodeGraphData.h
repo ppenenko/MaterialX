@@ -17,7 +17,7 @@
 namespace MaterialX
 {
 
-class RtNodeGraphData : public RtElementData
+class RtNodeGraphData : public RtCompoundElementData
 {
 public:
     RtNodeGraphData(const RtToken& name);
@@ -25,28 +25,6 @@ public:
     static RtDataHandle create(const RtToken& name);
 
     void addNode(RtDataHandle node);
-
-    RtDataHandle getNode(const RtToken& name) const
-    {
-        auto it = _nodesByName.find(name);
-        return it != _nodesByName.end() ? _nodes[it->second] : nullptr;
-    }
-
-    RtDataHandle getNode(size_t index) const
-    {
-        return index < _nodes.size() ? _nodes[index] : nullptr;
-    }
-
-    size_t numNodes() const
-    {
-        return _nodes.size();
-    }
-
-    size_t getNodeIndex(const RtToken& name) const
-    {
-        auto it = _nodesByName.find(name);
-        return it != _nodesByName.end() ? it->second : INVALID_INDEX;
-    }
 
     void setInterface(RtDataHandle nodedef);
 
@@ -62,12 +40,9 @@ public:
 
 protected:
     // Short syntax getter for convenience.
-    inline RtNodeData* node(size_t index) { return (RtNodeData*)getNode(index).get(); }
+    inline RtNodeData* node(size_t index) { return (RtNodeData*)getElement(index).get(); }
     inline RtNodeData* inputs() { return (RtNodeData*)_inputs.get(); }
     inline RtNodeData* outputs() { return (RtNodeData*)_outputs.get(); }
-
-    RtDataHandleArray _nodes;
-    RtTokenIndexMap _nodesByName;
 
     RtDataHandle _inputs;
     RtDataHandle _inputsDef;

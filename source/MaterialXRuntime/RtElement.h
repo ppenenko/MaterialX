@@ -102,11 +102,8 @@ public:
     /// Constructor attaching an object to the API.
     RtElement(const RtObject& obj);
 
-    /// Return the type for this object.
+    /// Return the type for this API.
     RtApiType getApiType() const override;
-
-    /// Query if the given object type is supported by this API.
-    bool isSupported(RtObjType type) const override;
 
     /// Get element name.
     const RtToken& getName() const;
