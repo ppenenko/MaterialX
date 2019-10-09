@@ -4,14 +4,13 @@
 //
 
 #include <MaterialXRuntime/RtObject.h>
-#include <MaterialXRuntime/private/RtObjectData.h>
+#include <MaterialXRuntime/Private/PrvObject.h>
 
 namespace MaterialX
 {
 
 namespace
 {
-
     static const std::set<RtObjType> API_TO_OBJ_RTTI[int(RtApiType::NUM_TYPES)] =
     {
         // RtApiType::ELEMENT
@@ -48,7 +47,7 @@ namespace
         {
             RtObjType::STAGE
         },
-        // RtApiType::STAGE_CORE_IO
+        // RtApiType::CORE_IO
         {
             RtObjType::STAGE
         }
@@ -56,7 +55,7 @@ namespace
 }
 
 RtObject::RtObject() :
-    _data(RtDataHandle())
+    _data(PrvObjectHandle())
 {
 }
 
@@ -65,7 +64,7 @@ RtObject::RtObject(const RtObject& other) :
 {
 }
 
-RtObject::RtObject(RtDataHandle data) :
+RtObject::RtObject(PrvObjectHandle data) :
     _data(data)
 {
 }
@@ -91,23 +90,23 @@ bool RtObject::hasApi(RtApiType type) const
 
 
 RtApiBase::RtApiBase() :
-    _data(RtDataHandle())
+    _data(PrvObjectHandle())
 {
 }
 
-RtApiBase::RtApiBase(RtDataHandle data)
+RtApiBase::RtApiBase(PrvObjectHandle data) :
+    _data(data)
 {
-    setData(data);
 }
 
-RtApiBase::RtApiBase(const RtObject& obj)
+RtApiBase::RtApiBase(const RtObject& obj) :
+    _data(obj._data)
 {
-    setData(obj._data);
 }
 
-RtApiBase::RtApiBase(const RtApiBase& other)
+RtApiBase::RtApiBase(const RtApiBase& other) :
+    _data(other._data)
 {
-    setData(other._data);
 }
 
 bool RtApiBase::isSupported(RtObjType type) const
@@ -127,10 +126,10 @@ RtObject RtApiBase::getObject()
 
 bool RtApiBase::isValid() const
 {
-    return _data != nullptr;
+    return _data && isSupported(_data->getObjType());
 }
 
-void RtApiBase::setData(RtDataHandle data)
+void RtApiBase::setData(PrvObjectHandle data)
 {
     if (data && !isSupported(data->getObjType()))
     {

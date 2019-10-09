@@ -6,7 +6,7 @@
 #ifndef MATERIALX_RTPORTDEFDATA_H
 #define MATERIALX_RTPORTDEFDATA_H
 
-#include <MaterialXRuntime/private/RtElementData.h>
+#include <MaterialXRuntime/Private/PrvElement.h>
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtPortDef.h>
@@ -18,12 +18,12 @@
 namespace MaterialX
 {
 
-class RtPortDefData : public RtElementData
+class PrvPortDef : public PrvElement
 {
 public:
-    RtPortDefData(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+    PrvPortDef(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 
-    static RtDataHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+    static PrvObjectHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 
     const RtToken& getType() const
     {

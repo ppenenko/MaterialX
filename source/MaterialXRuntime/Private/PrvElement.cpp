@@ -3,24 +3,24 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/private/RtElementData.h>
-#include <MaterialXRuntime/private/RtNodeData.h>
-#include <MaterialXRuntime/private/RtNodeDefData.h>
+#include <MaterialXRuntime/Private/PrvElement.h>
+#include <MaterialXRuntime/Private/PrvNode.h>
+#include <MaterialXRuntime/Private/PrvNodeDef.h>
 
 #include <MaterialXCore/Util.h>
 
 namespace MaterialX
 {
 
-const string PATH_SEPARATOR = "/";
+const string PrvElement::PATH_SEPARATOR = "/";
 
-RtElementData::RtElementData(RtObjType objType, const RtToken& name) :
-    RtObjectData(objType),
+PrvElement::PrvElement(RtObjType objType, const RtToken& name) :
+    PrvObject(objType),
     _name(name)
 {
 }
 
-void RtElementData::addAttribute(const RtToken& name, const RtToken& type, const RtValue& value)
+void PrvElement::addAttribute(const RtToken& name, const RtToken& type, const RtValue& value)
 {
     auto it = _attributesByName.find(name);
     if (it != _attributesByName.end())
@@ -32,18 +32,18 @@ void RtElementData::addAttribute(const RtToken& name, const RtToken& type, const
 }
 
 
-RtCompoundElementData::RtCompoundElementData(RtObjType objType, const RtToken& name) :
-    RtElementData(objType, name)
+PrvCompoundElement::PrvCompoundElement(RtObjType objType, const RtToken& name) :
+    PrvElement(objType, name)
 {
 }
 
-void RtCompoundElementData::addElement(RtDataHandle elem)
+void PrvCompoundElement::addElement(PrvObjectHandle elem)
 {
     if (!elem->hasApi(RtApiType::ELEMENT))
     {
         throw ExceptionRuntimeError("Given object is not a valid element");
     }
-    RtElementData* e = elem->asA<RtElementData>();
+    PrvElement* e = elem->asA<PrvElement>();
     auto it = _elementsByName.find(e->getName());
     if (it != _elementsByName.end())
     {
@@ -53,7 +53,7 @@ void RtCompoundElementData::addElement(RtDataHandle elem)
     _elements.push_back(elem);
 }
 
-void RtCompoundElementData::removeElement(const RtToken& name)
+void PrvCompoundElement::removeElement(const RtToken& name)
 {
     const size_t index = getElementIndex(name);
     if (index == INVALID_INDEX)
@@ -64,7 +64,7 @@ void RtCompoundElementData::removeElement(const RtToken& name)
     _attributesByName.erase(name);
 }
 
-RtDataHandle RtCompoundElementData::findElement(const RtString& path) const
+PrvObjectHandle PrvCompoundElement::findElement(const RtString& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -73,18 +73,18 @@ RtDataHandle RtCompoundElementData::findElement(const RtString& path) const
     }
 
     size_t i = 0;
-    RtDataHandle elem = getElement(elementNames[i++]);
+    PrvObjectHandle elem = getElement(elementNames[i++]);
 
     while (elem != nullptr && i < elementNames.size())
     {
         if (elem->hasApi(RtApiType::COMPOUND_ELEMENT))
         {
-            elem = elem->asA<RtCompoundElementData>()->getElement(elementNames[i]);
+            elem = elem->asA<PrvCompoundElement>()->getElement(elementNames[i]);
         }
         else if (elem->hasApi(RtApiType::NODE))
         {
-            RtNodeData* node = elem->asA<RtNodeData>();
-            RtNodeDefData* nodedef = node->getNodeDef()->asA<RtNodeDefData>();
+            PrvNode* node = elem->asA<PrvNode>();
+            PrvNodeDef* nodedef = node->getNodeDef()->asA<PrvNodeDef>();
             elem = nodedef->getElement(elementNames[i]);
         }
         ++i;

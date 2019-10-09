@@ -90,7 +90,7 @@ private:
     RtToken _name;
     RtToken _type;
     RtValue _value;
-    friend class RtElementData;
+    friend class PrvElement;
 };
 
 

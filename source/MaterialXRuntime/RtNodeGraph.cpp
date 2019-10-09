@@ -6,8 +6,8 @@
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtObject.h>
 
-#include <MaterialXRuntime/private/RtNodeGraphData.h>
-#include <MaterialXRuntime/private/RtStageData.h>
+#include <MaterialXRuntime/Private/PrvNodeGraph.h>
+#include <MaterialXRuntime/Private/PrvStage.h>
 
 namespace MaterialX
 {
@@ -17,17 +17,17 @@ RtNodeGraph::RtNodeGraph(const RtObject& obj) :
 {
 }
 
-RtObject RtNodeGraph::create(const RtToken& name, RtObject stage)
+RtObject RtNodeGraph::create(const RtToken& name, RtObject parent)
 {
-    RtDataHandle nodegraph = RtNodeGraphData::create(name);
+    PrvObjectHandle nodegraph = PrvNodeGraph::create(name);
 
-    if (stage.isValid())
+    if (parent.isValid())
     {
-        if (!stage.hasApi(RtApiType::STAGE))
+        if (!parent.hasApi(RtApiType::STAGE))
         {
-            throw ExceptionRuntimeError("Given stage object is not a valid stage");
+            throw ExceptionRuntimeError("Given parent object is not a valid stage");
         }
-        RtApiBase::data(stage)->asA<RtStageData>()->addElement(nodegraph);
+        RtApiBase::data(parent)->asA<PrvStage>()->addElement(nodegraph);
     }
 
     return RtApiBase::object(nodegraph);
@@ -40,41 +40,46 @@ RtApiType RtNodeGraph::getApiType() const
 
 void RtNodeGraph::addNode(RtObject node)
 {
-    return data()->asA<RtNodeGraphData>()->addNode(RtApiBase::data(node));
+    return data()->asA<PrvNodeGraph>()->addNode(RtApiBase::data(node));
 }
 
 RtObject RtNodeGraph::getNode(const RtToken& name) const
 {
-    RtDataHandle node = data()->asA<RtNodeGraphData>()->getElement(name);
+    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getElement(name);
     return RtApiBase::object(node);
 }
 
 RtObject RtNodeGraph::getNode(size_t index) const
 {
-    RtDataHandle node = data()->asA<RtNodeGraphData>()->getElement(index);
+    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getElement(index);
     return RtApiBase::object(node);
 }
 
 size_t RtNodeGraph::numNodes() const
 {
-    return data()->asA<RtNodeGraphData>()->numElements();
+    return data()->asA<PrvNodeGraph>()->numElements();
 }
 
 void RtNodeGraph::setInterface(RtObject nodedef)
 {
-    return data()->asA<RtNodeGraphData>()->setInterface(RtApiBase::data(nodedef));
+    return data()->asA<PrvNodeGraph>()->setInterface(RtApiBase::data(nodedef));
 }
 
-RtObject RtNodeGraph::getInputInterface() const
+RtObject RtNodeGraph::getInputsNode() const
 {
-    RtDataHandle node = data()->asA<RtNodeGraphData>()->getInputInterface();
+    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getInputsNode();
     return RtApiBase::object(node);
 }
 
-RtObject RtNodeGraph::getOutputInterface() const
+RtObject RtNodeGraph::getOutputsNode() const
 {
-    RtDataHandle node = data()->asA<RtNodeGraphData>()->getOutputInterface();
+    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getOutputsNode();
     return RtApiBase::object(node);
+}
+
+RtString RtNodeGraph::asStringDot() const
+{
+    return data()->asA<PrvNodeGraph>()->asStringDot();
 }
 
 }

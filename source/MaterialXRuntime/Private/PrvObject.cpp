@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/private/RtObjectData.h>
+#include <MaterialXRuntime/Private/PrvObject.h>
 
 #include <set>
 
@@ -46,21 +46,22 @@ namespace
         {
             RtApiType::ELEMENT,
             RtApiType::COMPOUND_ELEMENT,
-            RtApiType::STAGE
+            RtApiType::STAGE,
+            RtApiType::CORE_IO
         }
     };
 }
 
-RtObjectData::RtObjectData(RtObjType type) :
+PrvObject::PrvObject(RtObjType type) :
     _objType(type)
 {
 }
 
-RtObjectData::~RtObjectData()
+PrvObject::~PrvObject()
 {
 }
 
-bool RtObjectData::hasApi(RtApiType type) const
+bool PrvObject::hasApi(RtApiType type) const
 {
     return OBJ_TO_API_RTTI[int(_objType)].count(type) != 0;
 }

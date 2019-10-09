@@ -17,11 +17,11 @@
 namespace MaterialX
 {
 
-class RtObjectData;
+class PrvObject;
 
 // A handle to private data
 // TODO: implement a custom refcounted handle class
-using RtDataHandle = std::shared_ptr<RtObjectData>;
+using PrvObjectHandle = std::shared_ptr<PrvObject>;
 
 /// Type identifiers for concrete runtime objects.
 enum class RtObjType
@@ -45,7 +45,7 @@ enum class RtApiType
     NODE,
     NODEGRAPH,
     STAGE,
-    STAGE_CORE_IO,
+    CORE_IO,
     NUM_TYPES
 };
 
@@ -85,9 +85,9 @@ public:
     }
 
 private:
-    RtObject(RtDataHandle data);
+    RtObject(PrvObjectHandle data);
 
-    RtDataHandle _data;
+    PrvObjectHandle _data;
     friend class RtApiBase;
 };
 
@@ -138,7 +138,7 @@ protected:
     RtApiBase();
 
     /// Construct from a data handle.
-    RtApiBase(RtDataHandle data);
+    RtApiBase(PrvObjectHandle data);
 
     /// Construct from an object.
     RtApiBase(const RtObject& obj);
@@ -147,23 +147,23 @@ protected:
     RtApiBase(const RtApiBase& other);
 
     /// Set data for this API.
-    void setData(RtDataHandle data);
+    void setData(PrvObjectHandle data);
 
     /// Return data set for this API.
-    RtDataHandle data() { return _data; }
+    PrvObjectHandle data() { return _data; }
 
     /// Return data set for this API.
-    const RtDataHandle data() const { return _data; }
+    const PrvObjectHandle data() const { return _data; }
 
     /// Return data for a given object.
-    static const RtDataHandle data(RtObject obj) { return obj._data; }
+    static const PrvObjectHandle data(RtObject obj) { return obj._data; }
 
     /// Construct an object from a data handle.
-    static RtObject object(RtDataHandle data) { return RtObject(data); }
+    static RtObject object(PrvObjectHandle data) { return RtObject(data); }
 
 private:
     /// Internal data attached to the API.
-    RtDataHandle _data;
+    PrvObjectHandle _data;
     friend class RtPort;
 };
 

@@ -22,9 +22,9 @@ public:
     /// Constructor attaching and object to the API.
     RtNodeGraph(const RtObject& obj);
 
-    /// Create a new nodegraph and add it to
-    /// a stage if specified.
-    static RtObject create(const RtToken& name, RtObject stage = RtObject());
+    /// Create a new nodegraph and add it to a parent if specified.
+    /// The parent must be a stage object.
+    static RtObject create(const RtToken& name, RtObject parent = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
@@ -43,11 +43,19 @@ public:
     /// Return the node count.
     size_t numNodes() const;
 
+    /// Set the interface for the graph, creating inputs and outputs 
+    /// according to the given nodedef.
     void setInterface(RtObject nodedef);
 
-    RtObject getInputInterface() const;
+    /// Return the internal node holding the input interface.
+    RtObject getInputsNode() const;
 
-    RtObject getOutputInterface() const;
+    /// Return the internal node holding the output interface.
+    RtObject getOutputsNode() const;
+
+    /// Convert this graph to a string in the DOT language syntax. This can be
+    /// used to visualise the graph using GraphViz (http://www.graphviz.org).
+    RtString asStringDot() const;
 };
 
 }

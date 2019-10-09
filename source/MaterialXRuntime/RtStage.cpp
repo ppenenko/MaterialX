@@ -5,7 +5,7 @@
 
 #include <MaterialXRuntime/RtStage.h>
 
-#include <MaterialXRuntime/private/RtStageData.h>
+#include <MaterialXRuntime/Private/PrvStage.h>
 
 namespace MaterialX
 {
@@ -22,50 +22,39 @@ RtApiType RtStage::getApiType() const
 
 RtObject RtStage::create(const RtToken& name)
 {
-    return RtApiBase::object(RtStageData::create(name));
+    return RtApiBase::object(PrvStage::create(name));
 }
 
 void RtStage::addElement(RtObject elem)
 {
-    data()->asA<RtStageData>()->addElement(RtApiBase::data(elem));
+    data()->asA<PrvStage>()->addElement(RtApiBase::data(elem));
 }
 
 void RtStage::removeElement(const RtToken& name)
 {
-    data()->asA<RtStageData>()->removeElement(name);
+    data()->asA<PrvStage>()->removeElement(name);
 }
 
 RtObject RtStage::getElement(const RtToken& name) const
 {
-    RtDataHandle elem = data()->asA<RtStageData>()->getElement(name);
+    PrvObjectHandle elem = data()->asA<PrvStage>()->getElement(name);
     return RtApiBase::object(elem);
-}
-
-RtObject RtStage::getElement(size_t index) const
-{
-    RtDataHandle elem = data()->asA<RtStageData>()->getElement(index);
-    return RtApiBase::object(elem);
-}
-
-size_t RtStage::numElements() const
-{
-    return data()->asA<RtStageData>()->numElements();
 }
 
 RtObject RtStage::findElement(const RtString& path) const
 {
-    RtDataHandle elem = data()->asA<RtStageData>()->findElement(path);
+    PrvObjectHandle elem = data()->asA<PrvStage>()->findElement(path);
     return RtApiBase::object(elem);
 }
 
 void RtStage::addReference(RtObject stage)
 {
-    throw ExceptionRuntimeError("Not implemented");
+    data()->asA<PrvStage>()->addReference(RtApiBase::data(stage));
 }
 
-void RtStage::removeReference(RtObject stage)
+void RtStage::removeReference(const RtToken& name)
 {
-    throw ExceptionRuntimeError("Not implemented");
+    data()->asA<PrvStage>()->removeReference(name);
 }
 
 }

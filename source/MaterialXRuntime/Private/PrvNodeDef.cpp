@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/private/RtNodeDefData.h>
-#include <MaterialXRuntime/private/RtPortDefData.h>
+#include <MaterialXRuntime/Private/PrvNodeDef.h>
+#include <MaterialXRuntime/Private/PrvPortDef.h>
 
 /// @file
 /// TODO: Docs
@@ -12,24 +12,24 @@
 namespace MaterialX
 {
 
-RtNodeDefData::RtNodeDefData(const RtToken& name, const RtToken& category) :
-    RtCompoundElementData(RtObjType::NODEDEF, name),
+PrvNodeDef::PrvNodeDef(const RtToken& name, const RtToken& category) :
+    PrvCompoundElement(RtObjType::NODEDEF, name),
     _category(category)
 {
 }
 
-RtDataHandle RtNodeDefData::create(const RtToken& name, const RtToken& category)
+PrvObjectHandle PrvNodeDef::create(const RtToken& name, const RtToken& category)
 {
-    return std::make_shared<RtNodeDefData>(name, category);
+    return std::make_shared<PrvNodeDef>(name, category);
 }
 
-void RtNodeDefData::addPortDef(RtDataHandle portdef)
+void PrvNodeDef::addPortDef(PrvObjectHandle portdef)
 {
     if (!portdef->hasApi(RtApiType::PORTDEF))
     {
         throw ExceptionRuntimeError("Given object is not a valid portdef");
     }
-    RtPortDefData* pd = portdef->asA<RtPortDefData>();
+    PrvPortDef* pd = portdef->asA<PrvPortDef>();
     auto it = _elementsByName.find(pd->getName());
     if (it != _elementsByName.end())
     {

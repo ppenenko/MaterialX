@@ -36,8 +36,10 @@ public:
     /// Constructor attaching and object to the API.
     RtPortDef(const RtObject& obj);
 
-    /// Create a new portdef on the given nodedef.
-    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject nodedef);
+    /// Create a new portdef and add it to a parent 
+    /// object if specified.
+    /// The parent must be a nodedef object.
+    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject parent = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;

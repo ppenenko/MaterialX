@@ -17,6 +17,9 @@
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
+#include <MaterialXRuntime/RtCoreIo.h>
+
+#include <MaterialXGenShader/Util.h>
 
 #include <cstdlib>
 #include <fstream>
@@ -167,9 +170,9 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
 
     // Set the interface and test the interface nodes
     graph1.setInterface(bobNodeObj);
-    mx::RtNode inputs = graph1.getInputInterface();
+    mx::RtNode inputs = graph1.getInputsNode();
     REQUIRE(inputs.numPorts() == 2);
-    mx::RtNode outputs = graph1.getOutputInterface();
+    mx::RtNode outputs = graph1.getOutputsNode();
     REQUIRE(outputs.numPorts() == 1);
 
     mx::RtNode add3(add3Obj);
@@ -192,14 +195,71 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(mx::RtPortDef(elem1).getName() == "in2");
     REQUIRE(mx::RtPortDef(elem1).isInput());
 
+    // Find a port by path
     mx::RtObject node = stage.findElement("/graph1/add4");
-    mx::RtObject port = stage.findElement("/graph1/add4/out");
+    mx::RtObject portdef = stage.findElement("/graph1/add4/out");
     REQUIRE(node.isValid());
-    REQUIRE(port.isValid());
+    REQUIRE(portdef.isValid());
     REQUIRE(node.hasApi(mx::RtApiType::NODE));
-    REQUIRE(port.hasApi(mx::RtApiType::PORTDEF));
-
+    REQUIRE(portdef.hasApi(mx::RtApiType::PORTDEF));
     // Get a port instance from node and portdef
-    mx::RtPort port1(node, port);
+    mx::RtPort port1(node, portdef);
     REQUIRE(port1 == add4.getPort("out"));
+}
+
+TEST_CASE("Runtime: CoreIo", "[runtime]")
+{
+    // Create a document.
+    mx::DocumentPtr doc = mx::createDocument();
+
+    // Load in stdlib
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    loadLibraries({ "stdlib" }, searchPath, doc);
+
+    // Create a stage and load the document data.
+    mx::RtObject stageObj = mx::RtStage::create("stage");
+    mx::RtCoreIo io(stageObj);
+    io.read(*doc, false);
+
+    // Get a nodegraph and write a dot file for inspection.
+    mx::RtStage stage(stageObj);
+    mx::RtNodeGraph graph = stage.getElement("NG_tiledimage_float");
+    REQUIRE(graph.isValid());
+    std::ofstream dotfile;
+    dotfile.open(graph.getName() + ".dot");
+    dotfile << graph.asStringDot();
+    dotfile.close();
+}
+
+TEST_CASE("Runtime: Stage References", "[runtime]")
+{
+    // Create a main stage.
+    mx::RtObject mainStageObj = mx::RtStage::create("main");
+    mx::RtStage mainStage(mainStageObj);
+
+    // Load in stdlib in another stage.
+    mx::RtObject libStageObj = mx::RtStage::create("libs");
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
+    mx::RtCoreIo io(libStageObj);
+    io.read(*doc, false);
+
+    // Reference the library stage .
+    mainStage.addReference(libStageObj);
+
+    // Test access and removal of contents from the referenced library.
+    mx::RtNodeDef nodedef = mainStage.getElement("ND_add_float");
+    REQUIRE(nodedef.isValid());
+    REQUIRE_THROWS(mainStage.removeElement(nodedef.getName()));
+
+    // Test instantiation of a node from a referenced nodedef
+    mx::RtObject addObj = mx::RtNode::create("add1", nodedef.getObject(), mainStage.getObject());
+    REQUIRE(addObj.isValid());
+
+    // Make sure removal of the non-referenced node works
+    const mx::RtToken nodeName = mx::RtNode(addObj).getName();
+    mainStage.removeElement(nodeName);
+    addObj = mainStage.getElement(nodeName);
+    REQUIRE(!addObj.isValid());
 }

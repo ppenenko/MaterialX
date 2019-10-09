@@ -5,7 +5,7 @@
 
 #include <MaterialXRuntime/RtElement.h>
 
-#include <MaterialXRuntime/private/RtElementData.h>
+#include <MaterialXRuntime/Private/PrvElement.h>
 
 namespace MaterialX
 {
@@ -22,42 +22,42 @@ RtApiType RtElement::getApiType() const
 
 const RtToken& RtElement::getName() const
 {
-    return data()->asA<RtElementData>()->getName();
+    return data()->asA<PrvElement>()->getName();
 }
 
 void RtElement::addAttribute(const RtToken& name, const RtToken& type, const RtValue& value)
 {
-    RtElementData* elem = data()->asA<RtElementData>();
+    PrvElement* elem = data()->asA<PrvElement>();
     elem->addAttribute(name, type, value);
 }
 
 const RtAttribute* RtElement::getAttribute(const RtToken& name) const
 {
-    RtElementData* elem = data()->asA<RtElementData>();
+    PrvElement* elem = data()->asA<PrvElement>();
     return elem->getAttribute(name);
 }
 
 RtAttribute* RtElement::getAttribute(const RtToken& name)
 {
-    RtElementData* elem = data()->asA<RtElementData>();
+    PrvElement* elem = data()->asA<PrvElement>();
     return elem->getAttribute(name);
 }
 
 const RtAttribute* RtElement::getAttribute(size_t index) const
 {
-    RtElementData* elem = data()->asA<RtElementData>();
+    PrvElement* elem = data()->asA<PrvElement>();
     return elem->getAttribute(index);
 }
 
 RtAttribute* RtElement::getAttribute(size_t index)
 {
-    RtElementData* elem = data()->asA<RtElementData>();
+    PrvElement* elem = data()->asA<PrvElement>();
     return elem->getAttribute(index);
 }
 
 size_t RtElement::numAttributes() const
 {
-    return data()->asA<RtElementData>()->numAttributes();
+    return data()->asA<PrvElement>()->numAttributes();
 }
 
 }

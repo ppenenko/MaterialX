@@ -22,8 +22,9 @@ public:
     /// Constructor attaching and object to the API.
     RtNodeDef(const RtObject& obj);
 
-    /// Create a new nodedef on the given stage.
-    static RtObject create(const RtToken& name, const RtToken& category, RtObject stage = RtObject());
+    /// Create a new nodegraph and add it to a parent if specified.
+    /// The parent must be a stage object.
+    static RtObject create(const RtToken& name, const RtToken& category, RtObject parent = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;

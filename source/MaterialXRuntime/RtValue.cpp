@@ -11,6 +11,10 @@ namespace MaterialX
 RtValue::RtValue(const ValuePtr& v) : 
     _data{0,0}
 {
+    if (!v)
+    {
+        return;
+    }
     if (v->isA<bool>())
     {
         asBool() = v->asA<bool>();
@@ -22,14 +26,6 @@ RtValue::RtValue(const ValuePtr& v) :
     else if (v->isA<int>())
     {
         asInt() = v->asA<int>();
-    }
-    else if (v->isA<unsigned int>())
-    {
-        asUInt() = v->asA<unsigned int>();
-    }
-    else if (v->isA<size_t>())
-    {
-        asSize() = v->asA<size_t>();
     }
     else if (v->isA<Color3>())
     {

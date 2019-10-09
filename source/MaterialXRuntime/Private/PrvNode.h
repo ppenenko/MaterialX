@@ -3,10 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RTNODEDATA_H
-#define MATERIALX_RTNODEDATA_H
+#ifndef MATERIALX_PRVNODE_H
+#define MATERIALX_PRVNODE_H
 
-#include <MaterialXRuntime/private/RtNodeDefData.h>
+#include <MaterialXRuntime/Private/PrvNodeDef.h>
 
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtValue.h>
@@ -17,14 +17,16 @@
 namespace MaterialX
 {
 
-class RtNodeData : public RtElementData
+using RtPortVec = vector<RtPort>;
+
+class PrvNode : public PrvElement
 {
 public:
-    RtNodeData(const RtToken& name, const RtDataHandle& nodedef);
+    PrvNode(const RtToken& name, const PrvObjectHandle& nodedef);
 
-    static RtDataHandle create(const RtToken& name, const RtDataHandle& nodedef);
+    static PrvObjectHandle create(const RtToken& name, const PrvObjectHandle& nodedef);
 
-    RtDataHandle getNodeDef() const
+    PrvObjectHandle getNodeDef() const
     {
         return _nodedef;
     }
@@ -36,16 +38,16 @@ public:
 
     RtPort getPort(const RtToken& name)
     {
-        RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
+        PrvNodeDef* nodedef = _nodedef->asA<PrvNodeDef>();
         const size_t index = nodedef->getElementIndex(name);
-        RtPortDefData* portdef = nodedef->portdef(index);
+        PrvPortDef* portdef = nodedef->portdef(index);
         return portdef ? RtPort(shared_from_this(), index) : RtPort();
     }
 
     RtPort getPort(size_t index)
     {
-        RtNodeDefData* nodedef = _nodedef->asA<RtNodeDefData>();
-        RtPortDefData* portdef = nodedef->portdef(index);
+        PrvNodeDef* nodedef = _nodedef->asA<PrvNodeDef>();
+        PrvPortDef* portdef = nodedef->portdef(index);
         return portdef ? RtPort(shared_from_this(), index) : RtPort();
     }
 
@@ -58,14 +60,14 @@ public:
 
     static void disconnect(const RtPort& source, const RtPort& dest);
 
-protected:
     // Short syntax getter for convenience.
-    RtNodeDefData* nodedef() { return (RtNodeDefData*)_nodedef.get(); }
-    const RtNodeDefData* nodedef() const { return (RtNodeDefData*)_nodedef.get(); }
+    PrvNodeDef* nodedef() { return (PrvNodeDef*)_nodedef.get(); }
+    const PrvNodeDef* nodedef() const { return (PrvNodeDef*)_nodedef.get(); }
 
-    RtDataHandle _nodedef;
+protected:
+    PrvObjectHandle _nodedef;
     vector<RtValue> _values;
-    vector<RtPortArray> _connections;
+    vector<RtPortVec> _connections;
     friend class RtPort;
 };
 

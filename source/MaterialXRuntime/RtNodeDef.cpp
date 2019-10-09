@@ -6,8 +6,8 @@
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtObject.h>
 
-#include <MaterialXRuntime/private/RtNodeDefData.h>
-#include <MaterialXRuntime/private/RtStageData.h>
+#include <MaterialXRuntime/Private/PrvNodeDef.h>
+#include <MaterialXRuntime/Private/PrvStage.h>
 
 namespace MaterialX
 {
@@ -17,18 +17,17 @@ RtNodeDef::RtNodeDef(const RtObject& obj) :
 {
 }
 
-RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObject stage)
+RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObject parent)
 {
-    RtDataHandle nodedef = RtNodeDefData::create(name, category);
+    PrvObjectHandle nodedef = PrvNodeDef::create(name, category);
 
-    if (stage.isValid())
+    if (parent.isValid())
     {
-        if (!stage.hasApi(RtApiType::STAGE))
+        if (!parent.hasApi(RtApiType::STAGE))
         {
-            throw ExceptionRuntimeError("Given object is not a valid stage");
+            throw ExceptionRuntimeError("Given parent object is not a valid stage");
         }
-        RtStageData* stagedata = RtApiBase::data(stage)->asA<RtStageData>();
-        stagedata->addElement(nodedef);
+        RtApiBase::data(parent)->asA<PrvStage>()->addElement(nodedef);
     }
 
     return RtApiBase::object(nodedef);
@@ -41,34 +40,34 @@ RtApiType RtNodeDef::getApiType() const
 
 const RtToken& RtNodeDef::getCategory() const
 {
-    return data()->asA<RtNodeDefData>()->getCategory();
+    return data()->asA<PrvNodeDef>()->getCategory();
 }
 
 void RtNodeDef::addPortDef(RtObject attr)
 {
-    return data()->asA<RtNodeDefData>()->addPortDef(RtApiBase::data(attr));
+    return data()->asA<PrvNodeDef>()->addPortDef(RtApiBase::data(attr));
 }
 
 RtObject RtNodeDef::getPortDef(const RtToken& name) const
 {
-    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getElement(name);
+    PrvObjectHandle portdef = data()->asA<PrvNodeDef>()->getElement(name);
     return RtApiBase::object(portdef);
 }
 
 RtObject RtNodeDef::getPortDef(size_t index) const
 {
-    RtDataHandle portdef = data()->asA<RtNodeDefData>()->getElement(index);
+    PrvObjectHandle portdef = data()->asA<PrvNodeDef>()->getElement(index);
     return RtApiBase::object(portdef);
 }
 
 size_t RtNodeDef::numPorts() const
 {
-    return data()->asA<RtNodeDefData>()->numElements();
+    return data()->asA<PrvNodeDef>()->numElements();
 }
 
 size_t RtNodeDef::getPortIndex(const RtToken& name) const
 {
-    return data()->asA<RtNodeDefData>()->getElementIndex(name);
+    return data()->asA<PrvNodeDef>()->getElementIndex(name);
 }
 
 }

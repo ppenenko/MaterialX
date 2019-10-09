@@ -3,8 +3,8 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RTSTAGECOREIO_H
-#define MATERIALX_RTSTAGECOREIO_H
+#ifndef MATERIALX_RTCOREIO_H
+#define MATERIALX_RTCOREIO_H
 
 #include <MaterialXCore/Document.h>
 
@@ -16,20 +16,18 @@
 namespace MaterialX
 {
 
-class RtStageCoreIo : public RtApiBase
+class RtCoreIo : public RtApiBase
 {
-private:
-    RtStageCoreIo(RtObject stage);
+public:
+    RtCoreIo(RtObject stage);
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
     /// Read contents from a document.
-    void read(const Document& doc);
-    void read(const NodeDef& nodedef);
-    void read(const Node& node);
+    void read(const Document& doc, bool allNodeDefs = true);
 
-    /// Read all contents from the stage to a document.
+    /// Write all stage contents to a document.
     void write(Document& doc);
 };
 

@@ -15,7 +15,6 @@ namespace MaterialX
 {
 
 class RtPort;
-using RtPortArray = vector<RtPort>;
 
 /// @class RtPort
 /// TODO: Docs
@@ -104,11 +103,11 @@ public:
     }
 
 protected:
-    RtPort(RtDataHandle data, size_t index);
+    RtPort(PrvObjectHandle data, size_t index);
 
-    RtDataHandle _data;
+    PrvObjectHandle _data;
     size_t _index;
-    friend class RtNodeData;
+    friend class PrvNode;
 };
 
 /// @class RtNode

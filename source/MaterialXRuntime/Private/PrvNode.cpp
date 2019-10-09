@@ -3,7 +3,7 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#include <MaterialXRuntime/private/RtNodeData.h>
+#include <MaterialXRuntime/Private/PrvNode.h>
 
 /// @file
 /// TODO: Docs
@@ -11,8 +11,8 @@
 namespace MaterialX
 {
 
-RtNodeData::RtNodeData(const RtToken& name, const RtDataHandle& nd) :
-    RtElementData(RtObjType::NODE, name),
+PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nd) :
+    PrvElement(RtObjType::NODE, name),
     _nodedef(nd)
 {
     const size_t numPorts = nodedef()->numElements();
@@ -26,12 +26,12 @@ RtNodeData::RtNodeData(const RtToken& name, const RtDataHandle& nd) :
     }
 }
 
-RtDataHandle RtNodeData::create(const RtToken& name, const RtDataHandle& nodedef)
+PrvObjectHandle PrvNode::create(const RtToken& name, const PrvObjectHandle& nodedef)
 {
-    return std::make_shared<RtNodeData>(name, nodedef);
+    return std::make_shared<PrvNode>(name, nodedef);
 }
 
-void RtNodeData::connect(const RtPort& source, const RtPort& dest)
+void PrvNode::connect(const RtPort& source, const RtPort& dest)
 {
     if (dest.isConnected())
     {
@@ -46,10 +46,10 @@ void RtNodeData::connect(const RtPort& source, const RtPort& dest)
         throw ExceptionRuntimeError("Destination port is not a connectable input");
     }
 
-    RtNodeData* sourceNode = source._data->asA<RtNodeData>();
-    RtNodeData* destNode = dest._data->asA<RtNodeData>();
-    RtPortArray& sourceConnections = sourceNode->_connections[source._index];
-    RtPortArray& destConnections = destNode->_connections[dest._index];
+    PrvNode* sourceNode = source._data->asA<PrvNode>();
+    PrvNode* destNode = dest._data->asA<PrvNode>();
+    RtPortVec& sourceConnections = sourceNode->_connections[source._index];
+    RtPortVec& destConnections = destNode->_connections[dest._index];
 
     // Make room for the new source.
     destConnections.resize(1);
@@ -57,10 +57,10 @@ void RtNodeData::connect(const RtPort& source, const RtPort& dest)
     sourceConnections.push_back(dest);
 }
 
-void RtNodeData::disconnect(const RtPort& source, const RtPort& dest)
+void PrvNode::disconnect(const RtPort& source, const RtPort& dest)
 {
-    RtNodeData* destNode = dest._data->asA<RtNodeData>();
-    RtPortArray& destConnections = destNode->_connections[dest._index];
+    PrvNode* destNode = dest._data->asA<PrvNode>();
+    RtPortVec& destConnections = destNode->_connections[dest._index];
     if (destConnections.size() != 1 || destConnections[0] != source)
     {
         throw ExceptionRuntimeError("Given source and destination is not connected");
@@ -68,8 +68,8 @@ void RtNodeData::disconnect(const RtPort& source, const RtPort& dest)
 
     destConnections.clear();
 
-    RtNodeData* sourceNode = source._data->asA<RtNodeData>();
-    RtPortArray& sourceConnections = sourceNode->_connections[source._index];
+    PrvNode* sourceNode = source._data->asA<PrvNode>();
+    RtPortVec& sourceConnections = sourceNode->_connections[source._index];
     for (auto it = sourceConnections.begin(); it != sourceConnections.end(); ++it)
     {
         if (*it == dest)

@@ -3,10 +3,10 @@
 // All rights reserved.  See LICENSE.txt for license.
 //
 
-#ifndef MATERIALX_RTELEMENTDATA_H
-#define MATERIALX_RTELEMENTDATA_H
+#ifndef MATERIALX_PRVELEMENT_H
+#define MATERIALX_PRVELEMENT_H
 
-#include <MaterialXRuntime/private/RtObjectData.h>
+#include <MaterialXRuntime/Private/PrvObject.h>
 
 #include <MaterialXRuntime/RtElement.h>
 
@@ -16,10 +16,10 @@
 namespace MaterialX
 {
 
-class RtElementData : public RtObjectData
+class PrvElement : public PrvObject
 {
 public:
-    RtElementData(RtObjType objType, const RtToken& name);
+    PrvElement(RtObjType objType, const RtToken& name);
 
     const RtToken& getName() const
     {
@@ -55,37 +55,38 @@ public:
         return _attributes.size();
     }
 
-
 protected:
     void setName(const RtToken& name)
     {
         _name = name;
     }
 
+    static const string PATH_SEPARATOR;
+
     RtToken _name;
     vector<RtAttribute> _attributes;
-    RtTokenIndexMap _attributesByName;
-    friend class RtStageData;
+    TokenIndexMap _attributesByName;
+    friend class PrvStage;
 };
 
-class RtCompoundElementData : public RtElementData
+class PrvCompoundElement : public PrvElement
 {
 public:
-    RtCompoundElementData(RtObjType objType, const RtToken& name);
+    PrvCompoundElement(RtObjType objType, const RtToken& name);
 
-    void addElement(RtDataHandle elem);
+    void addElement(PrvObjectHandle elem);
 
     void removeElement(const RtToken& name);
 
-    RtDataHandle findElement(const RtString& path) const;
+    PrvObjectHandle findElement(const RtString& path) const;
 
-    RtDataHandle getElement(const RtToken& name) const
+    PrvObjectHandle getElement(const RtToken& name) const
     {
         auto it = _elementsByName.find(name);
         return it != _elementsByName.end() ? _elements[it->second] : nullptr;
     }
 
-    RtDataHandle getElement(size_t index) const
+    PrvObjectHandle getElement(size_t index) const
     {
         return index < _elements.size() ? _elements[index] : nullptr;
     }
@@ -102,8 +103,8 @@ public:
     }
 
 protected:
-    RtDataHandleArray _elements;
-    RtTokenIndexMap _elementsByName;
+    PrvObjectArray _elements;
+    TokenIndexMap _elementsByName;
 };
 
 }
