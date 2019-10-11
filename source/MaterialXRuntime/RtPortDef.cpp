@@ -20,7 +20,7 @@ RtObject RtPortDef::create(const RtToken& name, const RtToken& type, const RtVal
 {
     PrvObjectHandle portdef = PrvPortDef::create(name, type, value, flags);
 
-    if (parent.isValid())
+    if (parent)
     {
         if (parent.hasApi(RtApiType::NODEDEF))
         {

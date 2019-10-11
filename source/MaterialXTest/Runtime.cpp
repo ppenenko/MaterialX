@@ -28,6 +28,11 @@
 
 namespace mx = MaterialX;
 
+TEST_CASE("Runtime: Token", "[runtime]")
+{
+
+}
+
 TEST_CASE("Runtime: Values", "[runtime]")
 {
     mx::RtValue v1, v2, v3;
@@ -64,6 +69,12 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
 {
     mx::RtObject stageObj = mx::RtStage::create("root");
     mx::RtStage stage(stageObj);
+
+    // Test validity/bool operators
+    REQUIRE(stageObj);
+    REQUIRE(!stageObj == false);
+    REQUIRE(stage);
+    REQUIRE(!stage == false);
 
     // Create a new nodedef object for defining an add node
     mx::RtObject addNodeObj = mx::RtNodeDef::create("ND_add_float", "add", stageObj);
@@ -219,14 +230,14 @@ TEST_CASE("Runtime: CoreIo", "[runtime]")
     // Create a stage and load the document data.
     mx::RtObject stageObj = mx::RtStage::create("stage");
     mx::RtCoreIo io(stageObj);
-    io.read(*doc, false);
+    io.read(doc);
 
     // Get a nodegraph and write a dot file for inspection.
     mx::RtStage stage(stageObj);
     mx::RtNodeGraph graph = stage.getElement("NG_tiledimage_float");
     REQUIRE(graph.isValid());
     std::ofstream dotfile;
-    dotfile.open(graph.getName() + ".dot");
+    dotfile.open(graph.getName().str() + ".dot");
     dotfile << graph.asStringDot();
     dotfile.close();
 }
@@ -243,7 +254,7 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::RtCoreIo io(libStageObj);
-    io.read(*doc, false);
+    io.read(doc);
 
     // Reference the library stage .
     mainStage.addReference(libStageObj);

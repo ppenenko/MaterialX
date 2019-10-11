@@ -21,7 +21,7 @@ RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObjec
 {
     PrvObjectHandle nodedef = PrvNodeDef::create(name, category);
 
-    if (parent.isValid())
+    if (parent)
     {
         if (!parent.hasApi(RtApiType::STAGE))
         {

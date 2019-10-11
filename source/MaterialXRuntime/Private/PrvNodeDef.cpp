@@ -33,7 +33,7 @@ void PrvNodeDef::addPortDef(PrvObjectHandle portdef)
     auto it = _elementsByName.find(pd->getName());
     if (it != _elementsByName.end())
     {
-        throw ExceptionRuntimeError("A port named '" + pd->getName() + "' already exists for nodedef '" + getName() + "'");
+        throw ExceptionRuntimeError("A port named '" + pd->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
     }
     _elementsByName[pd->getName()] = _elements.size();
     _elements.push_back(portdef);

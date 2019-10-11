@@ -190,7 +190,7 @@ RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject parent)
 
     PrvObjectHandle node = PrvNode::create(name, RtApiBase::data(nodedef));
 
-    if (parent.isValid())
+    if (parent)
     {
         if (parent.hasApi(RtApiType::STAGE))
         {

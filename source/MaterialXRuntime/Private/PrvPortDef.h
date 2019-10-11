@@ -105,6 +105,8 @@ public:
         return _flags & RtPortFlag::UNIFORM;
     }
 
+    static const RtToken DEFAULT_OUTPUT_NAME;
+
 protected:
     RtToken _type;
     RtValue _value;

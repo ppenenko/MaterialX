@@ -41,7 +41,7 @@ RtObject RtStage::getElement(const RtToken& name) const
     return RtApiBase::object(elem);
 }
 
-RtObject RtStage::findElement(const RtString& path) const
+RtObject RtStage::findElement(const string& path) const
 {
     PrvObjectHandle elem = data()->asA<PrvStage>()->findElement(path);
     return RtApiBase::object(elem);

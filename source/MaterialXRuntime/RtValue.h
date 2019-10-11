@@ -9,6 +9,8 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/RtToken.h>
+
 #include <MaterialXCore/Value.h>
 
 namespace MaterialX
@@ -31,6 +33,7 @@ public:
     explicit RtValue(const Color3& v) { asColor3() = v; }
     explicit RtValue(const Vector4& v) { asVector4() = v; }
     explicit RtValue(void* v) { asPtr() = v; }
+    explicit RtValue(const RtToken& v) { asToken() = v; }
     explicit RtValue(const ValuePtr& v);
 
     /// Return bool value.
@@ -86,6 +89,17 @@ public:
     float& asFloat()
     {
         return *reinterpret_cast<float*>(&_data);
+    }
+
+    /// Return reference to token value.
+    const RtToken& asToken() const
+    {
+        return *reinterpret_cast<const RtToken*>(&_data);
+    }
+    /// Return reference to token value.
+    RtToken& asToken()
+    {
+        return *reinterpret_cast<RtToken*>(&_data);
     }
 
     /// Return Color3 value.

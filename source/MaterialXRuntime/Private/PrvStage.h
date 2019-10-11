@@ -28,7 +28,7 @@ public:
     void removeElement(const RtToken& name);
 
     PrvObjectHandle getElement(const RtToken& name) const;
-    PrvObjectHandle findElement(const RtString& path) const;
+    PrvObjectHandle findElement(const string& path) const;
 
 protected:
     size_t getElementIndex(const RtToken& name) const
@@ -37,9 +37,9 @@ protected:
         return it != _elementsByName.end() ? it->second : INVALID_INDEX;
     }
 
-    PrvObjectArray _refStages;
-    PrvObjectArray _elements;
-    TokenIndexMap _elementsByName;
+    vector<PrvObjectHandle> _refStages;
+    vector<PrvObjectHandle> _elements;
+    RtTokenMap<size_t> _elementsByName;
 };
 
 }

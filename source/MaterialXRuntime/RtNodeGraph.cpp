@@ -21,7 +21,7 @@ RtObject RtNodeGraph::create(const RtToken& name, RtObject parent)
 {
     PrvObjectHandle nodegraph = PrvNodeGraph::create(name);
 
-    if (parent.isValid())
+    if (parent)
     {
         if (!parent.hasApi(RtApiType::STAGE))
         {
@@ -77,7 +77,7 @@ RtObject RtNodeGraph::getOutputsNode() const
     return RtApiBase::object(node);
 }
 
-RtString RtNodeGraph::asStringDot() const
+string RtNodeGraph::asStringDot() const
 {
     return data()->asA<PrvNodeGraph>()->asStringDot();
 }

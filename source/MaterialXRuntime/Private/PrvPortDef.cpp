@@ -8,6 +8,8 @@
 namespace MaterialX
 {
 
+const RtToken PrvPortDef::DEFAULT_OUTPUT_NAME("out");
+
 PrvPortDef::PrvPortDef(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags) :
 PrvElement(RtObjType::PORTDEF, name),
 _type(type),

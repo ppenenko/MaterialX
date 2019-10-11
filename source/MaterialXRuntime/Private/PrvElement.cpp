@@ -25,7 +25,7 @@ void PrvElement::addAttribute(const RtToken& name, const RtToken& type, const Rt
     auto it = _attributesByName.find(name);
     if (it != _attributesByName.end())
     {
-        throw ExceptionRuntimeError("An attribute named '" + name + "' already exists for '" + getName() + "'");
+        throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists for '" + getName().str() + "'");
     }
     _attributesByName[name] = _attributes.size();
     _attributes.push_back(RtAttribute(name, type, value));
@@ -47,7 +47,7 @@ void PrvCompoundElement::addElement(PrvObjectHandle elem)
     auto it = _elementsByName.find(e->getName());
     if (it != _elementsByName.end())
     {
-        throw ExceptionRuntimeError("An element named '" + e->getName() + "' already exists in '" + getName() + "'");
+        throw ExceptionRuntimeError("An element named '" + e->getName().str() + "' already exists in '" + getName().str() + "'");
     }
     _elementsByName[e->getName()] = _elements.size();
     _elements.push_back(elem);
@@ -58,13 +58,13 @@ void PrvCompoundElement::removeElement(const RtToken& name)
     const size_t index = getElementIndex(name);
     if (index == INVALID_INDEX)
     {
-        throw ExceptionRuntimeError("An element named '" + name + "' doesn't exists in '" + getName() + "'");
+        throw ExceptionRuntimeError("An element named '" + name.str() + "' doesn't exists in '" + getName().str() + "'");
     }
     _attributes.erase(_attributes.begin() + index);
     _attributesByName.erase(name);
 }
 
-PrvObjectHandle PrvCompoundElement::findElement(const RtString& path) const
+PrvObjectHandle PrvCompoundElement::findElement(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -73,19 +73,22 @@ PrvObjectHandle PrvCompoundElement::findElement(const RtString& path) const
     }
 
     size_t i = 0;
-    PrvObjectHandle elem = getElement(elementNames[i++]);
+    RtToken name = RtToken(elementNames[i++]);
+    PrvObjectHandle elem = getElement(name);
 
     while (elem != nullptr && i < elementNames.size())
     {
         if (elem->hasApi(RtApiType::COMPOUND_ELEMENT))
         {
-            elem = elem->asA<PrvCompoundElement>()->getElement(elementNames[i]);
+            name = RtToken(elementNames[i]);
+            elem = elem->asA<PrvCompoundElement>()->getElement(name);
         }
         else if (elem->hasApi(RtApiType::NODE))
         {
             PrvNode* node = elem->asA<PrvNode>();
             PrvNodeDef* nodedef = node->getNodeDef()->asA<PrvNodeDef>();
-            elem = nodedef->getElement(elementNames[i]);
+            name = RtToken(elementNames[i]);
+            elem = nodedef->getElement(name);
         }
         ++i;
     }

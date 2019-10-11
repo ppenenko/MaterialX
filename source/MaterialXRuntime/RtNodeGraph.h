@@ -55,7 +55,7 @@ public:
 
     /// Convert this graph to a string in the DOT language syntax. This can be
     /// used to visualise the graph using GraphViz (http://www.graphviz.org).
-    RtString asStringDot() const;
+    string asStringDot() const;
 };
 
 }

@@ -72,8 +72,15 @@ public:
     /// Return true if the object is valid.
     bool isValid() const;
 
+    /// Returns true if the object is invalid.
+    bool operator!() const
+    {
+        return !isValid();
+    }
+
+    /// Explicit bool conversion operator.
     /// Return true if the object is valid.
-    bool operator()() const
+    explicit operator bool() const
     {
         return isValid();
     }
@@ -121,8 +128,15 @@ public:
     /// Return true if the API object is valid.
     bool isValid() const;
 
+    /// Return true if the API object is invalid.
+    bool operator!() const
+    {
+        return !isValid();
+    }
+
+    /// Explicit bool conversion operator.
     /// Return true if the API object is valid.
-    bool operator()() const
+    explicit operator bool() const
     {
         return isValid();
     }

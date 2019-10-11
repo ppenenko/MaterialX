@@ -46,7 +46,7 @@ public:
     RtObject getElement(const RtToken& name) const;
 
     /// Find an element by path.
-    RtObject findElement(const RtString& path) const;
+    RtObject findElement(const string& path) const;
 };
 
 }

@@ -65,7 +65,7 @@ protected:
 
     RtToken _name;
     vector<RtAttribute> _attributes;
-    TokenIndexMap _attributesByName;
+    RtTokenMap<size_t> _attributesByName;
     friend class PrvStage;
 };
 
@@ -78,7 +78,7 @@ public:
 
     void removeElement(const RtToken& name);
 
-    PrvObjectHandle findElement(const RtString& path) const;
+    PrvObjectHandle findElement(const string& path) const;
 
     PrvObjectHandle getElement(const RtToken& name) const
     {
@@ -103,8 +103,8 @@ public:
     }
 
 protected:
-    PrvObjectArray _elements;
-    TokenIndexMap _elementsByName;
+    vector<PrvObjectHandle> _elements;
+    RtTokenMap<size_t> _elementsByName;
 };
 
 }

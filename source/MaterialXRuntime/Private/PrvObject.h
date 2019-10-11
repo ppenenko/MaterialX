@@ -18,9 +18,6 @@
 namespace MaterialX
 {
 
-using PrvObjectArray = vector<PrvObjectHandle>;
-using TokenIndexMap = std::unordered_map<RtToken, size_t>;
-
 class PrvObject : public std::enable_shared_from_this<PrvObject>
 {
 public:

@@ -30,6 +30,19 @@ public:
     /// Return true if the port is valid.
     bool isValid() const;
 
+    /// Returns true if the port is invalid.
+    bool operator!() const
+    {
+        return !isValid();
+    }
+
+    /// Explicit bool conversion operator.
+    /// Return true if the port is valid.
+    explicit operator bool() const
+    {
+        return isValid();
+    }
+
     /// Return the name of the port.
     const RtToken& getName() const;
 
@@ -102,7 +115,7 @@ public:
         return _data != other._data || _index != other._index;
     }
 
-protected:
+private:
     RtPort(PrvObjectHandle data, size_t index);
 
     PrvObjectHandle _data;

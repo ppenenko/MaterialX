@@ -57,7 +57,7 @@ void PrvStage::addElement(PrvObjectHandle elem)
     PrvElement* e = elem->asA<PrvElement>();
     if (getElement(e->getName()) != nullptr)
     {
-        throw ExceptionRuntimeError("An element named '" + e->getName() + "' already exists in stage '" + getName() + "'");
+        throw ExceptionRuntimeError("An element named '" + e->getName().str() + "' already exists in stage '" + getName().str() + "'");
     }
     _elementsByName[e->getName()] = _elements.size();
     _elements.push_back(elem);
@@ -74,10 +74,10 @@ void PrvStage::removeElement(const RtToken& name)
             PrvStage* refStage = it->asA<PrvStage>();
             if (refStage->getElement(name))
             {
-                throw ExceptionRuntimeError("Element '" + name + "' is in a referenced read-only stage and connot be removed'");
+                throw ExceptionRuntimeError("Element '" + name.str() + "' is in a referenced read-only stage and connot be removed'");
             }
         }
-        throw ExceptionRuntimeError("An element named '" + name + "' doesn't exists in stage '" + getName() + "'");
+        throw ExceptionRuntimeError("An element named '" + name.str() + "' doesn't exists in stage '" + getName().str() + "'");
     }
     _elements.erase(_elements.begin() + index);
     _elementsByName.erase(name);
@@ -102,7 +102,7 @@ PrvObjectHandle PrvStage::getElement(const RtToken& name) const
     return nullptr;
 }
 
-PrvObjectHandle PrvStage::findElement(const RtString& path) const
+PrvObjectHandle PrvStage::findElement(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -111,19 +111,22 @@ PrvObjectHandle PrvStage::findElement(const RtString& path) const
     }
 
     size_t i = 0;
-    PrvObjectHandle elem = getElement(elementNames[i++]);
+    RtToken name(elementNames[i++]);
+    PrvObjectHandle elem = getElement(name);
 
     while (elem && i < elementNames.size())
     {
         if (elem->hasApi(RtApiType::COMPOUND_ELEMENT))
         {
-            elem = elem->asA<PrvCompoundElement>()->getElement(elementNames[i]);
+            name = elementNames[i];
+            elem = elem->asA<PrvCompoundElement>()->getElement(name);
         }
         else if (elem->hasApi(RtApiType::NODE))
         {
             PrvNode* node = elem->asA<PrvNode>();
             PrvNodeDef* nodedef = node->getNodeDef()->asA<PrvNodeDef>();
-            elem = nodedef->getElement(elementNames[i]);
+            name = elementNames[i];
+            elem = nodedef->getElement(name);
         }
         ++i;
     }

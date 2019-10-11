@@ -43,13 +43,19 @@ public:
         return _outputsNode;
     }
 
-    RtString asStringDot() const;
+    string asStringDot() const;
 
     // Short syntax getter for convenience.
     PrvNode* node(const RtToken& name) const { return (PrvNode*)getElement(name).get(); }
     PrvNode* node(size_t index) const { return (PrvNode*)getElement(index).get(); }
     PrvNode* inputsNode() const { return (PrvNode*)_inputsNode.get(); }
     PrvNode* outputsNode() const { return (PrvNode*)_outputsNode.get(); }
+
+    // Token constants.
+    static const RtToken INPUTS;
+    static const RtToken OUTPUTS;
+    static const RtToken NODEGRAPH_INPUTS;
+    static const RtToken NODEGRAPH_OUTPUTS;
 
 protected:
     PrvObjectHandle _inputsNode;

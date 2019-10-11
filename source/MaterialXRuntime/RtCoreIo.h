@@ -25,10 +25,10 @@ public:
     RtApiType getApiType() const override;
 
     /// Read contents from a document.
-    void read(const Document& doc, bool allNodeDefs = true);
+    void read(const DocumentPtr& doc, bool allNodeDefs = true);
 
     /// Write all stage contents to a document.
-    void write(Document& doc);
+    void write(DocumentPtr& doc);
 };
 
 }

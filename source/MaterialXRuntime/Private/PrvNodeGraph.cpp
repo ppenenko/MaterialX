@@ -11,6 +11,11 @@
 namespace MaterialX
 {
 
+const RtToken PrvNodeGraph::INPUTS("inputs");
+const RtToken PrvNodeGraph::OUTPUTS("outputs");
+const RtToken PrvNodeGraph::NODEGRAPH_INPUTS("nodegraphoutputs");
+const RtToken PrvNodeGraph::NODEGRAPH_OUTPUTS("nodegraphinputs");
+
 PrvNodeGraph::PrvNodeGraph(const RtToken& name) :
     PrvCompoundElement(RtObjType::NODEGRAPH, name)
 {
@@ -31,7 +36,7 @@ void PrvNodeGraph::addNode(PrvObjectHandle node)
     auto it = _elementsByName.find(n->getName());
     if (it != _elementsByName.end())
     {
-        throw ExceptionRuntimeError("A node named '" + n->getName() + "' already exists for nodegraph '" + getName() + "'");
+        throw ExceptionRuntimeError("A node named '" + n->getName().str() + "' already exists for nodegraph '" + getName().str() + "'");
     }
     _elementsByName[n->getName()] = _elements.size();
     _elements.push_back(node);
@@ -47,8 +52,8 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
     PrvNodeDef* nd = nodedef->asA<PrvNodeDef>();
 
     // Create nodedefs for the input and output interface nodes.
-    _inputsDef = PrvNodeDef::create("inputs", "nodegraphinputs");
-    _outputsDef = PrvNodeDef::create("outputs", "nodegraphoutputs");
+    _inputsDef = PrvNodeDef::create(INPUTS, NODEGRAPH_INPUTS);
+    _outputsDef = PrvNodeDef::create(OUTPUTS, NODEGRAPH_OUTPUTS);
 
     PrvNodeDef* def;
     for (size_t i = 0; i < nd->numElements(); ++i)
@@ -74,30 +79,30 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
     }
 
     // Instantiate the input and output interface nodes.
-    _inputsNode = PrvNode::create("inputs", _inputsDef);
-    _outputsNode = PrvNode::create("outputs", _outputsDef);
+    _inputsNode = PrvNode::create(INPUTS, _inputsDef);
+    _outputsNode = PrvNode::create(OUTPUTS, _outputsDef);
 }
 
-RtString PrvNodeGraph::asStringDot() const
+string PrvNodeGraph::asStringDot() const
 {
     string dot = "digraph {\n";
 
     // Add alla nodes.
     PrvNode* inputs = inputsNode();
-    dot += "    \"" + inputs->getName() + "\" ";
+    dot += "    \"" + inputs->getName().str() + "\" ";
     dot += "[shape=box];\n";
     PrvNode* outputs = outputsNode();
-    dot += "    \"" + outputs->getName() + "\" ";
+    dot += "    \"" + outputs->getName().str() + "\" ";
     dot += "[shape=box];\n";
 
     // Add alla nodes.
     for (size_t i = 0; i < numNodes(); ++i)
     {
-        dot += "    \"" + node(i)->getName() + "\" ";
+        dot += "    \"" + node(i)->getName().str() + "\" ";
         dot += "[shape=ellipse];\n";
     }
 
-    auto writeConnections = [](PrvNode* n, RtString& dot)
+    auto writeConnections = [](PrvNode* n, string& dot)
     {
         for (size_t j = 0; j < n->numPorts(); ++j)
         {
@@ -106,9 +111,9 @@ RtString PrvNodeGraph::asStringDot() const
             {
                 RtPort src = p.getSourcePort();
                 RtNode srcNode(src.getNode());
-                dot += "    \"" + srcNode.getName();
-                dot += "\" -> \"" + n->getName();
-                dot += "\" [label=\"" + p.getName() + "\"];\n";
+                dot += "    \"" + srcNode.getName().str();
+                dot += "\" -> \"" + n->getName().str();
+                dot += "\" [label=\"" + p.getName().str() + "\"];\n";
             }
         }
     };

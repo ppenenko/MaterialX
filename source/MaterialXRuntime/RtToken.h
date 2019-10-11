@@ -9,14 +9,216 @@
 /// @file
 /// TODO: Docs
 
-#include <string>
+#include <MaterialXRuntime/Library.h>
+
+#include <unordered_set>
 
 namespace MaterialX
 {
 
 /// @class RtToken
 /// TODO: Docs
-using RtToken = std::string;
+class RtToken
+{
+public:
+    /// Constructor creating an empty token.
+    // RtToken() : _entry(0) {}
+
+    /// Copy constructor.
+    RtToken(const RtToken& other) : _entry(other._entry) {}
+
+    /// Constructor creating a token from a raw string.
+    //
+    /// TODO: Make explicit
+    //
+    RtToken(const char* s);
+
+    /// Constructor creating a token from an std::string.
+    explicit RtToken(const string& s);
+
+    /// Assingment from another token.
+    const RtToken& assign(const RtToken& other)
+    {
+        _entry = other._entry;
+        return *this;
+    }
+
+    /// Assingment from a std::string.
+    const RtToken& assign(const string& other)
+    {
+        *this = RtToken(other);
+        return *this;
+    }
+
+    /// Assingment from a raw string.
+    const RtToken& assign(const char* other)
+    {
+        *this = RtToken(other);
+        return *this;
+    }
+
+    /// Assignment operator from other token.
+    const RtToken& operator=(const RtToken& other)
+    {
+        assign(other);
+        return *this;
+    }
+
+    /// Assignment operator from std::string.
+    const RtToken& operator=(const string& other)
+    {
+        assign(other);
+        return *this;
+    }
+
+    /// Assignment operator from raw string.
+    const RtToken& operator=(const char* other)
+    {
+        assign(other);
+        return *this;
+    }
+
+    /// Equality operator
+    /// Fast compare of the token pointers.
+    bool operator==(const RtToken& other) const
+    {
+        return _entry == other._entry;
+    }
+
+    /// Inequality operator
+    /// Fast compare of the token pointers.
+    bool operator!=(const RtToken& other) const
+    {
+        return _entry != other._entry;
+    }
+
+    /// Equality operator comparing token with std::string.
+    /// Performs lexicographic compares of the internal string.
+    bool operator==(const std::string& other) const
+    {
+        return _entry->_str == other;
+    }
+
+    /// Equality operator comparing token with raw string.
+    /// Performs lexicographic compares of the internal string.
+    bool operator==(const char* other) const
+    {
+        return _entry->_str == other;
+    }
+
+    /// Equality operator comparing token with std::string.
+    /// Performs lexicographic compares of the internal string.
+    friend bool operator==(const std::string& s, const RtToken& t)
+    {
+        return t == s;
+    }
+
+    /// Equality operator comparing token with raw string.
+    /// Performs lexicographic compares of the internal string.
+    friend bool operator==(const char* s, const RtToken& t)
+    {
+        return t == s;
+    }
+
+    /// Inequality operator comparing token with std::string.
+    /// Performs lexicographic compares of the internal string.
+    bool operator!=(const std::string& other) const
+    {
+        return _entry->_str != other;
+    }
+
+    /// Inequality operator comparing token with raw string.
+    /// Performs lexicographic compares of the internal string.
+    bool operator!=(const char* other) const
+    {
+        return _entry->_str != other;
+    }
+
+    /// Inequality operator comparing token with std::string.
+    /// Performs lexicographic compares of the internal string.
+    friend bool operator!=(const std::string& s, const RtToken& t)
+    {
+        return t != s;
+    }
+
+    /// Inequality operator comparing token with raw string.
+    /// Performs lexicographic compares of the internal string.
+    friend bool operator!=(const char* s, const RtToken& t)
+    {
+        return t != s;
+    }
+
+    /// Less-than operator comparing tokens lexicographically.
+    inline bool operator<(const RtToken& other) const
+    {
+        return _entry->_str < other._entry->_str;
+    }
+
+    /// Return the internal string as a std::string.
+    const string& str() const
+    {
+        return _entry->_str;
+    }
+
+    /// Return the internal string as a raw string.
+    const char* c_str() const
+    {
+        return _entry->_str.c_str();
+    }
+
+    /// Explicit conversion to std::string.
+    operator const string& () const
+    {
+        return _entry->_str;
+    }
+
+    /// Return a hash key for this token.
+    size_t hash() const
+    {
+        return _entry->_hash;
+    }
+
+    /// Fast hash operator returning the hash already stored on the token.
+    struct FastHash
+    {
+        size_t operator()(const RtToken& t) const
+        {
+            return t.hash();
+        }
+    };
+
+    /// Fast less operator that only compares the internal
+    /// pointers and does no lexicographic compares.
+    struct FastLess
+    {
+        bool operator()(const RtToken& lhs, const RtToken& rhs) const
+        {
+            return lhs._entry < rhs._entry;
+        }
+    };
+
+private:
+    struct Entry
+    {
+        explicit Entry(const char* s, size_t hash) : _str(s), _hash(hash) {}
+        explicit Entry(const string& s, size_t hash) : _str(s), _hash(hash) {}
+        string _str;
+        size_t _hash;
+    };
+
+    const Entry* _entry;
+    friend struct RtTokenRegistry;
+};
+
+/// Token representing empty string.
+extern const RtToken EMPTY_TOKEN;
+
+/// Class representing an unordered map with token keys and templated value type.
+template<typename T>
+class RtTokenMap : public std::unordered_map<RtToken, T, RtToken::FastHash>{};
+
+/// Class representing an unordered set of tokens.
+class RtTokenSet : public std::unordered_set<RtToken, RtToken::FastLess>{};
 
 }
 
