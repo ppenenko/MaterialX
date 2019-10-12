@@ -167,13 +167,13 @@ void RtPort::setValue(void* v)
     node->_ports[_index].value.asPtr() = v;
 }
 
-void RtPort::setColorSpace(const RtToken& colorspace) const
+void RtPort::setColorSpace(const RtToken& colorspace)
 {
     PrvNode* node = _data->asA<PrvNode>();
     node->_ports[_index].colorspace = colorspace;
 }
 
-void RtPort::setUnit(const RtToken& unit) const
+void RtPort::setUnit(const RtToken& unit)
 {
     PrvNode* node = _data->asA<PrvNode>();
     node->_ports[_index].unit = unit;

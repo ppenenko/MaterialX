@@ -26,8 +26,9 @@ extern const RtToken EMPTY_TOKEN;
 class RtToken
 {
 public:
-    /// Constructor creating an empty token.
-//    RtToken() : _entry(0) {}
+    /// Creating an implicit empty token is not allowed.
+    /// Use the global EMPTY_TOKEN instance for initializing empty tokens.
+    RtToken() = delete;
 
     /// Copy constructor.
     RtToken(const RtToken& other) : _entry(other._entry) {}

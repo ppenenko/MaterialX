@@ -101,10 +101,10 @@ public:
     void setValue(void* v);
 
     /// Set the color space for this value.
-    void setColorSpace(const RtToken& colorspace) const;
+    void setColorSpace(const RtToken& colorspace);
 
     /// Set the unit for this value.
-    void setUnit(const RtToken& unit) const;
+    void setUnit(const RtToken& unit);
 
     /// Return true if this port is connected.
     bool isConnected() const;

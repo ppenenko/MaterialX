@@ -14,6 +14,8 @@ PrvPortDef::PrvPortDef(const RtToken& name, const RtToken& type, const RtValue& 
 PrvElement(RtObjType::PORTDEF, name),
 _type(type),
 _value(value),
+_colorspace(EMPTY_TOKEN),
+_unit(EMPTY_TOKEN),
 _flags(flags)
 {
 }

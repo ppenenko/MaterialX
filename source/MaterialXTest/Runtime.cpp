@@ -272,7 +272,7 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     mx::RtCoreIo libStageIo(libStageObj);
     libStageIo.read(doc);
 
-    // Reference the library stage .
+    // Reference the library stage.
     mainStage.addReference(libStageObj);
 
     // Test access and removal of contents from the referenced library.

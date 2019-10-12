@@ -56,6 +56,16 @@ RtValue& RtPortDef::getValue()
     return data()->asA<PrvPortDef>()->getValue();
 }
 
+const RtToken& RtPortDef::getColorSpace() const
+{
+    return data()->asA<PrvPortDef>()->getColorSpace();
+}
+
+const RtToken& RtPortDef::getUnit() const
+{
+    return data()->asA<PrvPortDef>()->getUnit();
+}
+
 void RtPortDef::setValue(const RtValue& v)
 {
     return data()->asA<PrvPortDef>()->setValue(v);
@@ -89,6 +99,16 @@ void RtPortDef::setValue(const Vector4& v)
 void RtPortDef::setValue(void* v)
 {
     return data()->asA<PrvPortDef>()->setValue(v);
+}
+
+void RtPortDef::setColorSpace(const RtToken& colorspace)
+{
+    return data()->asA<PrvPortDef>()->setColorSpace(colorspace);
+}
+
+void RtPortDef::setUnit(const RtToken& unit)
+{
+    return data()->asA<PrvPortDef>()->setUnit(unit);
 }
 
 int32_t RtPortDef::getFlags() const

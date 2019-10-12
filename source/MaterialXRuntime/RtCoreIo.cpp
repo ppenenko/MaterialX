@@ -27,7 +27,7 @@ namespace {
     // TODO: Make into a TokenSet
     //
     static const StringSet nodedefIgnoreAttr    = { "name", "type", "node" };
-    static const StringSet portdefIgnoreAttr    = { "name", "type", "nodename", "output" };
+    static const StringSet portdefIgnoreAttr    = { "name", "type", "nodename", "output", "colorspace", "unit" };
     static const StringSet nodeIgnoreAttr       = { "name", "type", "node" };
     static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
 
@@ -127,6 +127,9 @@ namespace {
                 PrvObjectHandle inputH = PrvPortDef::create(portName, portType, RtValue(elem->getValue()),
                                                             RtPortFlag::CONNECTABLE | RtPortFlag::INPUT);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
+                input->setColorSpace(RtToken(elem->getColorSpace()));
+                // TODO: fix when units are implemented in core
+                // input->setUnit(RtToken(elem->getUnit()));
                 readAttributes(elem, input, portdefIgnoreAttr);
                 nodedef->addPortDef(inputH);
             }
@@ -137,6 +140,9 @@ namespace {
                 PrvObjectHandle inputH = PrvPortDef::create(portName, portType, RtValue(elem->getValue()),
                                                            RtPortFlag::CONNECTABLE | RtPortFlag::INPUT | RtPortFlag::UNIFORM);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
+                input->setColorSpace(RtToken(elem->getColorSpace()));
+                // TODO: fix when units are implemented in core
+                // input->setUnit(RtToken(elem->getUnit()));
                 readAttributes(elem, input, portdefIgnoreAttr);
                 nodedef->addPortDef(inputH);
             }
@@ -315,6 +321,15 @@ namespace {
         {
             const PrvPortDef* input = inputH->asA<PrvPortDef>();
             InputPtr destInput = destNodeDef->addInput(input->getName(), input->getType().str());
+            if (input->getColorSpace())
+            {
+                destInput->setColorSpace(input->getColorSpace().str());
+            }
+            if (input->getUnit())
+            {
+                // TODO: fix when units are implemented in core.
+                // destInput->setUnit(input->getUnit().str());
+            }
             writeAttributes(input, destInput);
         }
         for (auto outputH : outputs)
@@ -342,32 +357,29 @@ namespace {
         for (auto inputH : inputs)
         {
             const PrvPortDef* inputDef = inputH->asA<PrvPortDef>();
-            RtPort inputPort = const_cast<PrvNode*>(node)->getPort(inputDef->getName());
-            if (inputPort.isConnected() || inputPort.getValue() != inputDef->getValue())
+            RtPort input = const_cast<PrvNode*>(node)->getPort(inputDef->getName());
+            if (input.isConnected() || input.getValue() != inputDef->getValue())
             {
                 ValueElementPtr destInput;
                 if (inputDef->isUniform())
                 {
-                    destInput = destNode->addParameter(inputPort.getName().str(), inputPort.getType().str());
+                    destInput = destNode->addParameter(input.getName().str(), input.getType().str());
                 }
                 else
                 {
-                    destInput = destNode->addInput(inputPort.getName().str(), inputPort.getType().str());
+                    destInput = destNode->addInput(input.getName().str(), input.getType().str());
                 }
 
-                destInput->setValueString(inputPort.getValueString());
+                destInput->setValueString(input.getValueString());
 
-                const RtToken& colorspace = inputPort.getColorSpace();
-                if (colorspace)
+                if (input.getColorSpace())
                 {
-                    destInput->setColorSpace(colorspace.str());
+                    destInput->setColorSpace(input.getColorSpace().str());
                 }
-
-                const RtToken& unit = inputPort.getUnit();
-                if (unit)
+                if (input.getUnit())
                 {
-                    // TODO: Fix when units are implemented
-                    // destInput->setUnit(unit.str());
+                    // TODO: fix when units are implemented in core.
+                    // destInput->setUnit(input->getUnit().str());
                 }
             }
         }

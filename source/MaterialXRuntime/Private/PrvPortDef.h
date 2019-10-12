@@ -40,6 +40,16 @@ public:
         return _value;
     }
 
+    const RtToken& getColorSpace() const
+    {
+        return _colorspace;
+    }
+
+    const RtToken& getUnit() const
+    {
+        return _unit;
+    }
+
     void setValue(const RtValue& v)
     {
         _value = v;
@@ -75,6 +85,16 @@ public:
         _value.asPtr() = v;
     }
 
+    void setColorSpace(const RtToken& colorspace)
+    {
+        _colorspace = colorspace;
+    }
+
+    void setUnit(const RtToken& unit)
+    {
+        _unit = unit;
+    }
+
     uint32_t getFlags() const
     {
         return _flags;
@@ -105,6 +125,8 @@ public:
 protected:
     RtToken _type;
     RtValue _value;
+    RtToken _colorspace;
+    RtToken _unit;
     uint32_t _flags;
 };
 
