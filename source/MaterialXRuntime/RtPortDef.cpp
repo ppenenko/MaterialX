@@ -71,11 +71,6 @@ void RtPortDef::setValue(int v)
     return data()->asA<PrvPortDef>()->setValue(v);
 }
 
-void RtPortDef::setValue(unsigned int v)
-{
-    return data()->asA<PrvPortDef>()->setValue(v);
-}
-
 void RtPortDef::setValue(float v)
 {
     return data()->asA<PrvPortDef>()->setValue(v);

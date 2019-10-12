@@ -31,11 +31,37 @@ namespace {
     static const StringSet nodeIgnoreAttr       = { "name", "type", "node" };
     static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
 
+    struct InputPredicate
+    {
+        bool operator()(const PrvObjectHandle& obj) const
+        {
+            if (obj->getObjType() == RtObjType::PORTDEF)
+            {
+                PrvPortDef* portdef = obj->asA<PrvPortDef>();
+                return portdef->isInput();
+            }
+            return false;
+        }
+    };
+
+    struct OutputPredicate
+    {
+        bool operator()(const PrvObjectHandle& obj) const
+        {
+            if (obj->getObjType() == RtObjType::PORTDEF)
+            {
+                PrvPortDef* portdef = obj->asA<PrvPortDef>();
+                return portdef->isOutput();
+            }
+            return false;
+        }
+    };
+
     void readAttributes(const ElementPtr src, PrvElement* dest, const StringSet& ignoreList)
     {
         // Read in any attributes so we can export the element again
         // without loosing data. Since it's just for storage we can
-        // keep the attributes as strings.
+        // keep the attributes as strings (tokens).
         for (const string& name : src->getAttributeNames())
         {
             if (!ignoreList.count(name))
@@ -43,6 +69,18 @@ namespace {
                 const RtToken attrValue(src->getAttribute(name));
                 const RtToken attrName(name);
                 dest->addAttribute(attrName, RtType::STRING, RtValue(attrValue));
+            }
+        }
+    }
+
+    void writeAttributes(const PrvElement* elem, ElementPtr dest)
+    {
+        for (size_t i = 0; i < elem->numAttributes(); ++i)
+        {
+            const RtAttribute* attr = elem->getAttribute(i);
+            if (attr->getType() == RtType::STRING)
+            {
+                dest->setAttribute(attr->getName(), attr->getValue().asToken().str());
             }
         }
     }
@@ -264,6 +302,88 @@ namespace {
         return nodegraphH;
     }
 
+    void writeNodedef(const PrvNodeDef* nodedef, DocumentPtr dest)
+    {
+        PrvObjectHandleVec inputs, outputs;
+        nodedef->findElements(InputPredicate{}, inputs);
+        nodedef->findElements(OutputPredicate{}, outputs);
+
+        string type = outputs.size() == 1 ? outputs[0]->asA<PrvPortDef>()->getType().str() : "multioutput";
+        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), type, nodedef->getCategory());
+
+        for (auto inputH : inputs)
+        {
+            const PrvPortDef* input = inputH->asA<PrvPortDef>();
+            InputPtr destInput = destNodeDef->addInput(input->getName(), input->getType().str());
+            writeAttributes(input, destInput);
+        }
+        for (auto outputH : outputs)
+        {
+            const PrvPortDef* output = outputH->asA<PrvPortDef>();
+            OutputPtr destOutput = destNodeDef->addOutput(output->getName(), output->getType().str());
+            writeAttributes(output, destOutput);
+        }
+
+        writeAttributes(nodedef, destNodeDef);
+    }
+
+    template<typename T>
+    void writeNode(const PrvNode* node, T dest)
+    {
+        const PrvNodeDef* nodedef = node->nodedef();
+
+        PrvObjectHandleVec inputs, outputs;
+        nodedef->findElements(InputPredicate{}, inputs);
+        nodedef->findElements(OutputPredicate{}, outputs);
+
+        string type = outputs.size() == 1 ? outputs[0]->asA<PrvPortDef>()->getType().str() : "multioutput";
+        NodePtr destNode = dest->addNode(nodedef->getCategory(), node->getName().str(), type);
+
+        for (auto inputH : inputs)
+        {
+            const PrvPortDef* inputDef = inputH->asA<PrvPortDef>();
+            RtPort inputPort = const_cast<PrvNode*>(node)->getPort(inputDef->getName());
+            if (inputPort.isConnected() || inputPort.getValue() != inputDef->getValue())
+            {
+                ValueElementPtr destInput;
+                if (inputDef->isUniform())
+                {
+                    destInput = destNode->addParameter(inputPort.getName().str(), inputPort.getType().str());
+                }
+                else
+                {
+                    destInput = destNode->addInput(inputPort.getName().str(), inputPort.getType().str());
+                }
+
+                destInput->setValueString(inputPort.getValueString());
+
+                const RtToken& colorspace = inputPort.getColorSpace();
+                if (colorspace)
+                {
+                    destInput->setColorSpace(colorspace.str());
+                }
+
+                const RtToken& unit = inputPort.getUnit();
+                if (unit)
+                {
+                    // TODO: Fix when units are implemented
+                    // destInput->setUnit(unit.str());
+                }
+            }
+        }
+        if (outputs.size() > 1)
+        {
+            for (auto outputH : outputs)
+            {
+                const PrvPortDef* output = outputH->asA<PrvPortDef>();
+                OutputPtr destOutput = destNode->addOutput(output->getName(), output->getType().str());
+            }
+        }
+
+        writeAttributes(node, destNode);
+    }
+
+
 } // end anonymous namespace
 
 RtCoreIo::RtCoreIo(RtObject stage) :
@@ -300,7 +420,21 @@ void RtCoreIo::read(const DocumentPtr& doc, bool allNodeDefs)
 
 void RtCoreIo::write(DocumentPtr& doc)
 {
+    PrvStage* stage = data()->asA<PrvStage>();
+    writeAttributes(stage, doc);
 
+    for (size_t i = 0; i < stage->numOwnElements(); ++i)
+    {
+        const PrvObjectHandle elemH = stage->getOwnElement(i);
+        if (elemH->getObjType() == RtObjType::NODEDEF)
+        {
+            writeNodedef(elemH->asA<PrvNodeDef>(), doc);
+        }
+        else if (elemH->getObjType() == RtObjType::NODE)
+        {
+            writeNode(elemH->asA<PrvNode>(), doc);
+        }
+    }
 }
 
 }

@@ -16,13 +16,18 @@
 namespace MaterialX
 {
 
+class RtToken;
+
+/// Token representing empty string.
+extern const RtToken EMPTY_TOKEN;
+
 /// @class RtToken
 /// TODO: Docs
 class RtToken
 {
 public:
     /// Constructor creating an empty token.
-    // RtToken() : _entry(0) {}
+//    RtToken() : _entry(0) {}
 
     /// Copy constructor.
     RtToken(const RtToken& other) : _entry(other._entry) {}
@@ -46,14 +51,14 @@ public:
     /// Assingment from a std::string.
     const RtToken& assign(const string& other)
     {
-        *this = RtToken(other);
+        assign(RtToken(other));
         return *this;
     }
 
     /// Assingment from a raw string.
     const RtToken& assign(const char* other)
     {
-        *this = RtToken(other);
+        assign(RtToken(other));
         return *this;
     }
 
@@ -67,14 +72,14 @@ public:
     /// Assignment operator from std::string.
     const RtToken& operator=(const string& other)
     {
-        assign(other);
+        assign(RtToken(other));
         return *this;
     }
 
     /// Assignment operator from raw string.
     const RtToken& operator=(const char* other)
     {
-        assign(other);
+        assign(RtToken(other));
         return *this;
     }
 
@@ -172,6 +177,13 @@ public:
         return _entry->_str;
     }
 
+    /// Explicit conversion to bool.
+    /// Returning false if the token is empty.
+    operator bool() const
+    {
+        return _entry != EMPTY_TOKEN._entry;
+    }
+
     /// Return a hash key for this token.
     size_t hash() const
     {
@@ -209,9 +221,6 @@ private:
     const Entry* _entry;
     friend struct RtTokenRegistry;
 };
-
-/// Token representing empty string.
-extern const RtToken EMPTY_TOKEN;
 
 /// Class representing an unordered map with token keys and templated value type.
 template<typename T>

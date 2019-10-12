@@ -30,15 +30,30 @@ public:
     PrvObjectHandle getElement(const RtToken& name) const;
     PrvObjectHandle findElement(const string& path) const;
 
-protected:
-    size_t getElementIndex(const RtToken& name) const
+    size_t numOwnElements() const
+    {
+        return _elements.size();
+    }
+
+    PrvObjectHandle getOwnElement(const RtToken& name) const
+    {
+        return getOwnElement(getOwnElementIndex(name));
+    }
+
+    PrvObjectHandle getOwnElement(size_t index) const
+    {
+        return index < _elements.size() ? _elements[index] : nullptr;
+    }
+
+    size_t getOwnElementIndex(const RtToken& name) const
     {
         auto it = _elementsByName.find(name);
         return it != _elementsByName.end() ? it->second : INVALID_INDEX;
     }
 
-    vector<PrvObjectHandle> _refStages;
-    vector<PrvObjectHandle> _elements;
+protected:
+    PrvObjectHandleVec _refStages;
+    PrvObjectHandleVec _elements;
     RtTokenMap<size_t> _elementsByName;
 };
 

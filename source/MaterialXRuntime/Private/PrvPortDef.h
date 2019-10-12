@@ -55,11 +55,6 @@ public:
         _value.asInt() = v;
     }
 
-    void setValue(unsigned int v)
-    {
-        _value.asUInt() = v;
-    }
-
     void setValue(float v)
     {
         _value.asFloat() = v;

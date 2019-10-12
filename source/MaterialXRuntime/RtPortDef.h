@@ -57,7 +57,6 @@ public:
     void setValue(const RtValue& v);
     void setValue(bool v);
     void setValue(int v);
-    void setValue(unsigned int v);
     void setValue(float v);
     void setValue(const Color3& v);
     void setValue(const Vector4& v);

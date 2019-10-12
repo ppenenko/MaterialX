@@ -27,8 +27,6 @@ public:
     /// Explicit value constructor
     explicit RtValue(bool v) { asBool() = v; }
     explicit RtValue(int v) { asInt() = v; }
-    explicit RtValue(unsigned int v) { asUInt() = v; }
-    explicit RtValue(size_t v) { asSize() = v; }
     explicit RtValue(float v) { asFloat() = v; }
     explicit RtValue(const Color3& v) { asColor3() = v; }
     explicit RtValue(const Vector4& v) { asVector4() = v; }
@@ -56,28 +54,6 @@ public:
     int& asInt()
     {
         return *reinterpret_cast<int*>(&_data);
-    }
-
-    /// Return unsigned int value.
-    unsigned int asUInt() const
-    {
-        return *reinterpret_cast<const unsigned int*>(&_data);
-    }
-    /// Return reference to unsigned int value.
-    unsigned int& asUInt()
-    {
-        return *reinterpret_cast<unsigned int*>(&_data);
-    }
-
-    /// Return size_t value.
-    size_t asSize() const
-    {
-        return *reinterpret_cast<const size_t*>(&_data);
-    }
-    /// Return reference to size_t value.
-    size_t& asSize()
-    {
-        return *reinterpret_cast<size_t*>(&_data);
     }
 
     /// Return float value.
@@ -153,6 +129,20 @@ public:
     {
         _data[0] = _data[1] = 0;
     }
+
+    bool operator==(const RtValue& other)
+    {
+        return _data[0] == other._data[0] && _data[1] == other._data[1];
+    }
+
+    bool operator!=(const RtValue& other)
+    {
+        return !(*this==other);
+    }
+
+    /// Return a string representing the value
+    /// in the given type.
+    string getValueString(const RtToken& type) const;
 
 private:
     // 16 bytes of data storage to hold the main data types,

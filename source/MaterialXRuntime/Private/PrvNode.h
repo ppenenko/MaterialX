@@ -65,9 +65,16 @@ public:
     const PrvNodeDef* nodedef() const { return (PrvNodeDef*)_nodedef.get(); }
 
 protected:
+    struct Port
+    {
+        Port();
+        RtValue value;
+        RtToken colorspace;
+        RtToken unit;
+        RtPortVec connections;
+    };
     PrvObjectHandle _nodedef;
-    vector<RtValue> _values;
-    vector<RtPortVec> _connections;
+    vector<Port> _ports;
     friend class RtPort;
 };
 

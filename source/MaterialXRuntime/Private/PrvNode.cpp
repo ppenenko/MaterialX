@@ -11,18 +11,23 @@
 namespace MaterialX
 {
 
+PrvNode::Port::Port() :
+    colorspace(EMPTY_TOKEN),
+    unit(EMPTY_TOKEN)
+{
+}
+
 PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nd) :
     PrvElement(RtObjType::NODE, name),
     _nodedef(nd)
 {
     const size_t numPorts = nodedef()->numElements();
-    _values.resize(numPorts);
-    _connections.resize(numPorts);
+    _ports.resize(numPorts);
 
     // Set default values
     for (size_t i = 0; i < numPorts; ++i)
     {
-        _values[i] = nodedef()->portdef(i)->getValue();
+        _ports[i].value = nodedef()->portdef(i)->getValue();
     }
 }
 
@@ -48,8 +53,8 @@ void PrvNode::connect(const RtPort& source, const RtPort& dest)
 
     PrvNode* sourceNode = source._data->asA<PrvNode>();
     PrvNode* destNode = dest._data->asA<PrvNode>();
-    RtPortVec& sourceConnections = sourceNode->_connections[source._index];
-    RtPortVec& destConnections = destNode->_connections[dest._index];
+    RtPortVec& sourceConnections = sourceNode->_ports[source._index].connections;
+    RtPortVec& destConnections = destNode->_ports[dest._index].connections;
 
     // Make room for the new source.
     destConnections.resize(1);
@@ -60,7 +65,7 @@ void PrvNode::connect(const RtPort& source, const RtPort& dest)
 void PrvNode::disconnect(const RtPort& source, const RtPort& dest)
 {
     PrvNode* destNode = dest._data->asA<PrvNode>();
-    RtPortVec& destConnections = destNode->_connections[dest._index];
+    RtPortVec& destConnections = destNode->_ports[dest._index].connections;
     if (destConnections.size() != 1 || destConnections[0] != source)
     {
         throw ExceptionRuntimeError("Given source and destination is not connected");
@@ -69,7 +74,7 @@ void PrvNode::disconnect(const RtPort& source, const RtPort& dest)
     destConnections.clear();
 
     PrvNode* sourceNode = source._data->asA<PrvNode>();
-    RtPortVec& sourceConnections = sourceNode->_connections[source._index];
+    RtPortVec& sourceConnections = sourceNode->_ports[source._index].connections;
     for (auto it = sourceConnections.begin(); it != sourceConnections.end(); ++it)
     {
         if (*it == dest)

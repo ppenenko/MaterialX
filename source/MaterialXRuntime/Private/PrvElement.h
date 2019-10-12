@@ -16,6 +16,8 @@
 namespace MaterialX
 {
 
+using PrvObjectHandleVec = vector<PrvObjectHandle>;
+
 class PrvElement : public PrvObject
 {
 public:
@@ -78,8 +80,6 @@ public:
 
     void removeElement(const RtToken& name);
 
-    PrvObjectHandle findElement(const string& path) const;
-
     PrvObjectHandle getElement(const RtToken& name) const
     {
         auto it = _elementsByName.find(name);
@@ -102,10 +102,50 @@ public:
         return it != _elementsByName.end() ? it->second : INVALID_INDEX;
     }
 
+    PrvObjectHandle findElement(const string& path) const;
+
+    template<typename T>
+    size_t findElements(const T& pred, PrvObjectHandleVec& result) const
+    {
+        for (auto elem : _elements)
+        {
+            if (pred(elem))
+            {
+                result.push_back(elem);
+            }
+        }
+        return result.size();
+    }
+
 protected:
-    vector<PrvObjectHandle> _elements;
+    PrvObjectHandleVec _elements;
     RtTokenMap<size_t> _elementsByName;
 };
+
+struct PrvObjectPredicate
+{
+    PrvObjectPredicate(RtObjType type) : _type(type) {}
+
+    bool operator()(const PrvObjectHandle& obj) const
+    {
+        return obj->getObjType() == _type;
+    }
+
+    RtObjType _type;
+};
+
+struct PrvApiPredicate
+{
+    PrvApiPredicate(RtApiType type) : _type(type) {}
+
+    bool operator()(const PrvObjectHandle& obj) const
+    {
+        return obj->hasApi(_type);
+    }
+
+    RtApiType _type;
+};
+
 
 }
 

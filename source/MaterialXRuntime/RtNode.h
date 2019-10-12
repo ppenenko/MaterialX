@@ -46,6 +46,9 @@ public:
     /// Return the name of the port.
     const RtToken& getName() const;
 
+    /// Return the type of the port.
+    const RtToken& getType() const;
+
     /// Return the node the port belongs to.
     RtObject getNode() const;
 
@@ -67,6 +70,15 @@ public:
     /// Return the value for this port.
     RtValue& getValue();
 
+    /// Return a string representation for the value of this port.
+    string getValueString();
+
+    /// Get the color space for this value.
+    const RtToken& getColorSpace() const;
+
+    /// Get the color space for this value.
+    const RtToken& getUnit() const;
+
     /// Set a new value on the port.
     void setValue(const RtValue& v);
 
@@ -75,9 +87,6 @@ public:
 
     /// Set a new integer value on the port.
     void setValue(int v);
-
-    /// Set a new unsigned integer value on the port.
-    void setValue(unsigned int v);
 
     /// Set a new float value on the port.
     void setValue(float v);
@@ -90,6 +99,12 @@ public:
 
     /// Set a new pointer value on the port.
     void setValue(void* v);
+
+    /// Set the color space for this value.
+    void setColorSpace(const RtToken& colorspace) const;
+
+    /// Set the unit for this value.
+    void setUnit(const RtToken& unit) const;
 
     /// Return true if this port is connected.
     bool isConnected() const;

@@ -65,7 +65,7 @@ void PrvStage::addElement(PrvObjectHandle elem)
 
 void PrvStage::removeElement(const RtToken& name)
 {
-    const size_t index = getElementIndex(name);
+    const size_t index = getOwnElementIndex(name);
     if (index == INVALID_INDEX)
     {
         // Element not found in this stage

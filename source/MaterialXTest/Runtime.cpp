@@ -228,18 +228,34 @@ TEST_CASE("Runtime: CoreIo", "[runtime]")
     loadLibraries({ "stdlib" }, searchPath, doc);
 
     // Create a stage and load the document data.
-    mx::RtObject stageObj = mx::RtStage::create("stage");
-    mx::RtCoreIo io(stageObj);
-    io.read(doc);
+    mx::RtObject stageObj = mx::RtStage::create("test");
+    mx::RtCoreIo stageIo(stageObj);
+    stageIo.read(doc);
 
     // Get a nodegraph and write a dot file for inspection.
     mx::RtStage stage(stageObj);
     mx::RtNodeGraph graph = stage.getElement("NG_tiledimage_float");
-    REQUIRE(graph.isValid());
+    REQUIRE(graph);
     std::ofstream dotfile;
     dotfile.open(graph.getName().str() + ".dot");
     dotfile << graph.asStringDot();
     dotfile.close();
+
+    // Get a nodedef and create two new instances of it.
+    mx::RtObject multiplyObj = stage.getElement("ND_multiply_color3");
+    REQUIRE(multiplyObj);
+    mx::RtNode mul1 = mx::RtNode::create("mul1", multiplyObj, stageObj);
+    mx::RtNode mul2 = mx::RtNode::create("mul2", multiplyObj, stageObj);
+    REQUIRE(mul1);
+    REQUIRE(mul2);
+    mul2.getPort("in1").setValue(mx::Color3(0.3f, 0.5f, 0.4f));
+    mul2.getPort("in2").setValue(mx::Color3(0.6f, 0.3f, 0.5f));
+    mul2.getPort("in2").setColorSpace("srgb_texture");
+
+    // Write the stage to another document.
+    mx::DocumentPtr doc2 = mx::createDocument();
+    stageIo.write(doc2);
+    mx::writeToXmlFile(doc2, stage.getName().str() + ".mtlx");
 }
 
 TEST_CASE("Runtime: Stage References", "[runtime]")
@@ -253,24 +269,31 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     mx::DocumentPtr doc = mx::createDocument();
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
     loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
-    mx::RtCoreIo io(libStageObj);
-    io.read(doc);
+    mx::RtCoreIo libStageIo(libStageObj);
+    libStageIo.read(doc);
 
     // Reference the library stage .
     mainStage.addReference(libStageObj);
 
     // Test access and removal of contents from the referenced library.
-    mx::RtNodeDef nodedef = mainStage.getElement("ND_add_float");
+    mx::RtNodeDef nodedef = mainStage.getElement("ND_complex_ior");
     REQUIRE(nodedef.isValid());
     REQUIRE_THROWS(mainStage.removeElement(nodedef.getName()));
 
     // Test instantiation of a node from a referenced nodedef
-    mx::RtObject addObj = mx::RtNode::create("add1", nodedef.getObject(), mainStage.getObject());
-    REQUIRE(addObj.isValid());
+    mx::RtObject nodeObj = mx::RtNode::create("complex1", nodedef.getObject(), mainStage.getObject());
+    REQUIRE(nodeObj.isValid());
+
+    // Write the stage to a new document, 
+    // writing only the non-referenced content.
+    mx::DocumentPtr doc2 = mx::createDocument();
+    mx::RtCoreIo mainStageIo(mainStageObj);
+    mainStageIo.write(doc2);
+    mx::writeToXmlFile(doc2, mainStage.getName().str() + ".mtlx");
 
     // Make sure removal of the non-referenced node works
-    const mx::RtToken nodeName = mx::RtNode(addObj).getName();
+    const mx::RtToken nodeName = mx::RtNode(nodeObj).getName();
     mainStage.removeElement(nodeName);
-    addObj = mainStage.getElement(nodeName);
-    REQUIRE(!addObj.isValid());
+    nodeObj = mainStage.getElement(nodeName);
+    REQUIRE(!nodeObj.isValid());
 }
