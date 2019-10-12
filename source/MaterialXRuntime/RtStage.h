@@ -45,7 +45,18 @@ public:
     /// or a null object if no such element exists.
     RtObject getElement(const RtToken& name) const;
 
-    /// Find an element by path.
+    /// Find an element by string path.
+    /// Paths are element names expressed hierarchicaly and seperated by '/'.
+    ///
+    /// Exanples:
+    ///     "/nodegraph1/add1"
+    ///     "/nodegraph2/multiply4/in1"
+    ///     "/ND_foo/out"
+    ///
+    /// When finding ports on node instances an object for the portdef will
+    /// be returned. In order to get to the port from the portdef use the
+    /// port constructor method: RtPort(RtObject node, RtObject portdef)
+    ///
     RtObject findElement(const string& path) const;
 };
 
