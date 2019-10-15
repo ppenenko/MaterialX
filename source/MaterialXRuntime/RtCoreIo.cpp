@@ -160,7 +160,7 @@ namespace {
         }
 
         const RtToken nodedefName(srcNodedef->getName());
-        PrvObjectHandle nodedefH = stage->getElement(nodedefName);
+        PrvObjectHandle nodedefH = stage->findElementByName(nodedefName);
         if (!nodedefH)
         {
             // NodeDef is not loaded yet so create it now.
@@ -178,7 +178,7 @@ namespace {
         for (auto elem : srcNodedef->getChildrenOfType<ValueElement>())
         {
             const RtToken portName(elem->getName());
-            RtPort port = node->getPort(portName);
+            RtPort port = node->findPort(portName);
             if (!port)
             {
                 throw ExceptionRuntimeError("No port named '" + elem->getName() + "' was found on runtime node '" + node->getName().str() + "'");
@@ -245,14 +245,14 @@ namespace {
                     if (!interfaceName.empty())
                     {
                         const RtToken graphInputName(interfaceName);
-                        RtPort graphInput = graphInputs->getPort(graphInputName);
+                        RtPort graphInput = graphInputs->findPort(graphInputName);
                         if (!graphInput)
                         {
                             throw ExceptionRuntimeError("Interface name '" + interfaceName + "' does not match an input on the interface for nodegraph '" + 
                                                         nodegraph->getName().str() + "'");
                         }
                         const RtToken inputName(elem->getName());
-                        RtPort input = node->getPort(inputName);
+                        RtPort input = node->findPort(inputName);
                         PrvNode::connect(graphInput, input);
                     }
                 }
@@ -285,7 +285,7 @@ namespace {
                         RtPort output = upstreamNode->getPort(0); // TODO: Fixme!
                         RtPort graphOutput = graphOutputs->numPorts() == 1 ? // Single outputs can have arbitrary names.
                             graphOutputs->getPort(0) :                       // so access by index in that case.
-                            graphOutputs->getPort(RtToken(downstreamElem->getName()));
+                            graphOutputs->findPort(RtToken(downstreamElem->getName()));
                         PrvNode::connect(output, graphOutput);
                     }
                     else
@@ -293,7 +293,7 @@ namespace {
                         const RtToken downstreamNodeName(downstreamElem->getName());
                         const RtToken downstreamInputName(connectingElem->getName());
                         PrvNode* downstreamNode = nodegraph->node(downstreamNodeName);
-                        RtPort input = downstreamNode->getPort(downstreamInputName);
+                        RtPort input = downstreamNode->findPort(downstreamInputName);
                         RtPort output = upstreamNode->getPort(0); // TODO: Fixme!
                         PrvNode::connect(output, input);
                     }
@@ -311,8 +311,8 @@ namespace {
     void writeNodedef(const PrvNodeDef* nodedef, DocumentPtr dest)
     {
         PrvObjectHandleVec inputs, outputs;
-        nodedef->findElements(InputPredicate{}, inputs);
-        nodedef->findElements(OutputPredicate{}, outputs);
+//        nodedef->findElements(InputPredicate{}, inputs);
+//        nodedef->findElements(OutputPredicate{}, outputs);
 
         string type = outputs.size() == 1 ? outputs[0]->asA<PrvPortDef>()->getType().str() : "multioutput";
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), type, nodedef->getCategory());
@@ -348,8 +348,8 @@ namespace {
         const PrvNodeDef* nodedef = node->nodedef();
 
         PrvObjectHandleVec inputs, outputs;
-        nodedef->findElements(InputPredicate{}, inputs);
-        nodedef->findElements(OutputPredicate{}, outputs);
+//        nodedef->findElements(InputPredicate{}, inputs);
+//        nodedef->findElements(OutputPredicate{}, outputs);
 
         string type = outputs.size() == 1 ? outputs[0]->asA<PrvPortDef>()->getType().str() : "multioutput";
         NodePtr destNode = dest->addNode(nodedef->getCategory(), node->getName().str(), type);
@@ -357,7 +357,7 @@ namespace {
         for (auto inputH : inputs)
         {
             const PrvPortDef* inputDef = inputH->asA<PrvPortDef>();
-            RtPort input = const_cast<PrvNode*>(node)->getPort(inputDef->getName());
+            RtPort input = const_cast<PrvNode*>(node)->findPort(inputDef->getName());
             if (input.isConnected() || input.getValue() != inputDef->getValue())
             {
                 ValueElementPtr destInput;
@@ -435,9 +435,9 @@ void RtCoreIo::write(DocumentPtr& doc)
     PrvStage* stage = data()->asA<PrvStage>();
     writeAttributes(stage, doc);
 
-    for (size_t i = 0; i < stage->numOwnElements(); ++i)
+    for (size_t i = 0; i < stage->numElements(); ++i)
     {
-        const PrvObjectHandle elemH = stage->getOwnElement(i);
+        PrvObjectHandle elemH = stage->getElement(i);
         if (elemH->getObjType() == RtObjType::NODEDEF)
         {
             writeNodedef(elemH->asA<PrvNodeDef>(), doc);

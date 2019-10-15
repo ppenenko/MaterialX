@@ -35,20 +35,16 @@ public:
     /// Add an port definition.
     void addPortDef(RtObject attr);
 
-    /// Return a portdef by name,
-    /// or a null object if no such port exists.
-    RtObject getPortDef(const RtToken& name) const;
+    /// Return the port count.
+    size_t numPorts() const;
 
     /// Return a portdef by index,
     /// or a null object if no such port exists.
     RtObject getPortDef(size_t index) const;
 
-    /// Return the port count.
-    size_t numPorts() const;
-
-    /// Return the port index for a given port name
-    /// or INVALID_INDEX if no such port is found.
-    size_t getPortIndex(const RtToken& name) const;
+    /// Find a portdef by name.
+    /// Return a null object if no such port is found.
+    RtObject findPortDef(const RtToken& name) const;
 };
 
 }

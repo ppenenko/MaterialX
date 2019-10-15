@@ -12,8 +12,6 @@
 namespace MaterialX
 {
 
-const string PrvElement::PATH_SEPARATOR = "/";
-
 PrvElement::PrvElement(RtObjType objType, const RtToken& name) :
     PrvObject(objType),
     _name(name)
@@ -27,10 +25,27 @@ void PrvElement::addAttribute(const RtToken& name, const RtToken& type, const Rt
     {
         throw ExceptionRuntimeError("An attribute named '" + name.str() + "' already exists for '" + getName().str() + "'");
     }
-    _attributesByName[name] = _attributes.size();
-    _attributes.push_back(RtAttribute(name, type, value));
+
+    AttrPtr attr(new RtAttribute(name, type, value));
+    _attributes.push_back(attr);
+    _attributesByName[name] = attr;
 }
 
+void PrvElement::removeAttribute(const RtToken& name)
+{
+    for (auto it = _attributes.begin(); it != _attributes.end(); ++it)
+    {
+        if ((*it)->getName() == name)
+        {
+            _attributes.erase(it);
+            break;
+        }
+    }
+    _attributesByName.erase(name);
+}
+
+
+const string PrvCompoundElement::PATH_SEPARATOR = "/";
 
 PrvCompoundElement::PrvCompoundElement(RtObjType objType, const RtToken& name) :
     PrvElement(objType, name)
@@ -43,28 +58,38 @@ void PrvCompoundElement::addElement(PrvObjectHandle elem)
     {
         throw ExceptionRuntimeError("Given object is not a valid element");
     }
+
     PrvElement* e = elem->asA<PrvElement>();
     auto it = _elementsByName.find(e->getName());
     if (it != _elementsByName.end())
     {
         throw ExceptionRuntimeError("An element named '" + e->getName().str() + "' already exists in '" + getName().str() + "'");
     }
-    _elementsByName[e->getName()] = _elements.size();
+
     _elements.push_back(elem);
+    _elementsByName[e->getName()] = elem;
 }
 
 void PrvCompoundElement::removeElement(const RtToken& name)
 {
-    const size_t index = getElementIndex(name);
-    if (index == INVALID_INDEX)
+    for (auto it = _elements.begin(); it != _elements.end(); ++it)
     {
-        throw ExceptionRuntimeError("An element named '" + name.str() + "' doesn't exists in '" + getName().str() + "'");
+        if ((*it)->asA<PrvElement>()->getName() == name)
+        {
+            _elements.erase(it);
+            break;
+        }
     }
-    _attributes.erase(_attributes.begin() + index);
-    _attributesByName.erase(name);
+    _elementsByName.erase(name);
 }
 
-PrvObjectHandle PrvCompoundElement::findElement(const string& path) const
+PrvObjectHandle PrvCompoundElement::findElementByName(const RtToken& name) const
+{
+    auto it = _elementsByName.find(name);
+    return it != _elementsByName.end() ? it->second : nullptr;
+}
+
+PrvObjectHandle PrvCompoundElement::findElementByPath(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -74,21 +99,21 @@ PrvObjectHandle PrvCompoundElement::findElement(const string& path) const
 
     size_t i = 0;
     RtToken name = RtToken(elementNames[i++]);
-    PrvObjectHandle elem = getElement(name);
+    PrvObjectHandle elem = findElementByName(name);
 
     while (elem != nullptr && i < elementNames.size())
     {
         if (elem->hasApi(RtApiType::COMPOUND_ELEMENT))
         {
             name = RtToken(elementNames[i]);
-            elem = elem->asA<PrvCompoundElement>()->getElement(name);
+            elem = elem->asA<PrvCompoundElement>()->findElementByName(name);
         }
         else if (elem->hasApi(RtApiType::NODE))
         {
             PrvNode* node = elem->asA<PrvNode>();
             PrvNodeDef* nodedef = node->getNodeDef()->asA<PrvNodeDef>();
             name = RtToken(elementNames[i]);
-            elem = nodedef->getElement(name);
+            elem = nodedef->findElementByName(name);
         }
         ++i;
     }

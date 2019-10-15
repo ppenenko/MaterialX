@@ -30,7 +30,13 @@ namespace mx = MaterialX;
 
 TEST_CASE("Runtime: Token", "[runtime]")
 {
-
+    mx::RtToken tok1 = "hej";
+    mx::RtToken tok2 = "hey";
+    mx::RtToken tok3 = "hej";
+    REQUIRE(tok1 != tok2);
+    REQUIRE(tok1 == tok3);
+    REQUIRE(tok1 == "hej");
+    REQUIRE(tok1 == std::string("hej"));
 }
 
 TEST_CASE("Runtime: Values", "[runtime]")
@@ -94,16 +100,16 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(addNode.numPorts() == 3);
 
     // Test the new ports
-    mx::RtPortDef out = addNode.getPortDef("out");
+    mx::RtPortDef out = addNode.findPortDef("out");
     REQUIRE(out.isValid());
     REQUIRE(out.isOutput());
     REQUIRE(out.isConnectable());
     REQUIRE(!out.isUniform());
     REQUIRE(out.getType() == "float");
     REQUIRE(out.getValue().asFloat() == 0.0f);
-    mx::RtPortDef foo = addNode.getPortDef("foo");
+    mx::RtPortDef foo = addNode.findPortDef("foo");
     REQUIRE(!foo.isValid());
-    mx::RtPortDef in1 = addNode.getPortDef("in1");
+    mx::RtPortDef in1 = addNode.findPortDef("in1");
     REQUIRE(in1.isValid());
     REQUIRE(in1.isInput());
     REQUIRE(in1.isConnectable());
@@ -124,12 +130,12 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtNode add2(add2Obj);
 
     // Get the node instance ports
-    mx::RtPort add1_in1 = add1.getPort("in1");
-    mx::RtPort add1_in2 = add1.getPort("in2");
-    mx::RtPort add1_out = add1.getPort("out");
-    mx::RtPort add2_in1 = add2.getPort("in1");
-    mx::RtPort add2_in2 = add2.getPort("in2");
-    mx::RtPort add2_out = add2.getPort("out");
+    mx::RtPort add1_in1 = add1.findPort("in1");
+    mx::RtPort add1_in2 = add1.findPort("in2");
+    mx::RtPort add1_out = add1.findPort("out");
+    mx::RtPort add2_in1 = add2.findPort("in1");
+    mx::RtPort add2_in2 = add2.findPort("in2");
+    mx::RtPort add2_out = add2.findPort("out");
 
     // Make port connections
     mx::RtNode::connect(add1_out, add2_in1);
@@ -190,32 +196,32 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtNode add4(add4Obj);
 
     // Connect the graph nodes to each other and the interface
-    mx::RtNode::connect(inputs.getPort("a"), add3.getPort("in1"));
-    mx::RtNode::connect(inputs.getPort("b"), add3.getPort("in2"));
-    mx::RtNode::connect(add3.getPort("out"), add4.getPort("in1"));
-    mx::RtNode::connect(inputs.getPort("a"), add4.getPort("in2"));
-    mx::RtNode::connect(add4.getPort("out"), outputs.getPort("out"));
-    REQUIRE(inputs.getPort("a").numDestinationPorts() == 2);
-    REQUIRE(inputs.getPort("b").numDestinationPorts() == 1);
-    REQUIRE(outputs.getPort("out").getSourcePort() == add4.getPort("out"));
+    mx::RtNode::connect(inputs.findPort("a"), add3.findPort("in1"));
+    mx::RtNode::connect(inputs.findPort("b"), add3.findPort("in2"));
+    mx::RtNode::connect(add3.findPort("out"), add4.findPort("in1"));
+    mx::RtNode::connect(inputs.findPort("a"), add4.findPort("in2"));
+    mx::RtNode::connect(add4.findPort("out"), outputs.findPort("out"));
+    REQUIRE(inputs.findPort("a").numDestinationPorts() == 2);
+    REQUIRE(inputs.findPort("b").numDestinationPorts() == 1);
+    REQUIRE(outputs.findPort("out").getSourcePort() == add4.findPort("out"));
 
     // Find object by path
-    mx::RtObject elem1 = stage.findElement("/add1/in2");
+    mx::RtObject elem1 = stage.findElementByPath("/add1/in2");
     REQUIRE(elem1.isValid());
     REQUIRE(elem1.hasApi(mx::RtApiType::PORTDEF));
     REQUIRE(mx::RtPortDef(elem1).getName() == "in2");
     REQUIRE(mx::RtPortDef(elem1).isInput());
 
     // Find a port by path
-    mx::RtObject node = stage.findElement("/graph1/add4");
-    mx::RtObject portdef = stage.findElement("/graph1/add4/out");
+    mx::RtObject node = stage.findElementByPath("/graph1/add4");
+    mx::RtObject portdef = stage.findElementByPath("/graph1/add4/out");
     REQUIRE(node.isValid());
     REQUIRE(portdef.isValid());
     REQUIRE(node.hasApi(mx::RtApiType::NODE));
     REQUIRE(portdef.hasApi(mx::RtApiType::PORTDEF));
     // Get a port instance from node and portdef
     mx::RtPort port1(node, portdef);
-    REQUIRE(port1 == add4.getPort("out"));
+    REQUIRE(port1 == add4.findPort("out"));
 }
 
 TEST_CASE("Runtime: CoreIo", "[runtime]")
@@ -234,7 +240,7 @@ TEST_CASE("Runtime: CoreIo", "[runtime]")
 
     // Get a nodegraph and write a dot file for inspection.
     mx::RtStage stage(stageObj);
-    mx::RtNodeGraph graph = stage.getElement("NG_tiledimage_float");
+    mx::RtNodeGraph graph = stage.findElementByName("NG_tiledimage_float");
     REQUIRE(graph);
     std::ofstream dotfile;
     dotfile.open(graph.getName().str() + ".dot");
@@ -242,15 +248,15 @@ TEST_CASE("Runtime: CoreIo", "[runtime]")
     dotfile.close();
 
     // Get a nodedef and create two new instances of it.
-    mx::RtObject multiplyObj = stage.getElement("ND_multiply_color3");
+    mx::RtObject multiplyObj = stage.findElementByName("ND_multiply_color3");
     REQUIRE(multiplyObj);
     mx::RtNode mul1 = mx::RtNode::create("mul1", multiplyObj, stageObj);
     mx::RtNode mul2 = mx::RtNode::create("mul2", multiplyObj, stageObj);
     REQUIRE(mul1);
     REQUIRE(mul2);
-    mul2.getPort("in1").setValue(mx::Color3(0.3f, 0.5f, 0.4f));
-    mul2.getPort("in2").setValue(mx::Color3(0.6f, 0.3f, 0.5f));
-    mul2.getPort("in2").setColorSpace("srgb_texture");
+    mul2.findPort("in1").setValue(mx::Color3(0.3f, 0.5f, 0.4f));
+    mul2.findPort("in2").setValue(mx::Color3(0.6f, 0.3f, 0.5f));
+    mul2.findPort("in2").setColorSpace("srgb_texture");
 
     // Write the stage to another document.
     mx::DocumentPtr doc2 = mx::createDocument();
@@ -275,12 +281,9 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     // Reference the library stage.
     mainStage.addReference(libStageObj);
 
-    // Test access and removal of contents from the referenced library.
-    mx::RtNodeDef nodedef = mainStage.getElement("ND_complex_ior");
+    // Test access and usage of contents from the referenced library.
+    mx::RtNodeDef nodedef = mainStage.findElementByName("ND_complex_ior");
     REQUIRE(nodedef.isValid());
-    REQUIRE_THROWS(mainStage.removeElement(nodedef.getName()));
-
-    // Test instantiation of a node from a referenced nodedef
     mx::RtObject nodeObj = mx::RtNode::create("complex1", nodedef.getObject(), mainStage.getObject());
     REQUIRE(nodeObj.isValid());
 
@@ -294,6 +297,6 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     // Make sure removal of the non-referenced node works
     const mx::RtToken nodeName = mx::RtNode(nodeObj).getName();
     mainStage.removeElement(nodeName);
-    nodeObj = mainStage.getElement(nodeName);
+    nodeObj = mainStage.findElementByName(nodeName);
     REQUIRE(!nodeObj.isValid());
 }

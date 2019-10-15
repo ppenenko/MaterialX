@@ -24,10 +24,12 @@ PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nd) :
     const size_t numPorts = nodedef()->numElements();
     _ports.resize(numPorts);
 
-    // Set default values
+    // Set indices and default values
     for (size_t i = 0; i < numPorts; ++i)
     {
-        _ports[i].value = nodedef()->portdef(i)->getValue();
+        PrvPortDef* pd = nodedef()->portdef(i);
+        _portIndices[pd->getName()] = i;
+        _ports[i].value = pd->getValue();
     }
 }
 

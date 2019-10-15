@@ -36,12 +36,9 @@ public:
         return nodedef()->getCategory();
     }
 
-    RtPort getPort(const RtToken& name)
+    size_t numPorts() const
     {
-        PrvNodeDef* nodedef = _nodedef->asA<PrvNodeDef>();
-        const size_t index = nodedef->getElementIndex(name);
-        PrvPortDef* portdef = nodedef->portdef(index);
-        return portdef ? RtPort(shared_from_this(), index) : RtPort();
+        return nodedef()->numElements();
     }
 
     RtPort getPort(size_t index)
@@ -51,9 +48,16 @@ public:
         return portdef ? RtPort(shared_from_this(), index) : RtPort();
     }
 
-    size_t numPorts() const
+    RtPort findPort(const RtToken& name)
     {
-        return nodedef()->numElements();
+        const size_t index = findPortIndex(name);
+        return index != INVALID_INDEX ? RtPort(shared_from_this(), index) : RtPort();
+    }
+
+    size_t findPortIndex(const RtToken& name)
+    {
+        auto it = _portIndices.find(name);
+        return it != _portIndices.end() ? it->second : INVALID_INDEX;
     }
 
     static void connect(const RtPort& source, const RtPort& dest);
@@ -73,8 +77,10 @@ protected:
         RtToken unit;
         RtPortVec connections;
     };
+
     PrvObjectHandle _nodedef;
     vector<Port> _ports;
+    RtTokenMap<size_t> _portIndices;
     friend class RtPort;
 };
 

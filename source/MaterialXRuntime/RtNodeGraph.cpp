@@ -43,10 +43,9 @@ void RtNodeGraph::addNode(RtObject node)
     return data()->asA<PrvNodeGraph>()->addNode(RtApiBase::data(node));
 }
 
-RtObject RtNodeGraph::getNode(const RtToken& name) const
+size_t RtNodeGraph::numNodes() const
 {
-    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getElement(name);
-    return RtApiBase::object(node);
+    return data()->asA<PrvNodeGraph>()->numElements();
 }
 
 RtObject RtNodeGraph::getNode(size_t index) const
@@ -55,9 +54,10 @@ RtObject RtNodeGraph::getNode(size_t index) const
     return RtApiBase::object(node);
 }
 
-size_t RtNodeGraph::numNodes() const
+RtObject RtNodeGraph::findNode(const RtToken& name) const
 {
-    return data()->asA<PrvNodeGraph>()->numElements();
+    PrvObjectHandle node = data()->asA<PrvNodeGraph>()->findElementByName(name);
+    return RtApiBase::object(node);
 }
 
 void RtNodeGraph::setInterface(RtObject nodedef)

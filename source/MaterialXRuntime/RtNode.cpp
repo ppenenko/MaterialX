@@ -32,9 +32,9 @@ RtPort::RtPort(RtObject node, RtObject portdef) :
     if (node.hasApi(RtApiType::NODE) && portdef.hasApi(RtApiType::PORTDEF))
     {
         _data = RtApiBase::data(node);
-        PrvNodeDef* nd = _data->asA<PrvNode>()->nodedef();
+        PrvNode * n = _data->asA<PrvNode>();
         RtPortDef pd(portdef);
-        _index = nd->getElementIndex(pd.getName());
+        _index = n->findPortIndex(pd.getName());
     }
 }
 
@@ -251,19 +251,9 @@ const RtToken& RtNode::getCategory() const
     return data()->asA<PrvNode>()->getCategory();
 }
 
-RtPort RtNode::getPort(RtObject portdef) const
+size_t RtNode::numPorts() const
 {
-    if (portdef.hasApi(RtApiType::PORTDEF))
-    {
-        PrvPortDef* pd = RtApiBase::data(portdef)->asA<PrvPortDef>();
-        return data()->asA<PrvNode>()->getPort(pd->getName());
-    }
-    return RtPort();
-}
-
-RtPort RtNode::getPort(const RtToken& name) const
-{
-    return data()->asA<PrvNode>()->getPort(name);
+    return data()->asA<PrvNode>()->numPorts();
 }
 
 RtPort RtNode::getPort(size_t index) const
@@ -271,9 +261,19 @@ RtPort RtNode::getPort(size_t index) const
     return data()->asA<PrvNode>()->getPort(index);
 }
 
-size_t RtNode::numPorts() const
+RtPort RtNode::findPort(const RtToken& name) const
 {
-    return data()->asA<PrvNode>()->numPorts();
+    return data()->asA<PrvNode>()->findPort(name);
+}
+
+RtPort RtNode::getPort(RtObject portdef) const
+{
+    if (portdef.hasApi(RtApiType::PORTDEF))
+    {
+        PrvPortDef* pd = RtApiBase::data(portdef)->asA<PrvPortDef>();
+        return data()->asA<PrvNode>()->findPort(pd->getName());
+    }
+    return RtPort();
 }
 
 void RtNode::connect(const RtPort& source, const RtPort& dest)

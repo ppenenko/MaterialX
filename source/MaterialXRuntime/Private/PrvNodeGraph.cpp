@@ -38,8 +38,8 @@ void PrvNodeGraph::addNode(PrvObjectHandle node)
     {
         throw ExceptionRuntimeError("A node named '" + n->getName().str() + "' already exists for nodegraph '" + getName().str() + "'");
     }
-    _elementsByName[n->getName()] = _elements.size();
     _elements.push_back(node);
+    _elementsByName[n->getName()] = node;
 }
 
 void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)

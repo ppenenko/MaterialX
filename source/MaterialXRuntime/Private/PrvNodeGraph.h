@@ -46,7 +46,7 @@ public:
     string asStringDot() const;
 
     // Short syntax getter for convenience.
-    PrvNode* node(const RtToken& name) const { return (PrvNode*)getElement(name).get(); }
+    PrvNode* node(const RtToken& name) const { return (PrvNode*)findElementByName(name).get(); }
     PrvNode* node(size_t index) const { return (PrvNode*)getElement(index).get(); }
     PrvNode* inputsNode() const { return (PrvNode*)_inputsNode.get(); }
     PrvNode* outputsNode() const { return (PrvNode*)_outputsNode.get(); }

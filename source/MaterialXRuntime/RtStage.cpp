@@ -25,28 +25,6 @@ RtObject RtStage::create(const RtToken& name)
     return RtApiBase::object(PrvStage::create(name));
 }
 
-void RtStage::addElement(RtObject elem)
-{
-    data()->asA<PrvStage>()->addElement(RtApiBase::data(elem));
-}
-
-void RtStage::removeElement(const RtToken& name)
-{
-    data()->asA<PrvStage>()->removeElement(name);
-}
-
-RtObject RtStage::getElement(const RtToken& name) const
-{
-    PrvObjectHandle elem = data()->asA<PrvStage>()->getElement(name);
-    return RtApiBase::object(elem);
-}
-
-RtObject RtStage::findElement(const string& path) const
-{
-    PrvObjectHandle elem = data()->asA<PrvStage>()->findElement(path);
-    return RtApiBase::object(elem);
-}
-
 void RtStage::addReference(RtObject stage)
 {
     data()->asA<PrvStage>()->addReference(RtApiBase::data(stage));
@@ -55,6 +33,32 @@ void RtStage::addReference(RtObject stage)
 void RtStage::removeReference(const RtToken& name)
 {
     data()->asA<PrvStage>()->removeReference(name);
+}
+
+void RtStage::addElement(RtObject elem)
+{
+    if (elem.hasApi(RtApiType::STAGE))
+    {
+        throw ExceptionRuntimeError("A stage cannot be added as direct child of another stage. Use addReference() instead to reference the stage.");
+    }
+    data()->asA<PrvStage>()->addElement(RtApiBase::data(elem));
+}
+
+void RtStage::removeElement(const RtToken& name)
+{
+    data()->asA<PrvStage>()->removeElement(name);
+}
+
+RtObject RtStage::findElementByName(const RtToken& name) const
+{
+    PrvObjectHandle elem = data()->asA<PrvStage>()->findElementByName(name);
+    return RtApiBase::object(elem);
+}
+
+RtObject RtStage::findElementByPath(const string& path) const
+{
+    PrvObjectHandle elem = data()->asA<PrvStage>()->findElementByPath(path);
+    return RtApiBase::object(elem);
 }
 
 }

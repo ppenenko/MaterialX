@@ -157,20 +157,20 @@ public:
     /// Return the node category for this node.
     const RtToken& getCategory() const;
 
-    /// Return a port corresponding to the given portdef,
-    /// or a null object if no such port exists.
-    RtPort getPort(RtObject portdef) const;
-
-    /// Return a port by name, or a null object 
-    /// if no such port exists.
-    RtPort getPort(const RtToken& name) const;
+    /// Return the port count.
+    size_t numPorts() const;
 
     /// Return a port by index, or a null object 
     /// if no such port exists.
     RtPort getPort(size_t index) const;
 
-    /// Return the port count.
-    size_t numPorts() const;
+    /// Return a port corresponding to the given portdef object,
+    /// or a null object if no such port exists.
+    RtPort getPort(RtObject portdef) const;
+
+    /// Find a port by name, or a null object 
+    /// if no such port is found.
+    RtPort findPort(const RtToken& name) const;
 
     /// Make a new connection between two ports.
     static void connect(const RtPort& source, const RtPort& dest);

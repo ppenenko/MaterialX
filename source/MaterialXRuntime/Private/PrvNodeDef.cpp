@@ -29,14 +29,16 @@ void PrvNodeDef::addPortDef(PrvObjectHandle portdef)
     {
         throw ExceptionRuntimeError("Given object is not a valid portdef");
     }
+
     PrvPortDef* pd = portdef->asA<PrvPortDef>();
     auto it = _elementsByName.find(pd->getName());
     if (it != _elementsByName.end())
     {
         throw ExceptionRuntimeError("A port named '" + pd->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
     }
-    _elementsByName[pd->getName()] = _elements.size();
+
     _elements.push_back(portdef);
+    _elementsByName[pd->getName()] = portdef;
 }
 
 }

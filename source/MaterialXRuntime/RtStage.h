@@ -43,7 +43,7 @@ public:
 
     /// Return an element by name,
     /// or a null object if no such element exists.
-    RtObject getElement(const RtToken& name) const;
+    RtObject findElementByName(const RtToken& name) const;
 
     /// Find an element by string path.
     /// Paths are element names expressed hierarchicaly and seperated by '/'.
@@ -57,7 +57,7 @@ public:
     /// be returned. In order to get to the port from the portdef use the
     /// port constructor method: RtPort(RtObject node, RtObject portdef)
     ///
-    RtObject findElement(const string& path) const;
+    RtObject findElementByPath(const string& path) const;
 };
 
 }

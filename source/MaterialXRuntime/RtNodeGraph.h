@@ -32,16 +32,16 @@ public:
     /// Add a node to the graph.
     void addNode(RtObject node);
 
-    /// Return a node by name, or a null object 
-    /// if no such node exists.
-    RtObject getNode(const RtToken& name) const;
+    /// Return the node count.
+    size_t numNodes() const;
 
     /// Return a node by index, or a null object 
     /// if no such node exists.
     RtObject getNode(size_t index) const;
 
-    /// Return the node count.
-    size_t numNodes() const;
+    /// Find a node by name. Return a null object 
+    /// if no such node is found.
+    RtObject findNode(const RtToken& name) const;
 
     /// Set the interface for the graph, creating inputs and outputs 
     /// according to the given nodedef.

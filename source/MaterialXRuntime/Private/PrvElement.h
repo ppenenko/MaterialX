@@ -29,27 +29,28 @@ public:
     }
 
     void addAttribute(const RtToken& name, const RtToken& type, const RtValue& value);
+    void removeAttribute(const RtToken& name);
 
     const RtAttribute* getAttribute(const RtToken& name) const
     {
         auto it = _attributesByName.find(name);
-        return it != _attributesByName.end() ? &_attributes[it->second] : nullptr;
+        return it != _attributesByName.end() ? it->second.get() : nullptr;
     }
 
     RtAttribute* getAttribute(const RtToken& name)
     {
         auto it = _attributesByName.find(name);
-        return it != _attributesByName.end() ? &_attributes[it->second] : nullptr;
+        return it != _attributesByName.end() ? it->second.get() : nullptr;
     }
 
     const RtAttribute* getAttribute(size_t index) const
     {
-        return index < _attributes.size() ? &_attributes[index] : nullptr;
+        return index < _attributes.size() ? _attributes[index].get() : nullptr;
     }
 
     RtAttribute* getAttribute(size_t index)
     {
-        return index < _attributes.size() ? &_attributes[index] : nullptr;
+        return index < _attributes.size() ? _attributes[index].get() : nullptr;
     }
 
     size_t numAttributes() const
@@ -63,11 +64,11 @@ protected:
         _name = name;
     }
 
-    static const string PATH_SEPARATOR;
+    using AttrPtr = std::shared_ptr<RtAttribute>;
 
     RtToken _name;
-    vector<RtAttribute> _attributes;
-    RtTokenMap<size_t> _attributesByName;
+    vector<AttrPtr> _attributes;
+    RtTokenMap<AttrPtr> _attributesByName;
     friend class PrvStage;
 };
 
@@ -76,14 +77,14 @@ class PrvCompoundElement : public PrvElement
 public:
     PrvCompoundElement(RtObjType objType, const RtToken& name);
 
-    void addElement(PrvObjectHandle elem);
+    virtual ~PrvCompoundElement() {}
 
+    void addElement(PrvObjectHandle elem);
     void removeElement(const RtToken& name);
 
-    PrvObjectHandle getElement(const RtToken& name) const
+    size_t numElements() const
     {
-        auto it = _elementsByName.find(name);
-        return it != _elementsByName.end() ? _elements[it->second] : nullptr;
+        return _elements.size();
     }
 
     PrvObjectHandle getElement(size_t index) const
@@ -91,35 +92,14 @@ public:
         return index < _elements.size() ? _elements[index] : nullptr;
     }
 
-    size_t numElements() const
-    {
-        return _elements.size();
-    }
+    virtual PrvObjectHandle findElementByName(const RtToken& name) const;
+    virtual PrvObjectHandle findElementByPath(const string& path) const;
 
-    size_t getElementIndex(const RtToken& name) const
-    {
-        auto it = _elementsByName.find(name);
-        return it != _elementsByName.end() ? it->second : INVALID_INDEX;
-    }
-
-    PrvObjectHandle findElement(const string& path) const;
-
-    template<typename T>
-    size_t findElements(const T& pred, PrvObjectHandleVec& result) const
-    {
-        for (auto elem : _elements)
-        {
-            if (pred(elem))
-            {
-                result.push_back(elem);
-            }
-        }
-        return result.size();
-    }
+    static const string PATH_SEPARATOR;
 
 protected:
     PrvObjectHandleVec _elements;
-    RtTokenMap<size_t> _elementsByName;
+    RtTokenMap<PrvObjectHandle> _elementsByName;
 };
 
 struct PrvObjectPredicate

@@ -172,7 +172,7 @@ public:
         return _entry->_str.c_str();
     }
 
-    /// Explicit conversion to std::string.
+    /// Conversion to std::string.
     operator const string& () const
     {
         return _entry->_str;
@@ -180,7 +180,7 @@ public:
 
     /// Explicit conversion to bool.
     /// Returning false if the token is empty.
-    operator bool() const
+    explicit operator bool() const
     {
         return _entry != EMPTY_TOKEN._entry;
     }
