@@ -75,7 +75,7 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
             def = _outputsDef->asA<PrvNodeDef>();
         }
         PrvObjectHandle port = PrvPortDef::create(pd->getName(), pd->getType(), pd->getValue(), flags);
-        def->addPortDef(port);
+        def->addPort(port);
     }
 
     // Instantiate the input and output interface nodes.

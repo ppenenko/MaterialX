@@ -103,16 +103,16 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(addNode.numPorts() == 3);
 
     // Test the new ports
-    mx::RtPortDef out = addNode.findPortDef("out");
+    mx::RtPortDef out = addNode.findPort("out");
     REQUIRE(out.isValid());
     REQUIRE(out.isOutput());
     REQUIRE(out.isConnectable());
     REQUIRE(!out.isUniform());
     REQUIRE(out.getType() == "float");
     REQUIRE(out.getValue().asFloat() == 0.0f);
-    mx::RtPortDef foo = addNode.findPortDef("foo");
+    mx::RtPortDef foo = addNode.findPort("foo");
     REQUIRE(!foo.isValid());
-    mx::RtPortDef in1 = addNode.findPortDef("in1");
+    mx::RtPortDef in1 = addNode.findPort("in1");
     REQUIRE(in1.isValid());
     REQUIRE(in1.isInput());
     REQUIRE(in1.isConnectable());
@@ -317,7 +317,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::RtCoreIo coreIO(stdlibStage.getObject());
     coreIO.read(doc);
 
-    // Count elements traversing the stdlib stage
+    // Count elements traversing the full stdlib stage
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (auto it = stdlibStage.traverse(); !it.isDone(); ++it)
     {
@@ -345,7 +345,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::RtObject nodeObj = mx::RtNode::create("sub1", nodedef.getObject(), mainStage.getObject());
     REQUIRE(nodeObj);
 
-    // Travers filtering to return only nodes.
+    // Travers using a filter to return only node objects.
     mx::RtObjectFilter nodeFilter(mx::RtObjType::NODE);
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (auto it = mainStage.traverse(&nodeFilter); !it.isDone(); ++it)
@@ -367,7 +367,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeDefCount == 0);
     REQUIRE(nodeGraphCount == 0);
 
-    // Travers filtering to return only elements supporting the nodegraph API.
+    // Travers using a filter to return only objects supporting the nodegraph API.
     mx::RtApiFilter apiFilter(mx::RtApiType::NODEGRAPH);
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
     for (auto it = mainStage.traverse(&apiFilter); !it.isDone(); ++it)

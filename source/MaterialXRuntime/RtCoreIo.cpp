@@ -106,7 +106,7 @@ namespace {
                                                              RtPortFlag::CONNECTABLE | RtPortFlag::OUTPUT);
                 PrvPortDef* output = outputH->asA<PrvPortDef>();
                 readAttributes(elem, output, portdefIgnoreAttr);
-                nodedef->addPortDef(outputH);
+                nodedef->addPort(outputH);
             }
         }
         else
@@ -114,7 +114,7 @@ namespace {
             const RtToken type(src->getType());
             PrvObjectHandle outputH = PrvPortDef::create(PrvPortDef::DEFAULT_OUTPUT_NAME, type, RtValue(),
                                                          RtPortFlag::CONNECTABLE | RtPortFlag::OUTPUT);
-            nodedef->addPortDef(outputH);
+            nodedef->addPort(outputH);
         }
 
         // Add inputs
@@ -131,7 +131,7 @@ namespace {
                 // TODO: fix when units are implemented in core
                 // input->setUnit(RtToken(elem->getUnit()));
                 readAttributes(elem, input, portdefIgnoreAttr);
-                nodedef->addPortDef(inputH);
+                nodedef->addPort(inputH);
             }
             else if (elem->isA<Parameter>())
             {
@@ -144,7 +144,7 @@ namespace {
                 // TODO: fix when units are implemented in core
                 // input->setUnit(RtToken(elem->getUnit()));
                 readAttributes(elem, input, portdefIgnoreAttr);
-                nodedef->addPortDef(inputH);
+                nodedef->addPort(inputH);
             }
         }
 
@@ -213,7 +213,7 @@ namespace {
                 const RtToken type(elem->getType());
                 PrvObjectHandle output = PrvPortDef::create(name, type, RtValue(),
                                                             RtPortFlag::OUTPUT | RtPortFlag::CONNECTABLE);
-                graphInterface->addPortDef(output);
+                graphInterface->addPort(output);
             }
         }
 

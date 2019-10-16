@@ -43,9 +43,9 @@ const RtToken& RtNodeDef::getCategory() const
     return data()->asA<PrvNodeDef>()->getCategory();
 }
 
-void RtNodeDef::addPortDef(RtObject attr)
+void RtNodeDef::addPort(RtObject portdef)
 {
-    return data()->asA<PrvNodeDef>()->addPortDef(RtApiBase::data(attr));
+    return data()->asA<PrvNodeDef>()->addPort(RtApiBase::data(portdef));
 }
 
 size_t RtNodeDef::numPorts() const
@@ -53,13 +53,13 @@ size_t RtNodeDef::numPorts() const
     return data()->asA<PrvNodeDef>()->numElements();
 }
 
-RtObject RtNodeDef::getPortDef(size_t index) const
+RtObject RtNodeDef::getPort(size_t index) const
 {
     PrvObjectHandle portdef = data()->asA<PrvNodeDef>()->getElement(index);
     return RtObject(portdef);
 }
 
-RtObject RtNodeDef::findPortDef(const RtToken& name) const
+RtObject RtNodeDef::findPort(const RtToken& name) const
 {
     PrvObjectHandle portdef = data()->asA<PrvNodeDef>()->findElementByName(name);
     return RtObject(portdef);

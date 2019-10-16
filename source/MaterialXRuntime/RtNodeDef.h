@@ -33,18 +33,18 @@ public:
     const RtToken& getCategory() const;
 
     /// Add an port definition.
-    void addPortDef(RtObject attr);
+    void addPort(RtObject portdef);
 
     /// Return the port count.
     size_t numPorts() const;
 
-    /// Return a portdef by index,
+    /// Return a port definition by index,
     /// or a null object if no such port exists.
-    RtObject getPortDef(size_t index) const;
+    RtObject getPort(size_t index) const;
 
-    /// Find a portdef by name.
+    /// Find a port definition by name.
     /// Return a null object if no such port is found.
-    RtObject findPortDef(const RtToken& name) const;
+    RtObject findPort(const RtToken& name) const;
 };
 
 }

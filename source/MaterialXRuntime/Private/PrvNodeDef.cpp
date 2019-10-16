@@ -23,7 +23,7 @@ PrvObjectHandle PrvNodeDef::create(const RtToken& name, const RtToken& category)
     return std::make_shared<PrvNodeDef>(name, category);
 }
 
-void PrvNodeDef::addPortDef(PrvObjectHandle portdef)
+void PrvNodeDef::addPort(PrvObjectHandle portdef)
 {
     if (!portdef->hasApi(RtApiType::PORTDEF))
     {

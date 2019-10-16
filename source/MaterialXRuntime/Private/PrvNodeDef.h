@@ -30,7 +30,7 @@ public:
         return _category;
     }
 
-    void addPortDef(PrvObjectHandle attr);
+    void addPort(PrvObjectHandle portdef);
 
     // Short syntax getter for convenience.
     PrvPortDef* portdef(size_t index) { return (PrvPortDef*)getElement(index).get(); }
