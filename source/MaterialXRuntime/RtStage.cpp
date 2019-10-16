@@ -22,7 +22,7 @@ RtApiType RtStage::getApiType() const
 
 RtObject RtStage::create(const RtToken& name)
 {
-    return RtApiBase::object(PrvStage::create(name));
+    return RtObject(PrvStage::create(name));
 }
 
 void RtStage::addReference(RtObject stage)
@@ -52,13 +52,18 @@ void RtStage::removeElement(const RtToken& name)
 RtObject RtStage::findElementByName(const RtToken& name) const
 {
     PrvObjectHandle elem = data()->asA<PrvStage>()->findElementByName(name);
-    return RtApiBase::object(elem);
+    return RtObject(elem);
 }
 
 RtObject RtStage::findElementByPath(const string& path) const
 {
     PrvObjectHandle elem = data()->asA<PrvStage>()->findElementByPath(path);
-    return RtApiBase::object(elem);
+    return RtObject(elem);
+}
+
+RtStageIterator RtStage::traverse(RtTraversalFilter* filter)
+{
+    return RtStageIterator(getObject(), filter);
 }
 
 }

@@ -46,6 +46,7 @@ enum class RtApiType
     NODEGRAPH,
     STAGE,
     CORE_IO,
+    ELEMENT_ITERATOR,
     NUM_TYPES
 };
 
@@ -56,6 +57,9 @@ class RtObject
 public:
     /// Default constructor.
     RtObject();
+
+    /// Construct from a data handle.
+    RtObject(PrvObjectHandle data);
 
     /// Copy constructor.
     RtObject(const RtObject& other);
@@ -92,8 +96,6 @@ public:
     }
 
 private:
-    RtObject(PrvObjectHandle data);
-
     PrvObjectHandle _data;
     friend class RtApiBase;
 };
@@ -171,9 +173,6 @@ protected:
 
     /// Return data for a given object.
     static const PrvObjectHandle data(RtObject obj) { return obj._data; }
-
-    /// Construct an object from a data handle.
-    static RtObject object(PrvObjectHandle data) { return RtObject(data); }
 
 private:
     /// Internal data attached to the API.

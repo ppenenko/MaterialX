@@ -18,6 +18,7 @@
 #include <MaterialXRuntime/RtNode.h>
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtCoreIo.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 #include <MaterialXGenShader/Util.h>
 
@@ -37,6 +38,8 @@ TEST_CASE("Runtime: Token", "[runtime]")
     REQUIRE(tok1 == tok3);
     REQUIRE(tok1 == "hej");
     REQUIRE(tok1 == std::string("hej"));
+    REQUIRE("hej" == tok1);
+    REQUIRE(std::string("hej") == tok1);
 }
 
 TEST_CASE("Runtime: Values", "[runtime]")
@@ -299,4 +302,90 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     mainStage.removeElement(nodeName);
     nodeObj = mainStage.findElementByName(nodeName);
     REQUIRE(!nodeObj.isValid());
+}
+
+TEST_CASE("Runtime: Traversal", "[runtime]")
+{
+    // Create a main stage.
+    mx::RtStage mainStage = mx::RtStage::create("main");
+
+    // Load stdlib in a seperate stage.
+    mx::RtStage stdlibStage = mx::RtStage::create("stdlib");
+    mx::DocumentPtr doc = mx::createDocument();
+    mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
+    loadLibraries({ "stdlib", }, searchPath, doc);
+    mx::RtCoreIo coreIO(stdlibStage.getObject());
+    coreIO.read(doc);
+
+    // Count elements traversing the stdlib stage
+    size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
+    for (auto it = stdlibStage.traverse(); !it.isDone(); ++it)
+    {
+        switch ((*it).getObjType())
+        {
+        case mx::RtObjType::NODE:
+            nodeCount++;
+            break;
+        case mx::RtObjType::NODEDEF:
+            nodeDefCount++;
+            break;
+        case mx::RtObjType::NODEGRAPH:
+            nodeGraphCount++;
+            break;
+        }
+    }
+    REQUIRE(nodeCount == doc->getNodes().size());
+    REQUIRE(nodeDefCount == doc->getNodeDefs().size());
+    REQUIRE(nodeGraphCount == doc->getNodeGraphs().size());
+
+    mainStage.addReference(stdlibStage.getObject());
+    
+    mx::RtNodeDef nodedef = mainStage.findElementByName("ND_subtract_vector3");
+    REQUIRE(nodedef);
+    mx::RtObject nodeObj = mx::RtNode::create("sub1", nodedef.getObject(), mainStage.getObject());
+    REQUIRE(nodeObj);
+
+    // Travers filtering to return only nodes.
+    mx::RtObjectFilter nodeFilter(mx::RtObjType::NODE);
+    nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
+    for (auto it = mainStage.traverse(&nodeFilter); !it.isDone(); ++it)
+    {
+        switch ((*it).getObjType())
+        {
+        case mx::RtObjType::NODE:
+            nodeCount++;
+            break;
+        case mx::RtObjType::NODEDEF:
+            nodeDefCount++;
+            break;
+        case mx::RtObjType::NODEGRAPH:
+            nodeGraphCount++;
+            break;
+        }
+    }
+    REQUIRE(nodeCount == 1);
+    REQUIRE(nodeDefCount == 0);
+    REQUIRE(nodeGraphCount == 0);
+
+    // Travers filtering to return only elements supporting the nodegraph API.
+    mx::RtApiFilter apiFilter(mx::RtApiType::NODEGRAPH);
+    nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
+    for (auto it = mainStage.traverse(&apiFilter); !it.isDone(); ++it)
+    {
+        switch ((*it).getObjType())
+        {
+        case mx::RtObjType::NODE:
+            nodeCount++;
+            break;
+        case mx::RtObjType::NODEDEF:
+            nodeDefCount++;
+            break;
+        case mx::RtObjType::NODEGRAPH:
+            nodeGraphCount++;
+            break;
+        }
+    }
+    REQUIRE(nodeCount == 0);
+    REQUIRE(nodeDefCount == 0);
+    REQUIRE(nodeGraphCount == 64);
 }

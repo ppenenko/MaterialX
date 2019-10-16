@@ -33,7 +33,7 @@ RtObject RtPortDef::create(const RtToken& name, const RtToken& type, const RtVal
         }
     }
 
-    return RtApiBase::object(portdef);
+    return RtObject(portdef);
 }
 
 RtApiType RtPortDef::getApiType() const

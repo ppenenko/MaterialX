@@ -68,7 +68,7 @@ const RtToken& RtPort::getType() const
 
 RtObject RtPort::getNode() const
 {
-    return RtApiBase::object(_data);
+    return RtObject(_data);
 }
 
 int32_t RtPort::getFlags() const
@@ -238,7 +238,7 @@ RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject parent)
         }
     }
 
-    return RtApiBase::object(node);
+    return RtObject(node);
 }
 
 RtApiType RtNode::getApiType() const

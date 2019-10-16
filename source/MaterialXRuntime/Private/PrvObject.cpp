@@ -23,31 +23,36 @@ namespace
         // PORTDEF
         {
             RtApiType::ELEMENT,
-            RtApiType::PORTDEF
+            RtApiType::PORTDEF,
+            RtApiType::ELEMENT_ITERATOR,
         },
         // NODEDEF
         {
             RtApiType::ELEMENT,
             RtApiType::COMPOUND_ELEMENT,
-            RtApiType::NODEDEF
+            RtApiType::NODEDEF,
+            RtApiType::ELEMENT_ITERATOR,
         },
         // NODE
         {
             RtApiType::ELEMENT,
-            RtApiType::NODE
+            RtApiType::NODE,
+            RtApiType::ELEMENT_ITERATOR,
         },
         // NODEGRAPH
         {
             RtApiType::ELEMENT,
             RtApiType::COMPOUND_ELEMENT,
-            RtApiType::NODEGRAPH
+            RtApiType::NODEGRAPH,
+            RtApiType::ELEMENT_ITERATOR,
         },
         // STAGE
         {
             RtApiType::ELEMENT,
             RtApiType::COMPOUND_ELEMENT,
             RtApiType::STAGE,
-            RtApiType::CORE_IO
+            RtApiType::CORE_IO,
+            RtApiType::ELEMENT_ITERATOR,
         }
     };
 }

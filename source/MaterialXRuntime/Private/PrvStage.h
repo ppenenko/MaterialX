@@ -24,11 +24,16 @@ public:
     void addReference(PrvObjectHandle refStage);
     void removeReference(const RtToken& name);
 
+    const PrvObjectHandleVec& getReferencedStages() const
+    {
+        return _refStages;
+    }
+
     PrvObjectHandle findElementByName(const RtToken& name) const override;
     PrvObjectHandle findElementByPath(const string& path) const override;
 
 protected:
-    size_t _refCount;
+    size_t _selfRefCount;
     PrvObjectHandleVec _refStages;
 };
 

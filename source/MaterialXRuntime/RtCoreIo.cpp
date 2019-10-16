@@ -175,7 +175,7 @@ namespace {
         readAttributes(src, node, nodeIgnoreAttr);
 
         // Copy input values.
-        for (auto elem : srcNodedef->getChildrenOfType<ValueElement>())
+        for (auto elem : src->getChildrenOfType<ValueElement>())
         {
             const RtToken portName(elem->getName());
             RtPort port = node->findPort(portName);

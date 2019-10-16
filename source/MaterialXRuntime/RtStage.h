@@ -11,6 +11,7 @@
 
 #include <MaterialXRuntime/RtElement.h>
 #include <MaterialXRuntime/RtNodeDef.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 namespace MaterialX
 {
@@ -58,6 +59,12 @@ public:
     /// port constructor method: RtPort(RtObject node, RtObject portdef)
     ///
     RtObject findElementByPath(const string& path) const;
+
+    /// Return an iterator traversing the stage,
+    /// including any referenced stages.
+    /// If a filter is set will will be called to control 
+    /// which objects to return.
+    RtStageIterator traverse(RtTraversalFilter* filter = nullptr);
 };
 
 }

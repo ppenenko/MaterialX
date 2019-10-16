@@ -30,7 +30,7 @@ RtObject RtNodeGraph::create(const RtToken& name, RtObject parent)
         RtApiBase::data(parent)->asA<PrvStage>()->addElement(nodegraph);
     }
 
-    return RtApiBase::object(nodegraph);
+    return RtObject(nodegraph);
 }
 
 RtApiType RtNodeGraph::getApiType() const
@@ -51,13 +51,13 @@ size_t RtNodeGraph::numNodes() const
 RtObject RtNodeGraph::getNode(size_t index) const
 {
     PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getElement(index);
-    return RtApiBase::object(node);
+    return RtObject(node);
 }
 
 RtObject RtNodeGraph::findNode(const RtToken& name) const
 {
     PrvObjectHandle node = data()->asA<PrvNodeGraph>()->findElementByName(name);
-    return RtApiBase::object(node);
+    return RtObject(node);
 }
 
 void RtNodeGraph::setInterface(RtObject nodedef)
@@ -68,13 +68,13 @@ void RtNodeGraph::setInterface(RtObject nodedef)
 RtObject RtNodeGraph::getInputsNode() const
 {
     PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getInputsNode();
-    return RtApiBase::object(node);
+    return RtObject(node);
 }
 
 RtObject RtNodeGraph::getOutputsNode() const
 {
     PrvObjectHandle node = data()->asA<PrvNodeGraph>()->getOutputsNode();
-    return RtApiBase::object(node);
+    return RtObject(node);
 }
 
 string RtNodeGraph::asStringDot() const

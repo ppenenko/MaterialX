@@ -18,7 +18,7 @@ namespace MaterialX
 
 PrvStage::PrvStage(const RtToken& name) :
     PrvCompoundElement(RtObjType::STAGE, name),
-    _refCount(0)
+    _selfRefCount(0)
 {
 }
 
@@ -34,7 +34,7 @@ void PrvStage::addReference(PrvObjectHandle refStage)
         throw ExceptionRuntimeError("Given object is not a valid stage");
     }
     PrvStage* stage = refStage->asA<PrvStage>();
-    stage->_refCount++;
+    stage->_selfRefCount++;
     _refStages.push_back(refStage);
 }
 
@@ -45,7 +45,7 @@ void PrvStage::removeReference(const RtToken& name)
         PrvStage* stage = (*it)->asA<PrvStage>();
         if (stage->getName() == name)
         {
-            stage->_refCount--;
+            stage->_selfRefCount--;
             _refStages.erase(it);
             break;
         }

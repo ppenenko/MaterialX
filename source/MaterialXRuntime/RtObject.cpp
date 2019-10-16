@@ -50,6 +50,14 @@ namespace
         // RtApiType::CORE_IO
         {
             RtObjType::STAGE
+        },
+        // RtApiType::ELEMENT_ITERATOR
+        {
+            RtObjType::PORTDEF,
+            RtObjType::NODEDEF,
+            RtObjType::NODE,
+            RtObjType::NODEGRAPH,
+            RtObjType::STAGE
         }
     };
 }

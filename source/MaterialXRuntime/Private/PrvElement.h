@@ -92,6 +92,11 @@ public:
         return index < _elements.size() ? _elements[index] : nullptr;
     }
 
+    const PrvObjectHandleVec& getElements() const
+    {
+        return _elements;
+    }
+
     virtual PrvObjectHandle findElementByName(const RtToken& name) const;
     virtual PrvObjectHandle findElementByPath(const string& path) const;
 
