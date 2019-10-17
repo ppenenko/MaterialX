@@ -15,7 +15,7 @@ namespace MaterialX
 
 namespace
 {
-    static const std::set<RtApiType> OBJ_TO_API_RTTI[int(RtObjType::NUM_TYPES)] =
+    static const std::set<RtApiType> OBJ_TO_API_RTTI[static_cast<int>(RtObjType::NUM_TYPES)] =
     {
         // INVALID
         {
@@ -24,27 +24,27 @@ namespace
         {
             RtApiType::ELEMENT,
             RtApiType::PORTDEF,
-            RtApiType::ELEMENT_ITERATOR,
+            RtApiType::TREE_ITERATOR,
         },
         // NODEDEF
         {
             RtApiType::ELEMENT,
             RtApiType::COMPOUND_ELEMENT,
             RtApiType::NODEDEF,
-            RtApiType::ELEMENT_ITERATOR,
+            RtApiType::TREE_ITERATOR,
         },
         // NODE
         {
             RtApiType::ELEMENT,
             RtApiType::NODE,
-            RtApiType::ELEMENT_ITERATOR,
+            RtApiType::TREE_ITERATOR,
         },
         // NODEGRAPH
         {
             RtApiType::ELEMENT,
             RtApiType::COMPOUND_ELEMENT,
             RtApiType::NODEGRAPH,
-            RtApiType::ELEMENT_ITERATOR,
+            RtApiType::TREE_ITERATOR,
         },
         // STAGE
         {
@@ -52,7 +52,8 @@ namespace
             RtApiType::COMPOUND_ELEMENT,
             RtApiType::STAGE,
             RtApiType::CORE_IO,
-            RtApiType::ELEMENT_ITERATOR,
+            RtApiType::TREE_ITERATOR,
+            RtApiType::STAGE_ITERATOR,
         }
     };
 }

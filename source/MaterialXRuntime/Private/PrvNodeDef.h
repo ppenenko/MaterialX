@@ -31,12 +31,25 @@ public:
     }
 
     void addPort(PrvObjectHandle portdef);
+    void removePort(const RtToken& name);
+
+    size_t numPorts() const
+    {
+        return numElements();
+    }
+
+    size_t numOutputs() const
+    {
+        return _numOutputs;
+    }
 
     // Short syntax getter for convenience.
+    PrvPortDef* portdef(const RtToken& name) { return (PrvPortDef*)findElementByName(name).get(); }
     PrvPortDef* portdef(size_t index) { return (PrvPortDef*)getElement(index).get(); }
 
 protected:
     RtToken _category;
+    size_t _numOutputs;
     friend class PrvNode;
     friend class PrvNodeGraph;
     friend class RtPort;

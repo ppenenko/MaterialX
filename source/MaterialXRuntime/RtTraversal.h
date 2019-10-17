@@ -9,44 +9,32 @@
 /// @file
 /// TODO: Docs
 
-#include <MaterialXRuntime/RtElement.h>
+#include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
 {
 
-/// Functor base class for filtering during traversal.
-/// New filters should be derived from this base class
-/// to implemented custom behaviour.
-class RtTraversalFilter
-{
-public:
-    virtual bool operator()(const RtObject& obj) = 0;
-};
+/// Filter function type used for filtering objects during traversal.
+using RtTraversalFilter = std::function<bool(const RtObject & obj)>;
 
 /// Traversal filter for specific object types.
-class RtObjectFilter : public RtTraversalFilter
+template<RtObjType T>
+struct RtObjectFilter
 {
-public:
-    RtObjectFilter(RtObjType type) : _type(type) {}
-    bool operator()(const RtObject& obj) override
+    bool operator()(const RtObject& obj)
     {
-        return obj.getObjType() == _type;
+        return obj.getObjType() == T;
     }
-protected:
-    RtObjType _type;
 };
 
 /// Traversal filter for specific API support.
-class RtApiFilter : public RtTraversalFilter
+template<RtApiType T>
+struct RtApiFilter
 {
-public:
-    RtApiFilter(RtApiType type) : _type(type) {}
-    bool operator()(const RtObject& obj) override
+    bool operator()(const RtObject& obj)
     {
-        return obj.hasApi(_type);
+        return obj.hasApi(T);
     }
-protected:
-    RtApiType _type;
 };
 
 
@@ -55,16 +43,18 @@ protected:
 class RtStageIterator : public RtApiBase
 {
 public:
-    /// Constructor
+    /// EMpty constructor.
     RtStageIterator();
 
-    /// Constructor
-    RtStageIterator(RtObject root, RtTraversalFilter* filter = nullptr);
+    /// Constructor, setting the stage to iterate on
+    /// and optionally a filter restricting the set of 
+    /// returned objects.
+    RtStageIterator(RtObject stage, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
     RtStageIterator(const RtStageIterator& other);
 
-    /// Destructor
+    /// Destructor.
     ~RtStageIterator();
 
     /// Return the type for this API.
@@ -79,46 +69,49 @@ public:
     /// Iterate to the next element in the traversal.
     RtStageIterator& operator++();
 
-    /// Dereference this iterator, returning the current element in the
-    /// traversal.
+    /// Dereference this iterator, returning the current object
+    /// in the traversal.
     RtObject operator*() const;
 
-    /// Return true if there are no more elements in the interation.
+    /// Return true if there are no more objects in the traversal.
     bool isDone() const;
+
+    /// Force the iterator to terminate the traversal.
+    void abort();
 
 private:
     void* _ptr;
 };
 
 
-/// @class RtElementIterator
+/// @class RtTreeIterator
 /// TODO: Docs
-class RtElementIterator : public RtApiBase
+class RtTreeIterator : public RtApiBase
 {
 public:
     /// Constructor
-    RtElementIterator();
+    RtTreeIterator();
 
     /// Constructor
-    RtElementIterator(RtObject root, RtTraversalFilter* filter = nullptr);
+    RtTreeIterator(RtObject root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
-    RtElementIterator(const RtElementIterator& other);
+    RtTreeIterator(const RtTreeIterator& other);
 
     /// Destructor
-    ~RtElementIterator();
+    ~RtTreeIterator();
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
 
     /// Equality operator.
-    bool operator==(const RtElementIterator& other) const;
+    bool operator==(const RtTreeIterator& other) const;
 
     /// Inequality operator.
-    bool operator!=(const RtElementIterator& other) const;
+    bool operator!=(const RtTreeIterator& other) const;
 
     /// Iterate to the next element in the traversal.
-    RtElementIterator& operator++();
+    RtTreeIterator& operator++();
 
     /// Dereference this iterator, returning the current element in the
     /// traversal.
@@ -126,6 +119,9 @@ public:
 
     /// Return true if there are no more elements in the interation.
     bool isDone() const;
+
+    /// Force the iterator to terminate the traversal.
+    void abort();
 
 private:
     void* _ptr;

@@ -256,6 +256,11 @@ size_t RtNode::numPorts() const
     return data()->asA<PrvNode>()->numPorts();
 }
 
+size_t RtNode::numOutputs() const
+{
+    return data()->asA<PrvNode>()->numOutputs();
+}
+
 RtPort RtNode::getPort(size_t index) const
 {
     return data()->asA<PrvNode>()->getPort(index);

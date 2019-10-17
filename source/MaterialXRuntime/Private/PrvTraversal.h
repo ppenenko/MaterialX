@@ -24,16 +24,17 @@ public:
     /// Empty constructor.
     PrvStageIterator();
 
-    /// Constructor, setting the root element to start
-    /// the iteration on and an optional filter functor.
-    PrvStageIterator(PrvObjectHandle root, RtTraversalFilter* filter = nullptr);
+    /// Constructor, setting the stage to iterate on
+    /// and optionally a filter restricting the set of 
+    /// returned objects.
+    PrvStageIterator(PrvObjectHandle stage, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
     PrvStageIterator(const PrvStageIterator& other);
 
     bool operator==(const PrvStageIterator& other) const
     {
-        return _elem == other._elem &&
+        return _current == other._current &&
             _stack == other._stack;
     }
 
@@ -46,54 +47,55 @@ public:
     /// traversal.
     PrvObjectHandle operator*() const
     {
-        return _elem;
+        return _current;
     }
 
     /// Iterate to the next element in the traversal.
     PrvStageIterator& operator++();
 
-    /// Return the current element in the traversal.
-    PrvObjectHandle getElement() const
-    {
-        return _elem;
-    }
-
     /// Return true if there are no more elements in the iteration.
     bool isDone() const
     {
-        return _elem == nullptr;
+        return _current == nullptr;
+    }
+
+    /// Force the iterator to terminate the traversal.
+    void abort()
+    {
+        _current = nullptr;
     }
 
 private:
     using StackFrame = std::tuple<PrvStage*, int, int>;
 
-    PrvObjectHandle _elem;
+    PrvObjectHandle _current;
     vector<StackFrame> _stack;
-    RtTraversalFilter* _filter;
+    RtTraversalFilter _filter;
 };
 
 
-/// @class PrvElementIterator
+/// @class PrvTreeIterator
 /// TODO: Docs
-class PrvElementIterator
+class PrvTreeIterator
 {
 public:
     /// Empty constructor.
-    PrvElementIterator();
+    PrvTreeIterator();
 
     /// Constructor, setting the root element to start
     /// the iteration on and an optional filter functor.
-    PrvElementIterator(PrvObjectHandle root, RtTraversalFilter* filter = nullptr);
+    PrvTreeIterator(PrvObjectHandle root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
-    PrvElementIterator(const PrvElementIterator& other);
+    PrvTreeIterator(const PrvTreeIterator& other);
 
-    bool operator==(const PrvElementIterator& other) const
+    bool operator==(const PrvTreeIterator& other) const
     {
-        return _elem == other._elem &&
+        return _current == other._current &&
             _stack == other._stack;
     }
-    bool operator!=(const PrvElementIterator& other) const
+
+    bool operator!=(const PrvTreeIterator& other) const
     {
         return !(*this == other);
     }
@@ -102,30 +104,30 @@ public:
     /// traversal.
     PrvObjectHandle operator*() const
     {
-        return _elem;
+        return _current;
     }
 
     /// Iterate to the next element in the traversal.
-    PrvElementIterator& operator++();
-
-    /// Return the current element in the traversal.
-    PrvObjectHandle getElement() const
-    {
-        return _elem;
-    }
+    PrvTreeIterator& operator++();
 
     /// Return true if there are no more elements in the iteration.
     bool isDone() const
     {
-        return _elem == nullptr;
+        return _current == nullptr;
+    }
+
+    /// Force the iterator to terminate the traversal.
+    void abort()
+    {
+        _current = nullptr;
     }
 
 private:
-    using StackFrame = std::pair<PrvObjectHandle, size_t>;
+    using StackFrame = std::tuple<PrvCompoundElement*, int, int>;
 
-    PrvObjectHandle _elem;
+    PrvObjectHandle _current;
     vector<StackFrame> _stack;
-    RtTraversalFilter* _filter;
+    RtTraversalFilter _filter;
 };
 
 }

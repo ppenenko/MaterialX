@@ -17,6 +17,7 @@ namespace MaterialX
 {
 
 using PrvObjectHandleVec = vector<PrvObjectHandle>;
+using PrvObjectHandleSet = std::set<PrvObjectHandle>;
 
 class PrvElement : public PrvObject
 {

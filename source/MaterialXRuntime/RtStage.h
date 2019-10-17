@@ -64,7 +64,7 @@ public:
     /// including any referenced stages.
     /// If a filter is set will will be called to control 
     /// which objects to return.
-    RtStageIterator traverse(RtTraversalFilter* filter = nullptr);
+    RtStageIterator traverseStage(RtTraversalFilter filter = nullptr);
 };
 
 }

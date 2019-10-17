@@ -41,6 +41,11 @@ public:
         return nodedef()->numElements();
     }
 
+    size_t numOutputs() const
+    {
+        return nodedef()->numElements();
+    }
+
     RtPort getPort(size_t index)
     {
         PrvNodeDef* nodedef = _nodedef->asA<PrvNodeDef>();

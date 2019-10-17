@@ -27,15 +27,19 @@ PrvObjectHandle PrvStage::create(const RtToken& name)
     return std::make_shared<PrvStage>(name);
 }
 
-void PrvStage::addReference(PrvObjectHandle refStage)
+void PrvStage::addReference(PrvObjectHandle stage)
 {
-    if (!refStage->hasApi(RtApiType::STAGE))
+    if (!stage->hasApi(RtApiType::STAGE))
     {
         throw ExceptionRuntimeError("Given object is not a valid stage");
     }
-    PrvStage* stage = refStage->asA<PrvStage>();
-    stage->_selfRefCount++;
-    _refStages.push_back(refStage);
+    if (_refStagesSet.count(stage))
+    {
+        throw ExceptionRuntimeError("Given object is not a valid stage");
+    }
+
+    stage->asA<PrvStage>()->_selfRefCount++;
+    _refStages.push_back(stage);
 }
 
 void PrvStage::removeReference(const RtToken& name)
@@ -46,6 +50,7 @@ void PrvStage::removeReference(const RtToken& name)
         if (stage->getName() == name)
         {
             stage->_selfRefCount--;
+            _refStagesSet.erase(*it);
             _refStages.erase(it);
             break;
         }

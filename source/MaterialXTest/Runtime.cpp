@@ -19,6 +19,7 @@
 #include <MaterialXRuntime/RtNodeGraph.h>
 #include <MaterialXRuntime/RtCoreIo.h>
 #include <MaterialXRuntime/RtTraversal.h>
+#include <MaterialXRuntime/RtTypes.h>
 
 #include <MaterialXGenShader/Util.h>
 
@@ -122,7 +123,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     // Try to create a node from an invalid nodedef object
     REQUIRE_THROWS(mx::RtNode::create("foo", mx::RtObject(), stageObj));
 
-    // Create two new node instances form the add nodedef
+    // Create two new node instances from the add nodedef
     mx::RtObject add1Obj = mx::RtNode::create("add1", addNodeObj, stageObj);
     mx::RtObject add2Obj = mx::RtNode::create("add2", addNodeObj, stageObj);
     REQUIRE(add1Obj.isValid());
@@ -313,13 +314,13 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     mx::RtStage stdlibStage = mx::RtStage::create("stdlib");
     mx::DocumentPtr doc = mx::createDocument();
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    loadLibraries({ "stdlib", }, searchPath, doc);
+    loadLibraries({ "stdlib", "pbrlib" }, searchPath, doc);
     mx::RtCoreIo coreIO(stdlibStage.getObject());
     coreIO.read(doc);
 
     // Count elements traversing the full stdlib stage
     size_t nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = stdlibStage.traverse(); !it.isDone(); ++it)
+    for (auto it = stdlibStage.traverseStage(); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -346,9 +347,9 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeObj);
 
     // Travers using a filter to return only node objects.
-    mx::RtObjectFilter nodeFilter(mx::RtObjType::NODE);
+    mx::RtObjectFilter<mx::RtObjType::NODE> nodeFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = mainStage.traverse(&nodeFilter); !it.isDone(); ++it)
+    for (auto it = mainStage.traverseStage(nodeFilter); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -368,9 +369,9 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeGraphCount == 0);
 
     // Travers using a filter to return only objects supporting the nodegraph API.
-    mx::RtApiFilter apiFilter(mx::RtApiType::NODEGRAPH);
+    mx::RtApiFilter<mx::RtApiType::NODEGRAPH> apiFilter;
     nodeCount = 0, nodeDefCount = 0, nodeGraphCount = 0;
-    for (auto it = mainStage.traverse(&apiFilter); !it.isDone(); ++it)
+    for (auto it = mainStage.traverseStage(apiFilter); !it.isDone(); ++it)
     {
         switch ((*it).getObjType())
         {
@@ -387,5 +388,39 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(nodeCount == 0);
     REQUIRE(nodeDefCount == 0);
-    REQUIRE(nodeGraphCount == 64);
+    REQUIRE(nodeGraphCount == 65);
+
+    // Travers a nodegraph using tree traversal.
+    mx::RtNodeGraph nodegraph = mainStage.findElementByName("NG_tiledimage_float");
+    REQUIRE(nodegraph);
+    nodeCount = 0;
+    for (auto it = nodegraph.traverseTree(); !it.isDone(); ++it)
+    {
+        switch ((*it).getObjType())
+        {
+        case mx::RtObjType::NODE:
+            nodeCount++;
+            break;
+        }
+    }
+    REQUIRE(nodeCount == 3);
+
+    // Filter finding nodedefs for BSDF nodes.
+    auto bsdfFilter = [](const mx::RtObject& obj) -> bool
+    {
+        if (obj.hasApi(mx::RtApiType::NODEDEF))
+        {
+            mx::RtNodeDef nodedef(obj);
+            return nodedef.numOutputs() == 1 && mx::RtPortDef(nodedef.getPort(0)).getType() == mx::RtType::BSDF;
+        }
+        return false;
+    };
+
+    // Travers to find all nodedefs for BSDF nodes.
+    size_t bsdfCount = 0;
+    for (auto it = mainStage.traverseStage(bsdfFilter); !it.isDone(); ++it)
+    {
+        bsdfCount++;
+    }
+    REQUIRE(bsdfCount == 14);
 }

@@ -59,15 +59,14 @@ void PrvCompoundElement::addElement(PrvObjectHandle elem)
         throw ExceptionRuntimeError("Given object is not a valid element");
     }
 
-    PrvElement* e = elem->asA<PrvElement>();
-    auto it = _elementsByName.find(e->getName());
-    if (it != _elementsByName.end())
+    PrvElement* el = elem->asA<PrvElement>();
+    if (_elementsByName.count(el->getName()))
     {
-        throw ExceptionRuntimeError("An element named '" + e->getName().str() + "' already exists in '" + getName().str() + "'");
+        throw ExceptionRuntimeError("An element named '" + el->getName().str() + "' already exists in '" + getName().str() + "'");
     }
 
     _elements.push_back(elem);
-    _elementsByName[e->getName()] = elem;
+    _elementsByName[el->getName()] = elem;
 }
 
 void PrvCompoundElement::removeElement(const RtToken& name)

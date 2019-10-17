@@ -61,7 +61,7 @@ RtObject RtStage::findElementByPath(const string& path) const
     return RtObject(elem);
 }
 
-RtStageIterator RtStage::traverse(RtTraversalFilter* filter)
+RtStageIterator RtStage::traverseStage(RtTraversalFilter filter)
 {
     return RtStageIterator(getObject(), filter);
 }

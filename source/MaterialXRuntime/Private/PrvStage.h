@@ -21,7 +21,7 @@ public:
 
     static PrvObjectHandle create(const RtToken& name);
 
-    void addReference(PrvObjectHandle refStage);
+    void addReference(PrvObjectHandle stage);
     void removeReference(const RtToken& name);
 
     const PrvObjectHandleVec& getReferencedStages() const
@@ -35,6 +35,7 @@ public:
 protected:
     size_t _selfRefCount;
     PrvObjectHandleVec _refStages;
+    PrvObjectHandleSet _refStagesSet;
 };
 
 }

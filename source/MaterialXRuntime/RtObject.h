@@ -46,7 +46,8 @@ enum class RtApiType
     NODEGRAPH,
     STAGE,
     CORE_IO,
-    ELEMENT_ITERATOR,
+    STAGE_ITERATOR,
+    TREE_ITERATOR,
     NUM_TYPES
 };
 

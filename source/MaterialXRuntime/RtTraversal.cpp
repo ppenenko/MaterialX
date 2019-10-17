@@ -16,7 +16,7 @@ RtStageIterator::RtStageIterator() :
 {
 }
 
-RtStageIterator::RtStageIterator(RtObject root, RtTraversalFilter* filter) :
+RtStageIterator::RtStageIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
     _ptr(new PrvStageIterator(RtApiBase::data(root), filter))
 {
@@ -36,7 +36,7 @@ RtStageIterator::~RtStageIterator()
 
 RtApiType RtStageIterator::getApiType() const
 {
-    return RtApiType::ELEMENT_ITERATOR;
+    return RtApiType::STAGE_ITERATOR;
 }
 
 bool RtStageIterator::operator==(const RtStageIterator& other) const
@@ -69,64 +69,76 @@ bool RtStageIterator::isDone() const
     return it->isDone();
 }
 
+void RtStageIterator::abort()
+{
+    PrvStageIterator* it = static_cast<PrvStageIterator*>(_ptr);
+    return it->abort();
+}
 
-RtElementIterator::RtElementIterator() :
+
+RtTreeIterator::RtTreeIterator() :
     RtApiBase(),
-    _ptr(new PrvElementIterator())
+    _ptr(new PrvTreeIterator())
 {
 }
 
-RtElementIterator::RtElementIterator(RtObject root, RtTraversalFilter* filter) :
+RtTreeIterator::RtTreeIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PrvElementIterator(RtApiBase::data(root), filter))
+    _ptr(new PrvTreeIterator(RtApiBase::data(root), filter))
 {
 }
 
-RtElementIterator::RtElementIterator(const RtElementIterator& other) :
+RtTreeIterator::RtTreeIterator(const RtTreeIterator& other) :
     RtApiBase(other),
-    _ptr(new PrvElementIterator(*static_cast<PrvElementIterator*>(other._ptr)))
+    _ptr(new PrvTreeIterator(*static_cast<PrvTreeIterator*>(other._ptr)))
 {
 }
 
-RtElementIterator::~RtElementIterator()
+RtTreeIterator::~RtTreeIterator()
 {
-    PrvElementIterator* it = static_cast<PrvElementIterator*>(_ptr);
+    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
     delete it;
 }
 
-RtApiType RtElementIterator::getApiType() const
+RtApiType RtTreeIterator::getApiType() const
 {
-    return RtApiType::ELEMENT_ITERATOR;
+    return RtApiType::TREE_ITERATOR;
 }
 
-bool RtElementIterator::operator==(const RtElementIterator& other) const
+bool RtTreeIterator::operator==(const RtTreeIterator& other) const
 {
-    PrvElementIterator* lhs = static_cast<PrvElementIterator*>(_ptr);
-    PrvElementIterator* rhs = static_cast<PrvElementIterator*>(other._ptr);
+    PrvTreeIterator* lhs = static_cast<PrvTreeIterator*>(_ptr);
+    PrvTreeIterator* rhs = static_cast<PrvTreeIterator*>(other._ptr);
     return lhs->operator==(*rhs);
 }
-bool RtElementIterator::operator!=(const RtElementIterator& other) const
+bool RtTreeIterator::operator!=(const RtTreeIterator& other) const
 {
     return !(*this==other);
 }
 
-RtObject RtElementIterator::operator*() const
+RtObject RtTreeIterator::operator*() const
 {
-    PrvElementIterator* it = static_cast<PrvElementIterator*>(_ptr);
+    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
     return RtObject(it->operator*());
 }
 
-RtElementIterator& RtElementIterator::operator++()
+RtTreeIterator& RtTreeIterator::operator++()
 {
-    PrvElementIterator* it = static_cast<PrvElementIterator*>(_ptr);
+    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
     it->operator++();
     return *this;
 }
 
-bool RtElementIterator::isDone() const
+bool RtTreeIterator::isDone() const
 {
-    PrvElementIterator* it = static_cast<PrvElementIterator*>(_ptr);
+    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
     return it->isDone();
+}
+
+void RtTreeIterator::abort()
+{
+    PrvTreeIterator* it = static_cast<PrvTreeIterator*>(_ptr);
+    return it->abort();
 }
 
 }

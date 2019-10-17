@@ -11,7 +11,7 @@ namespace MaterialX
 
 namespace
 {
-    static const std::set<RtObjType> API_TO_OBJ_RTTI[int(RtApiType::NUM_TYPES)] =
+    static const std::set<RtObjType> API_TO_OBJ_RTTI[static_cast<int>(RtApiType::NUM_TYPES)] =
     {
         // RtApiType::ELEMENT
         {
@@ -51,7 +51,11 @@ namespace
         {
             RtObjType::STAGE
         },
-        // RtApiType::ELEMENT_ITERATOR
+        // RtApiType::STAGE_ITERATOR
+        {
+            RtObjType::STAGE
+        },
+        // RtApiType::TREE_ITERATOR
         {
             RtObjType::PORTDEF,
             RtObjType::NODEDEF,

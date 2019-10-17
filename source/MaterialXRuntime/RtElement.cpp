@@ -60,4 +60,9 @@ size_t RtElement::numAttributes() const
     return data()->asA<PrvElement>()->numAttributes();
 }
 
+RtTreeIterator RtElement::traverseTree(RtTraversalFilter filter)
+{
+    return RtTreeIterator(getObject(), filter);
+}
+
 }

@@ -33,8 +33,7 @@ void PrvNodeGraph::addNode(PrvObjectHandle node)
         throw ExceptionRuntimeError("Given object is not a valid node");
     }
     PrvNode* n = node->asA<PrvNode>();
-    auto it = _elementsByName.find(n->getName());
-    if (it != _elementsByName.end())
+    if (_elementsByName.count(n->getName()))
     {
         throw ExceptionRuntimeError("A node named '" + n->getName().str() + "' already exists for nodegraph '" + getName().str() + "'");
     }

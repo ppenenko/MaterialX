@@ -14,7 +14,8 @@ namespace MaterialX
 
 PrvNodeDef::PrvNodeDef(const RtToken& name, const RtToken& category) :
     PrvCompoundElement(RtObjType::NODEDEF, name),
-    _category(category)
+    _category(category),
+    _numOutputs(0)
 {
 }
 
@@ -30,15 +31,43 @@ void PrvNodeDef::addPort(PrvObjectHandle portdef)
         throw ExceptionRuntimeError("Given object is not a valid portdef");
     }
 
-    PrvPortDef* pd = portdef->asA<PrvPortDef>();
-    auto it = _elementsByName.find(pd->getName());
-    if (it != _elementsByName.end())
+    PrvPortDef* port = portdef->asA<PrvPortDef>();
+    if (_elementsByName.count(port->getName()))
     {
-        throw ExceptionRuntimeError("A port named '" + pd->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
+        throw ExceptionRuntimeError("A port named '" + port->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
     }
 
-    _elements.push_back(portdef);
-    _elementsByName[pd->getName()] = portdef;
+    // We want to preserve the ordering of having all outputs stored before any inputs.
+    // So if inputs are already stored we need to handled inserting the a new output in
+    // the right place.
+    if (port->isOutput() && _elements.size() && !_elements.back()->asA<PrvPortDef>()->isOutput())
+    {
+        // Insert the new output after the last output.
+        for (auto it = _elements.begin(); it != _elements.end(); ++it)
+        {
+            if (!(*it)->asA<PrvPortDef>()->isOutput())
+            {
+                _elements.insert(it, portdef);
+                break;
+            }
+        }
+    }
+    else
+    {
+        _elements.push_back(portdef);
+    }
+    _elementsByName[port->getName()] = portdef;
+    _numOutputs += port->isOutput();
+}
+
+void PrvNodeDef::removePort(const RtToken& name)
+{
+    PrvPortDef* port = portdef(name);
+    if (port)
+    {
+        _numOutputs -= port->isOutput();
+        removeElement(name);
+    }
 }
 
 }

@@ -38,6 +38,9 @@ public:
     /// Return the port count.
     size_t numPorts() const;
 
+    /// Return the output count.
+    size_t numOutputs() const;
+
     /// Return a port definition by index,
     /// or a null object if no such port exists.
     RtObject getPort(size_t index) const;

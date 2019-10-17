@@ -160,6 +160,9 @@ public:
     /// Return the port count.
     size_t numPorts() const;
 
+    /// Return the port count.
+    size_t numOutputs() const;
+
     /// Return a port by index, or a null object 
     /// if no such port exists.
     RtPort getPort(size_t index) const;

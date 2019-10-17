@@ -11,6 +11,7 @@
 
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtValue.h>
+#include <MaterialXRuntime/RtTraversal.h>
 
 namespace MaterialX
 {
@@ -124,6 +125,12 @@ public:
 
     /// Return the attribute count.
     size_t numAttributes() const;
+
+    /// Return an iterator traversing all children
+    /// of this element.
+    /// If a filter is set it will be called to restrict
+    /// which objects to return.
+    RtTreeIterator traverseTree(RtTraversalFilter filter = nullptr);
 };
 
 }
