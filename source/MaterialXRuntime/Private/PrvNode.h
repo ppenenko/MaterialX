@@ -38,12 +38,12 @@ public:
 
     size_t numPorts() const
     {
-        return nodedef()->numElements();
+        return nodedef()->numPorts();
     }
 
     size_t numOutputs() const
     {
-        return nodedef()->numElements();
+        return nodedef()->numOutputs();
     }
 
     RtPort getPort(size_t index)

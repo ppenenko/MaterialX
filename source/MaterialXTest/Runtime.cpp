@@ -405,7 +405,28 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     }
     REQUIRE(nodeCount == 3);
 
-    // Filter finding nodedefs for BSDF nodes.
+    // Filter for finding input ports.
+    auto inputFilter = [](const mx::RtObject& obj) -> bool
+    {
+        if (obj.hasApi(mx::RtApiType::PORTDEF))
+        {
+            mx::RtPortDef portdef(obj);
+            return portdef.isInput();
+        }
+        return false;
+    };
+
+    // Travers a nodedef finding all its inputs.
+    mx::RtNodeDef generalized_schlick_brdf = mainStage.findElementByName("ND_generalized_schlick_brdf");
+    REQUIRE(generalized_schlick_brdf);
+    size_t inputCount = 0;
+    for (auto it = generalized_schlick_brdf.traverseTree(inputFilter); !it.isDone(); ++it)
+    {
+        inputCount++;
+    }
+    REQUIRE(inputCount == 9);
+
+    // Filter for finding nodedefs of BSDF nodes.
     auto bsdfFilter = [](const mx::RtObject& obj) -> bool
     {
         if (obj.hasApi(mx::RtApiType::NODEDEF))
@@ -423,4 +444,20 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
         bsdfCount++;
     }
     REQUIRE(bsdfCount == 14);
+
+
+    mx::RtNode outSockets = nodegraph.getOutputsNode();
+    REQUIRE(outSockets.numPorts() == 1);
+
+    mx::RtPort outSocket = outSockets.getPort(0);
+    REQUIRE(outSocket.isInput());
+    REQUIRE(outSocket.isConnected());
+    REQUIRE(outSocket.getSourcePort());
+
+    size_t numEdges = 0;
+    for (auto it = outSocket.traverseUpstream(); !it.isDone(); ++it)
+    {
+        ++numEdges;
+    }
+    REQUIRE(numEdges == 12);
 }

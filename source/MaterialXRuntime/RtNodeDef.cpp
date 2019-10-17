@@ -27,7 +27,7 @@ RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObjec
         {
             throw ExceptionRuntimeError("Given parent object is not a valid stage");
         }
-        RtApiBase::data(parent)->asA<PrvStage>()->addElement(nodedef);
+        parent.data()->asA<PrvStage>()->addElement(nodedef);
     }
 
     return RtObject(nodedef);
@@ -45,7 +45,7 @@ const RtToken& RtNodeDef::getCategory() const
 
 void RtNodeDef::addPort(RtObject portdef)
 {
-    return data()->asA<PrvNodeDef>()->addPort(RtApiBase::data(portdef));
+    return data()->asA<PrvNodeDef>()->addPort(portdef.data());
 }
 
 size_t RtNodeDef::numPorts() const

@@ -42,7 +42,7 @@ PrvStageIterator& PrvStageIterator::operator++()
         if (_stack.empty())
         {
             // Traversal is complete.
-            _current = PrvObjectHandle();
+            abort();
             return *this;
         }
 
@@ -118,7 +118,7 @@ PrvTreeIterator& PrvTreeIterator::operator++()
         if (_stack.empty())
         {
             // Traversal is complete.
-            _current = PrvObjectHandle();
+            abort();
             return *this;
         }
 
@@ -180,44 +180,113 @@ PrvTreeIterator& PrvTreeIterator::operator++()
     }
 }
 
-/*
-PrvTreeIterator& PrvTreeIterator::operator++()
+
+
+PrvGraphIterator::PrvGraphIterator() :
+    _filter(nullptr)
 {
-    if (_current && _current->hasApi(RtApiType::COMPOUND_ELEMENT))
+}
+
+PrvGraphIterator::PrvGraphIterator(RtPort root, RtTraversalFilter filter) :
+    _filter(filter)
+{
+    if (root.isOutput())
     {
-        PrvCompoundElement* comp = _current->asA<PrvCompoundElement>();
-        if (!comp->getElements().empty())
+        _current.first = root;
+    }
+    else
+    {
+        _current.first = root.getSourcePort();
+        _current.second = root;
+    }
+}
+
+PrvGraphIterator::PrvGraphIterator(const PrvGraphIterator& other) :
+    _current(other._current),
+    _stack(other._stack),
+    _filter(other._filter)
+{
+}
+
+PrvGraphIterator& PrvGraphIterator::operator++()
+{
+    if (_current.first.data())
+    {
+        PrvNode* node = _current.first.data()->asA<PrvNode>();
+
+        // Check if we have any inputs.
+        if (node->numPorts() > node->numOutputs())
         {
-            // Traverse to the first child of this element.
-            _stack.push_back(StackFrame(_current, 0));
-            _current = comp->getElements()[0];
-            return *this;
+            // Traverse to the first upstream edge of this element.
+            const size_t inputIndex = node->numOutputs();
+            _stack.push_back(StackFrame(_current.first, inputIndex));
+
+            RtPort input = node->getPort(inputIndex);
+            RtPort output = input.getSourcePort();
+
+            if (output)
+            {
+                extendPathUpstream(output, input);
+                return *this;
+            }
         }
     }
 
     while (true)
     {
+        if (_current.first.data())
+        {
+            returnPathDownstream(_current.first);
+        }
+
         if (_stack.empty())
         {
             // Traversal is complete.
-            _current = PrvObjectHandle();
+            abort();
             return *this;
         }
 
         // Traverse to our siblings.
         StackFrame& parentFrame = _stack.back();
-        PrvCompoundElement* comp = parentFrame.first->asA<PrvCompoundElement>();
-        const PrvObjectHandleVec& siblings = comp->getElements();
-        if (parentFrame.second + 1 < siblings.size())
+        PrvNode* node = parentFrame.first.data()->asA<PrvNode>();
+        while (parentFrame.second + 1 < node->numPorts())
         {
-            _current = siblings[++parentFrame.second];
-            return *this;
+            RtPort input = node->getPort(++parentFrame.second);
+            RtPort output = input.getSourcePort();
+            if (output)
+            {
+                extendPathUpstream(output, input);
+                return *this;
+            }
         }
 
         // Traverse to our parent's siblings.
+        returnPathDownstream(parentFrame.first);
         _stack.pop_back();
     }
+
+    return *this;
 }
-*/
+
+void PrvGraphIterator::extendPathUpstream(const RtPort& upstream, const RtPort& downstream)
+{
+    // Check for cycles.
+    if (_path.count(upstream))
+    {
+        throw ExceptionRuntimeError("Encountered cycle at element: " + upstream.data()->asA<PrvNode>()->getName().str() + "." + upstream.getName().str());
+    }
+
+    // Extend the current path to the new element.
+    _path.insert(upstream);
+    _current.first = upstream;
+    _current.second = downstream;
+}
+
+void PrvGraphIterator::returnPathDownstream(const RtPort& upstream)
+{
+    _path.erase(upstream);
+    _current.first = RtPort();
+    _current.second = RtPort();
+}
 
 }

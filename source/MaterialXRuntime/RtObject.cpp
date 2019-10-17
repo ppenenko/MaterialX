@@ -112,12 +112,12 @@ RtApiBase::RtApiBase(PrvObjectHandle data) :
 }
 
 RtApiBase::RtApiBase(const RtObject& obj) :
-    _data(obj._data)
+    _data(obj.data())
 {
 }
 
 RtApiBase::RtApiBase(const RtApiBase& other) :
-    _data(other._data)
+    _data(other.data())
 {
 }
 
@@ -128,7 +128,7 @@ bool RtApiBase::isSupported(RtObjType type) const
 
 void RtApiBase::setObject(const RtObject& obj)
 {
-    setData(obj._data);
+    setData(obj.data());
 }
 
 RtObject RtApiBase::getObject()

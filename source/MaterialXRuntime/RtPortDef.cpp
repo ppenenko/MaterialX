@@ -24,8 +24,7 @@ RtObject RtPortDef::create(const RtToken& name, const RtToken& type, const RtVal
     {
         if (parent.hasApi(RtApiType::NODEDEF))
         {
-            PrvObjectHandle parentData = RtApiBase::data(parent);
-            parentData->asA<PrvNodeDef>()->addPort(portdef);
+            parent.data()->asA<PrvNodeDef>()->addPort(portdef);
         }
         else
         {

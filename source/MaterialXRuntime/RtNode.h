@@ -14,8 +14,6 @@
 namespace MaterialX
 {
 
-class RtPort;
-
 /// @class RtPort
 /// TODO: Docs
 class RtPort
@@ -118,6 +116,9 @@ public:
     /// Return a destination port connected downstream.
     RtPort getDestinationPort(size_t index) const;
 
+    /// Traverse the node network stargin from this port.
+    RtGraphIterator traverseUpstream(RtTraversalFilter filter = nullptr) const;
+
     /// Equality operator
     bool operator==(const RtPort& other) const
     {
@@ -128,6 +129,19 @@ public:
     bool operator!=(const RtPort& other) const
     {
         return _data != other._data || _index != other._index;
+    }
+
+    /// Less-than operator
+    bool operator<(const RtPort& other) const
+    {
+        return _data != other._data ? 
+            _data < other._data : _index < other._index;
+    }
+
+    /// Return the data handle.
+    PrvObjectHandle data() const
+    {
+        return _data;
     }
 
 private:

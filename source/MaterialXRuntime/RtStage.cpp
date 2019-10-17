@@ -27,7 +27,7 @@ RtObject RtStage::create(const RtToken& name)
 
 void RtStage::addReference(RtObject stage)
 {
-    data()->asA<PrvStage>()->addReference(RtApiBase::data(stage));
+    data()->asA<PrvStage>()->addReference(stage.data());
 }
 
 void RtStage::removeReference(const RtToken& name)
@@ -41,7 +41,7 @@ void RtStage::addElement(RtObject elem)
     {
         throw ExceptionRuntimeError("A stage cannot be added as direct child of another stage. Use addReference() instead to reference the stage.");
     }
-    data()->asA<PrvStage>()->addElement(RtApiBase::data(elem));
+    data()->asA<PrvStage>()->addElement(elem.data());
 }
 
 void RtStage::removeElement(const RtToken& name)

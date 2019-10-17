@@ -31,7 +31,7 @@ RtPort::RtPort(RtObject node, RtObject portdef) :
 {
     if (node.hasApi(RtApiType::NODE) && portdef.hasApi(RtApiType::PORTDEF))
     {
-        _data = RtApiBase::data(node);
+        _data = node.data();
         PrvNode * n = _data->asA<PrvNode>();
         RtPortDef pd(portdef);
         _index = n->findPortIndex(pd.getName());
@@ -205,6 +205,11 @@ RtPort RtPort::getDestinationPort(size_t index) const
     return index < connections.size() ? connections[index] : RtPort();
 }
 
+RtGraphIterator RtPort::traverseUpstream(RtTraversalFilter filter) const
+{
+    return RtGraphIterator(*this, filter);
+}
+
 
 RtNode::RtNode(const RtObject& obj) :
     RtElement(obj)
@@ -218,19 +223,17 @@ RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject parent)
         throw ExceptionRuntimeError("Given nodedef object is not a valid nodedef");
     }
 
-    PrvObjectHandle node = PrvNode::create(name, RtApiBase::data(nodedef));
+    PrvObjectHandle node = PrvNode::create(name, nodedef.data());
 
     if (parent)
     {
         if (parent.hasApi(RtApiType::STAGE))
         {
-            PrvObjectHandle parentData = RtApiBase::data(parent);
-            parentData->asA<PrvStage>()->addElement(node);
+            parent.data()->asA<PrvStage>()->addElement(node);
         }
         else if (parent.hasApi(RtApiType::NODEGRAPH))
         {
-            PrvObjectHandle parentData = RtApiBase::data(parent);
-            parentData->asA<PrvNodeGraph>()->addElement(node);
+            parent.data()->asA<PrvNodeGraph>()->addElement(node);
         }
         else
         {
@@ -275,7 +278,7 @@ RtPort RtNode::getPort(RtObject portdef) const
 {
     if (portdef.hasApi(RtApiType::PORTDEF))
     {
-        PrvPortDef* pd = RtApiBase::data(portdef)->asA<PrvPortDef>();
+        PrvPortDef* pd = portdef.data()->asA<PrvPortDef>();
         return data()->asA<PrvNode>()->findPort(pd->getName());
     }
     return RtPort();

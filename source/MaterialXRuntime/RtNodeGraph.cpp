@@ -27,7 +27,7 @@ RtObject RtNodeGraph::create(const RtToken& name, RtObject parent)
         {
             throw ExceptionRuntimeError("Given parent object is not a valid stage");
         }
-        RtApiBase::data(parent)->asA<PrvStage>()->addElement(nodegraph);
+        parent.data()->asA<PrvStage>()->addElement(nodegraph);
     }
 
     return RtObject(nodegraph);
@@ -40,7 +40,7 @@ RtApiType RtNodeGraph::getApiType() const
 
 void RtNodeGraph::addNode(RtObject node)
 {
-    return data()->asA<PrvNodeGraph>()->addNode(RtApiBase::data(node));
+    return data()->asA<PrvNodeGraph>()->addNode(node.data());
 }
 
 size_t RtNodeGraph::numNodes() const
@@ -62,7 +62,7 @@ RtObject RtNodeGraph::findNode(const RtToken& name) const
 
 void RtNodeGraph::setInterface(RtObject nodedef)
 {
-    return data()->asA<PrvNodeGraph>()->setInterface(RtApiBase::data(nodedef));
+    return data()->asA<PrvNodeGraph>()->setInterface(nodedef.data());
 }
 
 RtObject RtNodeGraph::getInputsNode() const

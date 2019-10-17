@@ -48,6 +48,7 @@ enum class RtApiType
     CORE_IO,
     STAGE_ITERATOR,
     TREE_ITERATOR,
+    GRAPH_ITERATOR,
     NUM_TYPES
 };
 
@@ -96,9 +97,14 @@ public:
         return _data == other._data;
     }
 
+    /// Return the data handle.
+    PrvObjectHandle data() const
+    {
+        return _data;
+    }
+
 private:
     PrvObjectHandle _data;
-    friend class RtApiBase;
 };
 
 /// @class RtObject
@@ -167,18 +173,12 @@ protected:
     void setData(PrvObjectHandle data);
 
     /// Return data set for this API.
-    PrvObjectHandle data() { return _data; }
-
-    /// Return data set for this API.
-    const PrvObjectHandle data() const { return _data; }
-
-    /// Return data for a given object.
-    static const PrvObjectHandle data(RtObject obj) { return obj._data; }
+    PrvObjectHandle data() const { return _data; }
 
 private:
     /// Internal data attached to the API.
     PrvObjectHandle _data;
-    friend class RtPort;
+//    friend class RtPort;
 };
 
 }

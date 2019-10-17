@@ -18,7 +18,7 @@ RtStageIterator::RtStageIterator() :
 
 RtStageIterator::RtStageIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PrvStageIterator(RtApiBase::data(root), filter))
+    _ptr(new PrvStageIterator(root.data(), filter))
 {
 }
 
@@ -84,7 +84,7 @@ RtTreeIterator::RtTreeIterator() :
 
 RtTreeIterator::RtTreeIterator(RtObject root, RtTraversalFilter filter) :
     RtApiBase(root),
-    _ptr(new PrvTreeIterator(RtApiBase::data(root), filter))
+    _ptr(new PrvTreeIterator(root.data(), filter))
 {
 }
 
@@ -141,4 +141,64 @@ void RtTreeIterator::abort()
     return it->abort();
 }
 
+
+
+RtGraphIterator::RtGraphIterator(RtPort root, RtTraversalFilter filter) :
+    RtApiBase(root.data()),
+    _ptr(new PrvGraphIterator(root, filter))
+{
+}
+
+RtGraphIterator::RtGraphIterator(const RtGraphIterator& other) :
+    RtApiBase(other),
+    _ptr(new PrvGraphIterator(*static_cast<PrvGraphIterator*>(other._ptr)))
+{
+}
+
+RtGraphIterator::~RtGraphIterator()
+{
+    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    delete it;
+}
+
+RtApiType RtGraphIterator::getApiType() const
+{
+    return RtApiType::GRAPH_ITERATOR;
+}
+
+bool RtGraphIterator::operator==(const RtGraphIterator& other) const
+{
+    PrvGraphIterator* lhs = static_cast<PrvGraphIterator*>(_ptr);
+    PrvGraphIterator* rhs = static_cast<PrvGraphIterator*>(other._ptr);
+    return lhs->operator==(*rhs);
+}
+bool RtGraphIterator::operator!=(const RtGraphIterator& other) const
+{
+    return !(*this == other);
+}
+
+RtEdge RtGraphIterator::operator*() const
+{
+    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    return it->operator*();
+}
+
+RtGraphIterator& RtGraphIterator::operator++()
+{
+    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    it->operator++();
+    return *this;
+}
+
+bool RtGraphIterator::isDone() const
+{
+    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    return it->isDone();
+}
+
+void RtGraphIterator::abort()
+{
+    PrvGraphIterator* it = static_cast<PrvGraphIterator*>(_ptr);
+    return it->abort();
+}
 }

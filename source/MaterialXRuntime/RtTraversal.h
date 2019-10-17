@@ -15,7 +15,7 @@ namespace MaterialX
 {
 
 /// Filter function type used for filtering objects during traversal.
-using RtTraversalFilter = std::function<bool(const RtObject & obj)>;
+using RtTraversalFilter = std::function<bool(const RtObject& obj)>;
 
 /// Traversal filter for specific object types.
 template<RtObjType T>
@@ -116,6 +116,51 @@ public:
     /// Dereference this iterator, returning the current element in the
     /// traversal.
     RtObject operator*() const;
+
+    /// Return true if there are no more elements in the interation.
+    bool isDone() const;
+
+    /// Force the iterator to terminate the traversal.
+    void abort();
+
+private:
+    void* _ptr;
+};
+
+/// An edge in a node network. First entry is the upstream source
+/// port and second entry is the downstream destination port.
+class RtPort;
+using RtEdge = std::pair<RtPort, RtPort>;
+
+/// @class RtGraphIterator
+/// TODO: Docs
+class RtGraphIterator : public RtApiBase
+{
+public:
+    /// Constructor
+    RtGraphIterator(RtPort root, RtTraversalFilter filter = nullptr);
+
+    /// Copy constructor.
+    RtGraphIterator(const RtGraphIterator& other);
+
+    /// Destructor
+    ~RtGraphIterator();
+
+    /// Return the type for this API.
+    RtApiType getApiType() const override;
+
+    /// Equality operator.
+    bool operator==(const RtGraphIterator& other) const;
+
+    /// Inequality operator.
+    bool operator!=(const RtGraphIterator& other) const;
+
+    /// Iterate to the next element in the traversal.
+    RtGraphIterator& operator++();
+
+    /// Dereference this iterator, returning the current element in the
+    /// traversal.
+    RtEdge operator*() const;
 
     /// Return true if there are no more elements in the interation.
     bool isDone() const;
