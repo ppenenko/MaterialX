@@ -75,6 +75,47 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(ptr.asPtr() == (void*)0);
 }
 
+TEST_CASE("Runtime: Types", "[runtime]")
+{
+    // Make sure the standard types are registered
+    const mx::RtTypeDesc* floatType = mx::RtTypeDesc::findType("float");
+    REQUIRE(floatType != nullptr);
+    REQUIRE(floatType->getBaseType() == mx::RtTypeDesc::BASETYPE_FLOAT);
+    const mx::RtTypeDesc* integerType = mx::RtTypeDesc::findType("integer");
+    REQUIRE(integerType != nullptr);
+    REQUIRE(integerType->getBaseType() == mx::RtTypeDesc::BASETYPE_INTEGER);
+    const mx::RtTypeDesc* booleanType = mx::RtTypeDesc::findType("boolean");
+    REQUIRE(booleanType != nullptr);
+    REQUIRE(booleanType->getBaseType() == mx::RtTypeDesc::BASETYPE_BOOLEAN);
+    const mx::RtTypeDesc* color2Type = mx::RtTypeDesc::findType("color2");
+    REQUIRE(color2Type != nullptr);
+    REQUIRE(color2Type->getBaseType() == mx::RtTypeDesc::BASETYPE_FLOAT);
+    REQUIRE(color2Type->getSemantic() == mx::RtTypeDesc::SEMANTIC_COLOR);
+    REQUIRE(color2Type->isFloat2());
+    const mx::RtTypeDesc* color3Type = mx::RtTypeDesc::findType("color3");
+    REQUIRE(color3Type != nullptr);
+    REQUIRE(color3Type->getBaseType() == mx::RtTypeDesc::BASETYPE_FLOAT);
+    REQUIRE(color3Type->getSemantic() == mx::RtTypeDesc::SEMANTIC_COLOR);
+    REQUIRE(color3Type->isFloat3());
+    const mx::RtTypeDesc* color4Type = mx::RtTypeDesc::findType("color4");
+    REQUIRE(color4Type != nullptr);
+    REQUIRE(color4Type->getBaseType() == mx::RtTypeDesc::BASETYPE_FLOAT);
+    REQUIRE(color4Type->getSemantic() == mx::RtTypeDesc::SEMANTIC_COLOR);
+    REQUIRE(color4Type->isFloat4());
+
+    // Make sure we can register a new custom type
+    const mx::RtTypeDesc* fooType = mx::RtTypeDesc::registerType("foo", mx::RtTypeDesc::BASETYPE_FLOAT, mx::RtTypeDesc::SEMANTIC_COLOR, 5);
+    REQUIRE(fooType != nullptr);
+    const mx::RtTypeDesc* fooType2 = mx::RtTypeDesc::findType("foo");
+    REQUIRE(fooType2 == fooType);
+
+    // Make sure we can't use a name already take
+    REQUIRE_THROWS(mx::RtTypeDesc::registerType("color3", mx::RtTypeDesc::BASETYPE_FLOAT));
+
+    // Make sure we can't request an unknown type
+    REQUIRE(mx::RtTypeDesc::findType("bar") == nullptr);
+}
+
 TEST_CASE("Runtime: Nodes", "[runtime]")
 {
     mx::RtObject stageObj = mx::RtStage::createNew("root");
