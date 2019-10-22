@@ -19,10 +19,11 @@
 namespace MaterialX
 {
 
-namespace {
-
+namespace
+{
     // Ignore lists for attributes which are handled explicitly by import.
-    // These do not need to be stored as export will add them explicitly.
+    // These do not need to be stored as string attributes since at export 
+    // they are added explicitly.
     //
     // TODO: Make into a TokenSet
     //
@@ -30,32 +31,6 @@ namespace {
     static const StringSet portdefIgnoreAttr    = { "name", "type", "nodename", "output", "colorspace", "unit" };
     static const StringSet nodeIgnoreAttr       = { "name", "type", "node" };
     static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
-
-    struct InputPredicate
-    {
-        bool operator()(const PrvObjectHandle& obj) const
-        {
-            if (obj->getObjType() == RtObjType::PORTDEF)
-            {
-                PrvPortDef* portdef = obj->asA<PrvPortDef>();
-                return portdef->isInput();
-            }
-            return false;
-        }
-    };
-
-    struct OutputPredicate
-    {
-        bool operator()(const PrvObjectHandle& obj) const
-        {
-            if (obj->getObjType() == RtObjType::PORTDEF)
-            {
-                PrvPortDef* portdef = obj->asA<PrvPortDef>();
-                return portdef->isOutput();
-            }
-            return false;
-        }
-    };
 
     void readAttributes(const ElementPtr src, PrvElement* dest, const StringSet& ignoreList)
     {
@@ -319,16 +294,28 @@ namespace {
         for (size_t i = numOutputs; i < numPorts; ++i)
         {
             const PrvPortDef* input = nodedef->port(i);
-            InputPtr destInput = destNodeDef->addInput(input->getName(), input->getType().str());
+
+            ValueElementPtr destInput;
+            if (input->isUniform())
+            {
+                destInput = destNodeDef->addParameter(input->getName(), input->getType().str());
+            }
+            else
+            {
+                destInput = destNodeDef->addInput(input->getName(), input->getType().str());
+            }
+
             if (input->getColorSpace())
             {
                 destInput->setColorSpace(input->getColorSpace().str());
             }
+
             if (input->getUnit())
             {
                 // TODO: fix when units are implemented in core.
                 // destInput->setUnit(input->getUnit().str());
             }
+
             writeAttributes(input, destInput);
         }
         for (size_t i = 0; i < numOutputs; ++i)

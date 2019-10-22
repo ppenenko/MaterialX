@@ -173,12 +173,14 @@ protected:
     void setData(PrvObjectHandle data);
 
     /// Return data set for this API.
-    PrvObjectHandle data() const { return _data; }
+    PrvObjectHandle& data() { return _data; }
+
+    /// Return data set for this API.
+    const PrvObjectHandle& data() const { return _data; }
 
 private:
     /// Internal data attached to the API.
     PrvObjectHandle _data;
-//    friend class RtPort;
 };
 
 }

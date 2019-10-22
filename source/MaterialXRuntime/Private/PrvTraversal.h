@@ -86,7 +86,7 @@ public:
     PrvTreeIterator();
 
     /// Constructor, setting the root element to start
-    /// the iteration on and an optional filter function.
+    /// the iteration from, and an optional filter function.
     PrvTreeIterator(PrvObjectHandle root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
