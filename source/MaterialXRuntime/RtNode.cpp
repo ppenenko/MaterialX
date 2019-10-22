@@ -49,7 +49,7 @@ bool RtPort::isValid() const
     if (_data)
     {
         PrvNode* node = _data->asA<PrvNode>();
-        return node->nodedef()->portdef(_index) != nullptr;
+        return node->nodedef()->port(_index) != nullptr;
     }
     return false;
 }
@@ -57,13 +57,13 @@ bool RtPort::isValid() const
 const RtToken& RtPort::getName() const
 {
     PrvNode* node = _data->asA<PrvNode>();
-    return node->nodedef()->portdef(_index)->getName();
+    return node->nodedef()->port(_index)->getName();
 }
 
 const RtToken& RtPort::getType() const
 {
     PrvNode* node = _data->asA<PrvNode>();
-    return node->nodedef()->portdef(_index)->getType();
+    return node->nodedef()->port(_index)->getType();
 }
 
 RtObject RtPort::getNode() const
@@ -74,25 +74,25 @@ RtObject RtPort::getNode() const
 int32_t RtPort::getFlags() const
 {
     PrvNode* node = _data->asA<PrvNode>();
-    return node->nodedef()->portdef(_index)->getFlags();
+    return node->nodedef()->port(_index)->getFlags();
 }
 
 bool RtPort::isInput() const
 {
     PrvNode* node = _data->asA<PrvNode>();
-    return node->nodedef()->portdef(_index)->isInput();
+    return node->nodedef()->port(_index)->isInput();
 }
 
 bool RtPort::isOutput() const
 {
     PrvNode* node = _data->asA<PrvNode>();
-    return node->nodedef()->portdef(_index)->isOutput();
+    return node->nodedef()->port(_index)->isOutput();
 }
 
 bool RtPort::isConnectable() const
 {
     PrvNode* node = _data->asA<PrvNode>();
-    return node->nodedef()->portdef(_index)->isConnectable();
+    return node->nodedef()->port(_index)->isConnectable();
 }
 
 const RtValue& RtPort::getValue() const

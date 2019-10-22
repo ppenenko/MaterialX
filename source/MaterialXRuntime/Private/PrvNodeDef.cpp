@@ -31,16 +31,16 @@ void PrvNodeDef::addPort(PrvObjectHandle portdef)
         throw ExceptionRuntimeError("Given object is not a valid portdef");
     }
 
-    PrvPortDef* port = portdef->asA<PrvPortDef>();
-    if (_elementsByName.count(port->getName()))
+    PrvPortDef* p = portdef->asA<PrvPortDef>();
+    if (_elementsByName.count(p->getName()))
     {
-        throw ExceptionRuntimeError("A port named '" + port->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
+        throw ExceptionRuntimeError("A port named '" + p->getName().str() + "' already exists for nodedef '" + getName().str() + "'");
     }
 
     // We want to preserve the ordering of having all outputs stored before any inputs.
     // So if inputs are already stored we need to handled inserting the a new output in
     // the right place.
-    if (port->isOutput() && _elements.size() && !_elements.back()->asA<PrvPortDef>()->isOutput())
+    if (p->isOutput() && _elements.size() && !_elements.back()->asA<PrvPortDef>()->isOutput())
     {
         // Insert the new output after the last output.
         for (auto it = _elements.begin(); it != _elements.end(); ++it)
@@ -56,16 +56,16 @@ void PrvNodeDef::addPort(PrvObjectHandle portdef)
     {
         _elements.push_back(portdef);
     }
-    _elementsByName[port->getName()] = portdef;
-    _numOutputs += port->isOutput();
+    _elementsByName[p->getName()] = portdef;
+    _numOutputs += p->isOutput();
 }
 
 void PrvNodeDef::removePort(const RtToken& name)
 {
-    PrvPortDef* port = portdef(name);
-    if (port)
+    PrvPortDef* p = port(name);
+    if (p)
     {
-        _numOutputs -= port->isOutput();
+        _numOutputs -= p->isOutput();
         removeElement(name);
     }
 }

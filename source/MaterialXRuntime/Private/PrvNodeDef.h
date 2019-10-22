@@ -44,8 +44,8 @@ public:
     }
 
     // Short syntax getter for convenience.
-    PrvPortDef* portdef(const RtToken& name) { return (PrvPortDef*)findElementByName(name).get(); }
-    PrvPortDef* portdef(size_t index) { return (PrvPortDef*)getElement(index).get(); }
+    PrvPortDef* port(const RtToken& name) const { return findElementByName(name)->asA<PrvPortDef>(); }
+    PrvPortDef* port(size_t index) const { return getElement(index)->asA<PrvPortDef>(); }
 
 protected:
     RtToken _category;

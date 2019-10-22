@@ -310,16 +310,15 @@ namespace {
 
     void writeNodedef(const PrvNodeDef* nodedef, DocumentPtr dest)
     {
-        PrvObjectHandleVec inputs, outputs;
-//        nodedef->findElements(InputPredicate{}, inputs);
-//        nodedef->findElements(OutputPredicate{}, outputs);
+        const size_t numPorts = nodedef->numPorts();
+        const size_t numOutputs = nodedef->numOutputs();
 
-        string type = outputs.size() == 1 ? outputs[0]->asA<PrvPortDef>()->getType().str() : "multioutput";
+        string type = numOutputs == 1 ? nodedef->port(0)->getType().str() : "multioutput";
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), type, nodedef->getCategory());
 
-        for (auto inputH : inputs)
+        for (size_t i = numOutputs; i < numPorts; ++i)
         {
-            const PrvPortDef* input = inputH->asA<PrvPortDef>();
+            const PrvPortDef* input = nodedef->port(i);
             InputPtr destInput = destNodeDef->addInput(input->getName(), input->getType().str());
             if (input->getColorSpace())
             {
@@ -332,9 +331,9 @@ namespace {
             }
             writeAttributes(input, destInput);
         }
-        for (auto outputH : outputs)
+        for (size_t i = 0; i < numOutputs; ++i)
         {
-            const PrvPortDef* output = outputH->asA<PrvPortDef>();
+            const PrvPortDef* output = nodedef->port(i);
             OutputPtr destOutput = destNodeDef->addOutput(output->getName(), output->getType().str());
             writeAttributes(output, destOutput);
         }
@@ -347,16 +346,15 @@ namespace {
     {
         const PrvNodeDef* nodedef = node->nodedef();
 
-        PrvObjectHandleVec inputs, outputs;
-//        nodedef->findElements(InputPredicate{}, inputs);
-//        nodedef->findElements(OutputPredicate{}, outputs);
+        const size_t numPorts = nodedef->numPorts();
+        const size_t numOutputs = nodedef->numOutputs();
 
-        string type = outputs.size() == 1 ? outputs[0]->asA<PrvPortDef>()->getType().str() : "multioutput";
+        string type = numOutputs == 1 ? nodedef->port(0)->getType().str() : "multioutput";
         NodePtr destNode = dest->addNode(nodedef->getCategory(), node->getName().str(), type);
 
-        for (auto inputH : inputs)
+        for (size_t i = numOutputs; i < numPorts; ++i)
         {
-            const PrvPortDef* inputDef = inputH->asA<PrvPortDef>();
+            const PrvPortDef* inputDef = nodedef->port(i);
             RtPort input = const_cast<PrvNode*>(node)->findPort(inputDef->getName());
             if (input.isConnected() || input.getValue() != inputDef->getValue())
             {
@@ -383,11 +381,11 @@ namespace {
                 }
             }
         }
-        if (outputs.size() > 1)
+        if (numOutputs > 1)
         {
-            for (auto outputH : outputs)
+            for (size_t i = 0; i < numOutputs; ++i)
             {
-                const PrvPortDef* output = outputH->asA<PrvPortDef>();
+                const PrvPortDef* output = nodedef->port(i);
                 OutputPtr destOutput = destNode->addOutput(output->getName(), output->getType().str());
             }
         }

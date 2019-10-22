@@ -54,12 +54,12 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
     _inputsDef = PrvNodeDef::createNew(INPUTS, NODEGRAPH_INPUTS);
     _outputsDef = PrvNodeDef::createNew(OUTPUTS, NODEGRAPH_OUTPUTS);
 
-    PrvNodeDef* def;
     for (size_t i = 0; i < nd->numElements(); ++i)
     {
-        const PrvPortDef* pd = nd->portdef(i);
-        uint32_t flags = pd->getFlags();
-        if (pd->isInput())
+        const PrvPortDef* p = nd->port(i);
+        uint32_t flags = p->getFlags();
+        PrvNodeDef* def;
+        if (p->isInput())
         {
             // And interface input turns into an output on the inputs node.
             flags &= ~RtPortFlag::INPUT;
@@ -73,7 +73,7 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
             flags |= RtPortFlag::INPUT | RtPortFlag::INTERFACE;
             def = _outputsDef->asA<PrvNodeDef>();
         }
-        PrvObjectHandle port = PrvPortDef::createNew(pd->getName(), pd->getType(), pd->getValue(), flags);
+        PrvObjectHandle port = PrvPortDef::createNew(p->getName(), p->getType(), p->getValue(), flags);
         def->addPort(port);
     }
 

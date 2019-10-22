@@ -49,7 +49,7 @@ public:
     RtPort getPort(size_t index)
     {
         PrvNodeDef* nodedef = _nodedef->asA<PrvNodeDef>();
-        PrvPortDef* portdef = nodedef->portdef(index);
+        PrvPortDef* portdef = nodedef->port(index);
         return portdef ? RtPort(shared_from_this(), index) : RtPort();
     }
 

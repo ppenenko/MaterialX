@@ -27,9 +27,9 @@ PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nd) :
     // Set indices and default values
     for (size_t i = 0; i < numPorts; ++i)
     {
-        PrvPortDef* pd = nodedef()->portdef(i);
-        _portIndices[pd->getName()] = i;
-        _ports[i].value = pd->getValue();
+        PrvPortDef* p = nodedef()->port(i);
+        _portIndices[p->getName()] = i;
+        _ports[i].value = p->getValue();
     }
 }
 
