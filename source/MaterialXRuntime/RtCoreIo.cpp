@@ -60,7 +60,7 @@ namespace
         }
     }
 
-    PrvObjectHandle createNodeDef(const NodeDefPtr& src)
+    PrvObjectHandle readNodeDef(const NodeDefPtr& src)
     {
         const RtToken name(src->getName());
         const RtToken category(src->getNodeString());
@@ -126,7 +126,7 @@ namespace
         return nodedefH;
     }
 
-    PrvObjectHandle createNode(const NodePtr& src, PrvStage* stage)
+    PrvObjectHandle readNode(const NodePtr& src, PrvStage* stage)
     {
         NodeDefPtr srcNodedef = src->getNodeDef();
         if (!srcNodedef)
@@ -139,7 +139,7 @@ namespace
         if (!nodedefH)
         {
             // NodeDef is not loaded yet so create it now.
-            nodedefH = createNodeDef(srcNodedef);
+            nodedefH = readNodeDef(srcNodedef);
             stage->addElement(nodedefH);
         }
 
@@ -165,7 +165,7 @@ namespace
         return nodeH;
     }
 
-    PrvObjectHandle createNodeGraph(const NodeGraphPtr& src, PrvStage* stage)
+    PrvObjectHandle readNodeGraph(const NodeGraphPtr& src, PrvStage* stage)
     {
         PrvObjectHandle graphInterfaceH;
         PrvNodeDef* graphInterface;
@@ -173,7 +173,7 @@ namespace
         NodeDefPtr srcNodedef = src->getNodeDef();
         if (srcNodedef)
         {
-            graphInterfaceH = createNodeDef(srcNodedef);
+            graphInterfaceH = readNodeDef(srcNodedef);
             graphInterface = graphInterfaceH->asA<PrvNodeDef>();
         }
         else
@@ -209,7 +209,7 @@ namespace
             NodePtr srcNnode = child->asA<Node>();
             if (srcNnode)
             {
-                PrvObjectHandle nodeH = createNode(srcNnode, stage);
+                PrvObjectHandle nodeH = readNode(srcNnode, stage);
                 nodegraph->addElement(nodeH);
 
                 // Check for connections to the graph interface
@@ -402,16 +402,16 @@ void RtCoreIo::read(const DocumentPtr& doc, bool allNodeDefs)
     {
         for (auto elem : doc->getNodeDefs())
         {
-            stage->addElement(createNodeDef(elem));
+            stage->addElement(readNodeDef(elem));
         }
     }
     for (auto elem : doc->getNodes())
     {
-        stage->addElement(createNode(elem, stage));
+        stage->addElement(readNode(elem, stage));
     }
     for (auto elem : doc->getNodeGraphs())
     {
-        stage->addElement(createNodeGraph(elem, stage));
+        stage->addElement(readNodeGraph(elem, stage));
     }
 }
 
