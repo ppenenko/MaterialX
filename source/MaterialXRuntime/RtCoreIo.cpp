@@ -90,7 +90,7 @@ namespace {
         const RtToken name(src->getName());
         const RtToken category(src->getNodeString());
 
-        PrvObjectHandle nodedefH = PrvNodeDef::create(name, category);
+        PrvObjectHandle nodedefH = PrvNodeDef::createNew(name, category);
         PrvNodeDef* nodedef = nodedefH->asA<PrvNodeDef>();
 
         readAttributes(src, nodedef, nodedefIgnoreAttr);
@@ -102,8 +102,8 @@ namespace {
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                PrvObjectHandle outputH = PrvPortDef::create(portName, portType, RtValue(),
-                                                             RtPortFlag::CONNECTABLE | RtPortFlag::OUTPUT);
+                PrvObjectHandle outputH = PrvPortDef::createNew(portName, portType, RtValue(), 
+                                                                RtPortFlag::OUTPUT);
                 PrvPortDef* output = outputH->asA<PrvPortDef>();
                 readAttributes(elem, output, portdefIgnoreAttr);
                 nodedef->addPort(outputH);
@@ -112,8 +112,8 @@ namespace {
         else
         {
             const RtToken type(src->getType());
-            PrvObjectHandle outputH = PrvPortDef::create(PrvPortDef::DEFAULT_OUTPUT_NAME, type, RtValue(),
-                                                         RtPortFlag::CONNECTABLE | RtPortFlag::OUTPUT);
+            PrvObjectHandle outputH = PrvPortDef::createNew(PrvPortDef::DEFAULT_OUTPUT_NAME, type, RtValue(),
+                                                            RtPortFlag::OUTPUT);
             nodedef->addPort(outputH);
         }
 
@@ -124,8 +124,8 @@ namespace {
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                PrvObjectHandle inputH = PrvPortDef::create(portName, portType, RtValue(elem->getValue()),
-                                                            RtPortFlag::CONNECTABLE | RtPortFlag::INPUT);
+                PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, RtValue(elem->getValue()),
+                                                               RtPortFlag::INPUT);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
                 input->setColorSpace(RtToken(elem->getColorSpace()));
                 // TODO: fix when units are implemented in core
@@ -137,8 +137,8 @@ namespace {
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                PrvObjectHandle inputH = PrvPortDef::create(portName, portType, RtValue(elem->getValue()),
-                                                           RtPortFlag::CONNECTABLE | RtPortFlag::INPUT | RtPortFlag::UNIFORM);
+                PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, RtValue(elem->getValue()),
+                                                               RtPortFlag::INPUT | RtPortFlag::UNIFORM);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
                 input->setColorSpace(RtToken(elem->getColorSpace()));
                 // TODO: fix when units are implemented in core
@@ -169,7 +169,7 @@ namespace {
         }
 
         const RtToken nodeName(src->getName());
-        PrvObjectHandle nodeH = PrvNode::create(nodeName, nodedefH);
+        PrvObjectHandle nodeH = PrvNode::createNew(nodeName, nodedefH);
         PrvNode* node = nodeH->asA<PrvNode>();
 
         readAttributes(src, node, nodeIgnoreAttr);
@@ -204,21 +204,21 @@ namespace {
         else
         {
             const RtToken nodedefName("ND_" + src->getName());
-            graphInterfaceH = PrvNodeDef::create(nodedefName, EMPTY_TOKEN);
+            graphInterfaceH = PrvNodeDef::createNew(nodedefName, EMPTY_TOKEN);
             graphInterface = graphInterfaceH->asA<PrvNodeDef>();
 
             for (auto elem : src->getOutputs())
             {
                 const RtToken name(elem->getName());
                 const RtToken type(elem->getType());
-                PrvObjectHandle output = PrvPortDef::create(name, type, RtValue(),
-                                                            RtPortFlag::OUTPUT | RtPortFlag::CONNECTABLE);
+                PrvObjectHandle output = PrvPortDef::createNew(name, type, RtValue(),
+                                                               RtPortFlag::OUTPUT);
                 graphInterface->addPort(output);
             }
         }
 
         const RtToken nodegraphName(src->getName());
-        PrvObjectHandle nodegraphH = PrvNodeGraph::create(nodegraphName);
+        PrvObjectHandle nodegraphH = PrvNodeGraph::createNew(nodegraphName);
         PrvNodeGraph* nodegraph = nodegraphH->asA<PrvNodeGraph>();
 
         readAttributes(src, nodegraph, nodegraphIgnoreAttr);

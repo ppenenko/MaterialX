@@ -22,7 +22,7 @@ PrvStage::PrvStage(const RtToken& name) :
 {
 }
 
-PrvObjectHandle PrvStage::create(const RtToken& name)
+PrvObjectHandle PrvStage::createNew(const RtToken& name)
 {
     return std::make_shared<PrvStage>(name);
 }

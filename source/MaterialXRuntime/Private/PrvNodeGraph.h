@@ -22,7 +22,7 @@ class PrvNodeGraph : public PrvCompoundElement
 public:
     PrvNodeGraph(const RtToken& name);
 
-    static PrvObjectHandle create(const RtToken& name);
+    static PrvObjectHandle createNew(const RtToken& name);
 
     void addNode(PrvObjectHandle node);
 

@@ -21,11 +21,11 @@ class RtValue;
 class RtPortFlag
 {
 public:
-    static const uint32_t INPUT       = 0x00000001;
-    static const uint32_t OUTPUT      = 0x00000002;
-    static const uint32_t CONNECTABLE = 0x00000004;
-    static const uint32_t UNIFORM     = 0x00000008;
-    static const uint32_t INTERFACE   = 0x00000010;
+    static const uint32_t INPUT         = 0x00000001;
+    static const uint32_t OUTPUT        = 0x00000002;
+    static const uint32_t UNCONNECTABLE = 0x00000004;
+    static const uint32_t UNIFORM       = 0x00000008;
+    static const uint32_t INTERFACE     = 0x00000010;
 };
 
 /// @class RtPortDef
@@ -39,7 +39,7 @@ public:
     /// Create a new portdef and add it to a parent 
     /// object if specified.
     /// The parent must be a nodedef object.
-    static RtObject create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject parent = RtObject());
+    static RtObject createNew(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject parent = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;

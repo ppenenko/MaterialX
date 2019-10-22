@@ -107,6 +107,12 @@ public:
     /// Return true if this port is connected.
     bool isConnected() const;
 
+    /// Connect this port to a destination input port.
+    void connectTo(const RtPort& dest);
+
+    /// Disconnect this port from a destination input port.
+    void disconnectFrom(const RtPort& dest);
+
     /// Return the source port connected upstream.
     RtPort getSourcePort() const;
 
@@ -116,7 +122,7 @@ public:
     /// Return a destination port connected downstream.
     RtPort getDestinationPort(size_t index) const;
 
-    /// Traverse the node network stargin from this port.
+    /// Traverse the node network upstream starting from this port.
     RtGraphIterator traverseUpstream(RtTraversalFilter filter = nullptr) const;
 
     /// Equality operator
@@ -163,7 +169,7 @@ public:
     /// Create a new node instance of the given nodedef
     /// and add it to the parent object if specified.
     /// The parent must be a stage or a nodegraph object.
-    static RtObject create(const RtToken& name, RtObject nodedef, RtObject parent = RtObject());
+    static RtObject createNew(const RtToken& name, RtObject nodedef, RtObject parent = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;

@@ -185,6 +185,16 @@ bool RtPort::isConnected() const
     return !node->_ports[_index].connections.empty();
 }
 
+void RtPort::connectTo(const RtPort& dest)
+{
+    PrvNode::connect(*this, dest);
+}
+
+void RtPort::disconnectFrom(const RtPort& dest)
+{
+    PrvNode::disconnect(*this, dest);
+}
+
 RtPort RtPort::getSourcePort() const
 {
     PrvNode* node = _data->asA<PrvNode>();
@@ -216,14 +226,14 @@ RtNode::RtNode(const RtObject& obj) :
 {
 }
 
-RtObject RtNode::create(const RtToken& name, RtObject nodedef, RtObject parent)
+RtObject RtNode::createNew(const RtToken& name, RtObject nodedef, RtObject parent)
 {
     if (!nodedef.hasApi(RtApiType::NODEDEF))
     {
         throw ExceptionRuntimeError("Given nodedef object is not a valid nodedef");
     }
 
-    PrvObjectHandle node = PrvNode::create(name, nodedef.data());
+    PrvObjectHandle node = PrvNode::createNew(name, nodedef.data());
 
     if (parent)
     {

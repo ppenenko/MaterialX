@@ -24,7 +24,7 @@ class PrvNode : public PrvElement
 public:
     PrvNode(const RtToken& name, const PrvObjectHandle& nodedef);
 
-    static PrvObjectHandle create(const RtToken& name, const PrvObjectHandle& nodedef);
+    static PrvObjectHandle createNew(const RtToken& name, const PrvObjectHandle& nodedef);
 
     PrvObjectHandle getNodeDef() const
     {

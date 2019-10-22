@@ -16,9 +16,9 @@ RtPortDef::RtPortDef(const RtObject& obj) :
 {
 }
 
-RtObject RtPortDef::create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject parent)
+RtObject RtPortDef::createNew(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags, RtObject parent)
 {
-    PrvObjectHandle portdef = PrvPortDef::create(name, type, value, flags);
+    PrvObjectHandle portdef = PrvPortDef::createNew(name, type, value, flags);
 
     if (parent)
     {

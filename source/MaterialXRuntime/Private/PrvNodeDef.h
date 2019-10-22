@@ -23,7 +23,7 @@ class PrvNodeDef : public PrvCompoundElement
 public:
     PrvNodeDef(const RtToken& name, const RtToken& category);
 
-    static PrvObjectHandle create(const RtToken& name, const RtToken& category);
+    static PrvObjectHandle createNew(const RtToken& name, const RtToken& category);
 
     const RtToken& getCategory() const
     {

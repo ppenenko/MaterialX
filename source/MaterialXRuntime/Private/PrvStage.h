@@ -19,7 +19,7 @@ class PrvStage : public PrvCompoundElement
 public:
     PrvStage(const RtToken& name);
 
-    static PrvObjectHandle create(const RtToken& name);
+    static PrvObjectHandle createNew(const RtToken& name);
 
     void addReference(PrvObjectHandle stage);
     void removeReference(const RtToken& name);

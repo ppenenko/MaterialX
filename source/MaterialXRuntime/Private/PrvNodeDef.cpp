@@ -19,7 +19,7 @@ PrvNodeDef::PrvNodeDef(const RtToken& name, const RtToken& category) :
 {
 }
 
-PrvObjectHandle PrvNodeDef::create(const RtToken& name, const RtToken& category)
+PrvObjectHandle PrvNodeDef::createNew(const RtToken& name, const RtToken& category)
 {
     return std::make_shared<PrvNodeDef>(name, category);
 }

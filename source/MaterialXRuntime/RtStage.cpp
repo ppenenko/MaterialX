@@ -20,9 +20,9 @@ RtApiType RtStage::getApiType() const
     return RtApiType::STAGE;
 }
 
-RtObject RtStage::create(const RtToken& name)
+RtObject RtStage::createNew(const RtToken& name)
 {
-    return RtObject(PrvStage::create(name));
+    return RtObject(PrvStage::createNew(name));
 }
 
 void RtStage::addReference(RtObject stage)

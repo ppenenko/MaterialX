@@ -23,7 +23,7 @@ class PrvPortDef : public PrvElement
 public:
     PrvPortDef(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 
-    static PrvObjectHandle create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
+    static PrvObjectHandle createNew(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags);
 
     const RtToken& getType() const
     {
@@ -112,7 +112,7 @@ public:
 
     bool isConnectable() const
     {
-        return _flags & RtPortFlag::CONNECTABLE;
+        return !(_flags & RtPortFlag::UNCONNECTABLE);
     }
 
     bool isUniform() const

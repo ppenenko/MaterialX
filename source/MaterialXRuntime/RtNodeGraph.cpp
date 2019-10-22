@@ -17,9 +17,9 @@ RtNodeGraph::RtNodeGraph(const RtObject& obj) :
 {
 }
 
-RtObject RtNodeGraph::create(const RtToken& name, RtObject parent)
+RtObject RtNodeGraph::createNew(const RtToken& name, RtObject parent)
 {
-    PrvObjectHandle nodegraph = PrvNodeGraph::create(name);
+    PrvObjectHandle nodegraph = PrvNodeGraph::createNew(name);
 
     if (parent)
     {

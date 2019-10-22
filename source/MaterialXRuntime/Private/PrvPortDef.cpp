@@ -20,7 +20,7 @@ _flags(flags)
 {
 }
 
-PrvObjectHandle PrvPortDef::create(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
+PrvObjectHandle PrvPortDef::createNew(const RtToken& name, const RtToken& type, const RtValue& value, uint32_t flags)
 {
     return std::make_shared<PrvPortDef>(name, type, value, flags);
 }

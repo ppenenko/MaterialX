@@ -21,7 +21,7 @@ PrvNodeGraph::PrvNodeGraph(const RtToken& name) :
 {
 }
 
-PrvObjectHandle PrvNodeGraph::create(const RtToken& name)
+PrvObjectHandle PrvNodeGraph::createNew(const RtToken& name)
 {
     return std::make_shared<PrvNodeGraph>(name);
 }
@@ -51,8 +51,8 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
     PrvNodeDef* nd = nodedef->asA<PrvNodeDef>();
 
     // Create nodedefs for the input and output interface nodes.
-    _inputsDef = PrvNodeDef::create(INPUTS, NODEGRAPH_INPUTS);
-    _outputsDef = PrvNodeDef::create(OUTPUTS, NODEGRAPH_OUTPUTS);
+    _inputsDef = PrvNodeDef::createNew(INPUTS, NODEGRAPH_INPUTS);
+    _outputsDef = PrvNodeDef::createNew(OUTPUTS, NODEGRAPH_OUTPUTS);
 
     PrvNodeDef* def;
     for (size_t i = 0; i < nd->numElements(); ++i)
@@ -63,23 +63,23 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
         {
             // And interface input turns into an output on the inputs node.
             flags &= ~RtPortFlag::INPUT;
-            flags |= RtPortFlag::OUTPUT | RtPortFlag::CONNECTABLE | RtPortFlag::INTERFACE;
+            flags |= RtPortFlag::OUTPUT | RtPortFlag::INTERFACE;
             def = _inputsDef->asA<PrvNodeDef>();
         }
         else
         {
             // And interface output turns into an input on the outputs node.
             flags &= ~RtPortFlag::OUTPUT;
-            flags |= RtPortFlag::INPUT | RtPortFlag::CONNECTABLE | RtPortFlag::INTERFACE;
+            flags |= RtPortFlag::INPUT | RtPortFlag::INTERFACE;
             def = _outputsDef->asA<PrvNodeDef>();
         }
-        PrvObjectHandle port = PrvPortDef::create(pd->getName(), pd->getType(), pd->getValue(), flags);
+        PrvObjectHandle port = PrvPortDef::createNew(pd->getName(), pd->getType(), pd->getValue(), flags);
         def->addPort(port);
     }
 
     // Instantiate the input and output interface nodes.
-    _inputsNode = PrvNode::create(INPUTS, _inputsDef);
-    _outputsNode = PrvNode::create(OUTPUTS, _outputsDef);
+    _inputsNode = PrvNode::createNew(INPUTS, _inputsDef);
+    _outputsNode = PrvNode::createNew(OUTPUTS, _outputsDef);
 }
 
 string PrvNodeGraph::asStringDot() const

@@ -28,7 +28,7 @@ public:
     RtApiType getApiType() const override;
 
     /// Create a new empty stage.
-    static RtObject create(const RtToken& name);
+    static RtObject createNew(const RtToken& name);
 
     /// Add a reference to another stage.
     void addReference(RtObject refStage);

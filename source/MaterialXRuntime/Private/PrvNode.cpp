@@ -33,7 +33,7 @@ PrvNode::PrvNode(const RtToken& name, const PrvObjectHandle& nd) :
     }
 }
 
-PrvObjectHandle PrvNode::create(const RtToken& name, const PrvObjectHandle& nodedef)
+PrvObjectHandle PrvNode::createNew(const RtToken& name, const PrvObjectHandle& nodedef)
 {
     return std::make_shared<PrvNode>(name, nodedef);
 }

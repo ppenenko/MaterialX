@@ -17,9 +17,9 @@ RtNodeDef::RtNodeDef(const RtObject& obj) :
 {
 }
 
-RtObject RtNodeDef::create(const RtToken& name, const RtToken& category, RtObject parent)
+RtObject RtNodeDef::createNew(const RtToken& name, const RtToken& category, RtObject parent)
 {
-    PrvObjectHandle nodedef = PrvNodeDef::create(name, category);
+    PrvObjectHandle nodedef = PrvNodeDef::createNew(name, category);
 
     if (parent)
     {
