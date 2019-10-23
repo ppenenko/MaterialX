@@ -17,7 +17,7 @@
 namespace MaterialX
 {
 
-class PrvNodeGraph : public PrvCompoundElement
+class PrvNodeGraph : public PrvCompound
 {
 public:
     PrvNodeGraph(const RtToken& name);

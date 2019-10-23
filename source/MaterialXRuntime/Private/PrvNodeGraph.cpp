@@ -17,7 +17,7 @@ const RtToken PrvNodeGraph::NODEGRAPH_INPUTS("nodegraphoutputs");
 const RtToken PrvNodeGraph::NODEGRAPH_OUTPUTS("nodegraphinputs");
 
 PrvNodeGraph::PrvNodeGraph(const RtToken& name) :
-    PrvCompoundElement(RtObjType::NODEGRAPH, name)
+    PrvCompound(RtObjType::NODEGRAPH, name)
 {
 }
 

@@ -32,6 +32,7 @@ enum class RtObjType
     NODE,
     NODEGRAPH,
     STAGE,
+    UNKNOWN,
     NUM_TYPES
 };
 
@@ -39,7 +40,7 @@ enum class RtObjType
 enum class RtApiType
 {
     ELEMENT,
-    COMPOUND_ELEMENT,
+    COMPOUND,
     PORTDEF,
     NODEDEF,
     NODE,

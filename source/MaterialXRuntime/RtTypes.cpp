@@ -8,7 +8,7 @@
 namespace MaterialX
 {
 
-const RtToken RtType::BOOLEAN("bool");
+const RtToken RtType::BOOLEAN("boolean");
 const RtToken RtType::INTEGER("integer");
 const RtToken RtType::FLOAT("float");
 const RtToken RtType::VECTOR2("vector2");

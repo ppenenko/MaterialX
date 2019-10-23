@@ -16,6 +16,8 @@
 #include <MaterialXRuntime/Private/PrvNode.h>
 #include <MaterialXRuntime/Private/PrvNodeGraph.h>
 
+#include <sstream>
+
 namespace MaterialX
 {
 
@@ -31,6 +33,7 @@ namespace
     static const StringSet portdefIgnoreAttr    = { "name", "type", "nodename", "output", "colorspace", "unit" };
     static const StringSet nodeIgnoreAttr       = { "name", "type", "node" };
     static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
+    static const StringSet unknownIgnoreAttr    = { "name" };
 
     void readAttributes(const ElementPtr src, PrvElement* dest, const StringSet& ignoreList)
     {
@@ -283,7 +286,25 @@ namespace
         return nodegraphH;
     }
 
-    void writeNodedef(const PrvNodeDef* nodedef, DocumentPtr dest)
+    PrvObjectHandle readUnknown(const ElementPtr& src)
+    {
+        const RtToken name(src->getName());
+        const RtToken category(src->getCategory());
+
+        PrvObjectHandle elemH = PrvUnknown::createNew(name, category);
+        PrvUnknown* elem = elemH->asA<PrvUnknown>();
+
+        readAttributes(src, elem, unknownIgnoreAttr);
+
+        for (auto child : src->getChildren())
+        {
+            elem->addElement(readUnknown(child));
+        }
+
+        return elemH;
+    }
+
+    void writeNodeDef(const PrvNodeDef* nodedef, DocumentPtr dest)
     {
         const size_t numPorts = nodedef->numPorts();
         const size_t numOutputs = nodedef->numOutputs();
@@ -345,26 +366,40 @@ namespace
             RtPort input = const_cast<PrvNode*>(node)->findPort(inputDef->getName());
             if (input.isConnected() || input.getValue() != inputDef->getValue())
             {
-                ValueElementPtr destInput;
+                ValueElementPtr valueElem;
                 if (inputDef->isUniform())
                 {
-                    destInput = destNode->addParameter(input.getName().str(), input.getType().str());
+                    valueElem = destNode->addParameter(input.getName().str(), input.getType().str());
+                    valueElem->setValueString(input.getValueString());
                 }
                 else
                 {
-                    destInput = destNode->addInput(input.getName().str(), input.getType().str());
+                    valueElem = destNode->addInput(input.getName().str(), input.getType().str());
+                    if (input.isConnected())
+                    {
+                        RtPort sourcePort = input.getSourcePort();
+                        PrvNode* sourceNode = sourcePort.data()->asA<PrvNode>();
+                        InputPtr inputElem = valueElem->asA<Input>();
+                        inputElem->setNodeName(sourceNode->getName());
+                        if (sourceNode->numOutputs() > 1)
+                        {
+                            inputElem->setOutputString(sourcePort.getName());
+                        }
+                    }
+                    else
+                    {
+                        valueElem->setValueString(input.getValueString());
+                    }
                 }
-
-                destInput->setValueString(input.getValueString());
 
                 if (input.getColorSpace())
                 {
-                    destInput->setColorSpace(input.getColorSpace().str());
+                    valueElem->setColorSpace(input.getColorSpace().str());
                 }
                 if (input.getUnit())
                 {
                     // TODO: fix when units are implemented in core.
-                    // destInput->setUnit(input->getUnit().str());
+                    // valueElem->setUnit(input->getUnit().str());
                 }
             }
         }
@@ -380,6 +415,29 @@ namespace
         writeAttributes(node, destNode);
     }
 
+    void writeNodeGraph(const PrvNodeGraph* nodegraph, DocumentPtr dest)
+    {
+        NodeGraphPtr destNodeGraph = dest->addNodeGraph(nodegraph->getName());
+        writeAttributes(nodegraph, destNodeGraph);
+
+        for (auto node : nodegraph->getElements())
+        {
+            writeNode(node->asA<PrvNode>(), destNodeGraph);
+        }
+
+
+    }
+
+    void writeUnknown(const PrvUnknown* unknown, ElementPtr dest)
+    {
+        ElementPtr unknownElem = dest->addChildOfCategory(unknown->getCategory(), unknown->getName());
+        writeAttributes(unknown, unknownElem);
+
+        for (auto child : unknown->getElements())
+        {
+            writeUnknown(child->asA<PrvUnknown>(), unknownElem);
+        }
+    }
 
 } // end anonymous namespace
 
@@ -393,43 +451,69 @@ RtApiType RtCoreIo::getApiType() const
     return RtApiType::CORE_IO;
 }
 
-void RtCoreIo::read(const DocumentPtr& doc, bool allNodeDefs)
+void RtCoreIo::read(const DocumentPtr& doc, RtReadFilter filter)
 {
     PrvStage* stage = data()->asA<PrvStage>();
     readAttributes(doc, stage, {});
 
-    if (allNodeDefs)
+    for (auto elem : doc->getChildren())
     {
-        for (auto elem : doc->getNodeDefs())
+        if (!filter || filter(elem))
         {
-            stage->addElement(readNodeDef(elem));
+            PrvObjectHandle objH;
+            if (elem->isA<NodeDef>())
+            {
+                objH = readNodeDef(elem->asA<NodeDef>());
+            }
+            else if (elem->isA<Node>())
+            {
+                objH = readNode(elem->asA<Node>(), stage);
+            }
+            else if (elem->isA<NodeGraph>())
+            {
+                objH = readNodeGraph(elem->asA<NodeGraph>(), stage);
+            }
+            else
+            {
+                objH = readUnknown(elem);
+            }
+            stage->addElement(objH);
         }
-    }
-    for (auto elem : doc->getNodes())
-    {
-        stage->addElement(readNode(elem, stage));
-    }
-    for (auto elem : doc->getNodeGraphs())
-    {
-        stage->addElement(readNodeGraph(elem, stage));
     }
 }
 
-void RtCoreIo::write(DocumentPtr& doc)
+void RtCoreIo::write(DocumentPtr& doc, RtWriteFilter filter)
 {
     PrvStage* stage = data()->asA<PrvStage>();
     writeAttributes(stage, doc);
 
     for (size_t i = 0; i < stage->numElements(); ++i)
     {
-        PrvObjectHandle elemH = stage->getElement(i);
-        if (elemH->getObjType() == RtObjType::NODEDEF)
+        PrvObjectHandle elem = stage->getElement(i);
+        if (!filter || filter(RtObject(elem)))
         {
-            writeNodedef(elemH->asA<PrvNodeDef>(), doc);
-        }
-        else if (elemH->getObjType() == RtObjType::NODE)
-        {
-            writeNode(elemH->asA<PrvNode>(), doc);
+            if (elem->getObjType() == RtObjType::NODEDEF)
+            {
+                writeNodeDef(elem->asA<PrvNodeDef>(), doc);
+            }
+            else if (elem->getObjType() == RtObjType::NODE)
+            {
+                writeNode(elem->asA<PrvNode>(), doc);
+            }
+            else if (elem->getObjType() == RtObjType::NODEGRAPH)
+            {
+                writeNodeGraph(elem->asA<PrvNodeGraph>(), doc);
+            }
+            else if (elem->getObjType() == RtObjType::UNKNOWN)
+            {
+                writeUnknown(elem->asA<PrvUnknown>(), doc->asA<Element>());
+            }
+            else
+            {
+                std::stringstream str;
+                str << "Exporting object type '" << size_t(elem->getObjType()) << "' is not supported";
+                throw ExceptionRuntimeError(str.str());
+            }
         }
     }
 }

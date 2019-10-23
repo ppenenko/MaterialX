@@ -13,7 +13,7 @@ namespace MaterialX
 {
 
 PrvNodeDef::PrvNodeDef(const RtToken& name, const RtToken& category) :
-    PrvCompoundElement(RtObjType::NODEDEF, name),
+    PrvCompound(RtObjType::NODEDEF, name),
     _category(category),
     _numOutputs(0)
 {

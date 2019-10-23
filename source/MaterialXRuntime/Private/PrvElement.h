@@ -22,7 +22,7 @@ using PrvObjectHandleSet = std::set<PrvObjectHandle>;
 class PrvElement : public PrvObject
 {
 public:
-    PrvElement(RtObjType objType, const RtToken& name);
+    virtual ~PrvElement() {}
 
     const RtToken& getName() const
     {
@@ -60,6 +60,8 @@ public:
     }
 
 protected:
+    PrvElement(RtObjType objType, const RtToken& name);
+
     void setName(const RtToken& name)
     {
         _name = name;
@@ -73,12 +75,13 @@ protected:
     friend class PrvStage;
 };
 
-class PrvCompoundElement : public PrvElement
+
+class PrvCompound : public PrvElement
 {
 public:
-    PrvCompoundElement(RtObjType objType, const RtToken& name);
+    PrvCompound(RtObjType objType, const RtToken& name);
 
-    virtual ~PrvCompoundElement() {}
+    virtual ~PrvCompound() {}
 
     void addElement(PrvObjectHandle elem);
     void removeElement(const RtToken& name);
@@ -108,30 +111,22 @@ protected:
     RtTokenMap<PrvObjectHandle> _elementsByName;
 };
 
-struct PrvObjectPredicate
-{
-    PrvObjectPredicate(RtObjType type) : _type(type) {}
 
-    bool operator()(const PrvObjectHandle& obj) const
+class PrvUnknown : public PrvCompound
+{
+public:
+    PrvUnknown(const RtToken& name, const RtToken& category);
+
+    static PrvObjectHandle createNew(const RtToken& name, const RtToken& category);
+
+    const RtToken& getCategory() const
     {
-        return obj->getObjType() == _type;
+        return _category;
     }
 
-    RtObjType _type;
+private:
+    const RtToken _category;
 };
-
-struct PrvApiPredicate
-{
-    PrvApiPredicate(RtApiType type) : _type(type) {}
-
-    bool operator()(const PrvObjectHandle& obj) const
-    {
-        return obj->hasApi(_type);
-    }
-
-    RtApiType _type;
-};
-
 
 }
 

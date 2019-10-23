@@ -29,7 +29,7 @@ namespace
         // NODEDEF
         {
             RtApiType::ELEMENT,
-            RtApiType::COMPOUND_ELEMENT,
+            RtApiType::COMPOUND,
             RtApiType::NODEDEF,
             RtApiType::TREE_ITERATOR,
         },
@@ -42,19 +42,24 @@ namespace
         // NODEGRAPH
         {
             RtApiType::ELEMENT,
-            RtApiType::COMPOUND_ELEMENT,
+            RtApiType::COMPOUND,
             RtApiType::NODEGRAPH,
             RtApiType::TREE_ITERATOR,
         },
         // STAGE
         {
             RtApiType::ELEMENT,
-            RtApiType::COMPOUND_ELEMENT,
+            RtApiType::COMPOUND,
             RtApiType::STAGE,
             RtApiType::CORE_IO,
             RtApiType::TREE_ITERATOR,
             RtApiType::STAGE_ITERATOR,
-        }
+        },
+        // UNKNOWN
+        {
+            RtApiType::ELEMENT,
+            RtApiType::COMPOUND,
+        },
     };
 }
 

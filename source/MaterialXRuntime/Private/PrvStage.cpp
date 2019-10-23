@@ -17,7 +17,7 @@ namespace MaterialX
 {
 
 PrvStage::PrvStage(const RtToken& name) :
-    PrvCompoundElement(RtObjType::STAGE, name),
+    PrvCompound(RtObjType::STAGE, name),
     _selfRefCount(0)
 {
 }
@@ -90,10 +90,10 @@ PrvObjectHandle PrvStage::findElementByPath(const string& path) const
 
     while (elem && i < elementNames.size())
     {
-        if (elem->hasApi(RtApiType::COMPOUND_ELEMENT))
+        if (elem->hasApi(RtApiType::COMPOUND))
         {
             name = elementNames[i];
-            elem = elem->asA<PrvCompoundElement>()->findElementByName(name);
+            elem = elem->asA<PrvCompound>()->findElementByName(name);
         }
         else if (elem->hasApi(RtApiType::NODE))
         {

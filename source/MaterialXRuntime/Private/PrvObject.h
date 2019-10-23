@@ -42,6 +42,14 @@ public:
         return static_cast<T*>(this);
     }
 
+    /// Casting the object to a given type.
+    /// NOTE: no type check if performed so the templated type 
+    /// must be a type supported by the object.
+    template<class T> const T* asA() const
+    {
+        return static_cast<const T*>(this);
+    }
+
 protected:
     RtObjType _objType;
 };

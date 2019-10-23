@@ -18,7 +18,7 @@
 namespace MaterialX
 {
 
-class PrvNodeDef : public PrvCompoundElement
+class PrvNodeDef : public PrvCompound
 {
 public:
     PrvNodeDef(const RtToken& name, const RtToken& category);

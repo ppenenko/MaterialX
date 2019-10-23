@@ -21,7 +21,7 @@ namespace
             RtObjType::NODEGRAPH,
             RtObjType::STAGE
         },
-        // RtApiType::COMPOUND_ELEMENT
+        // RtApiType::COMPOUND
         {
             RtObjType::NODEDEF,
             RtObjType::NODEGRAPH,

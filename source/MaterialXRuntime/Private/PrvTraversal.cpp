@@ -95,10 +95,10 @@ PrvTreeIterator::PrvTreeIterator(PrvObjectHandle root, RtTraversalFilter filter)
     _current(nullptr),
     _filter(filter)
 {
-    if (root->hasApi(RtApiType::COMPOUND_ELEMENT))
+    if (root->hasApi(RtApiType::COMPOUND))
     {
         // Initialize the stack and start iteration to the first element.
-        PrvCompoundElement* comp = root->asA<PrvCompoundElement>();
+        PrvCompound* comp = root->asA<PrvCompound>();
         _stack.push_back(std::make_tuple(comp, -1, -1));
         ++*this;
     }
@@ -123,10 +123,10 @@ PrvTreeIterator& PrvTreeIterator::operator++()
         }
 
         if (_current && 
-            _current->hasApi(RtApiType::COMPOUND_ELEMENT) &&
+            _current->hasApi(RtApiType::COMPOUND) &&
             !_current->hasApi(RtApiType::STAGE))
         {
-            PrvCompoundElement* comp = _current->asA<PrvCompoundElement>();
+            PrvCompound* comp = _current->asA<PrvCompound>();
             _stack.push_back(std::make_tuple(comp, 0, -1));
             _current = comp->getElements()[0];
             if (!_filter || _filter(RtObject(_current)))
@@ -136,7 +136,7 @@ PrvTreeIterator& PrvTreeIterator::operator++()
         }
 
         StackFrame& frame = _stack.back();
-        PrvCompoundElement* comp = std::get<0>(frame);
+        PrvCompound* comp = std::get<0>(frame);
         int& elemIndex = std::get<1>(frame);
         int& stageIndex = std::get<2>(frame);
 

@@ -45,14 +45,14 @@ void PrvElement::removeAttribute(const RtToken& name)
 }
 
 
-const string PrvCompoundElement::PATH_SEPARATOR = "/";
+const string PrvCompound::PATH_SEPARATOR = "/";
 
-PrvCompoundElement::PrvCompoundElement(RtObjType objType, const RtToken& name) :
+PrvCompound::PrvCompound(RtObjType objType, const RtToken& name) :
     PrvElement(objType, name)
 {
 }
 
-void PrvCompoundElement::addElement(PrvObjectHandle elem)
+void PrvCompound::addElement(PrvObjectHandle elem)
 {
     if (!elem->hasApi(RtApiType::ELEMENT))
     {
@@ -69,7 +69,7 @@ void PrvCompoundElement::addElement(PrvObjectHandle elem)
     _elementsByName[el->getName()] = elem;
 }
 
-void PrvCompoundElement::removeElement(const RtToken& name)
+void PrvCompound::removeElement(const RtToken& name)
 {
     for (auto it = _elements.begin(); it != _elements.end(); ++it)
     {
@@ -82,13 +82,13 @@ void PrvCompoundElement::removeElement(const RtToken& name)
     _elementsByName.erase(name);
 }
 
-PrvObjectHandle PrvCompoundElement::findElementByName(const RtToken& name) const
+PrvObjectHandle PrvCompound::findElementByName(const RtToken& name) const
 {
     auto it = _elementsByName.find(name);
     return it != _elementsByName.end() ? it->second : nullptr;
 }
 
-PrvObjectHandle PrvCompoundElement::findElementByPath(const string& path) const
+PrvObjectHandle PrvCompound::findElementByPath(const string& path) const
 {
     const StringVec elementNames = splitString(path, PATH_SEPARATOR);
     if (elementNames.empty())
@@ -102,10 +102,10 @@ PrvObjectHandle PrvCompoundElement::findElementByPath(const string& path) const
 
     while (elem != nullptr && i < elementNames.size())
     {
-        if (elem->hasApi(RtApiType::COMPOUND_ELEMENT))
+        if (elem->hasApi(RtApiType::COMPOUND))
         {
             name = RtToken(elementNames[i]);
-            elem = elem->asA<PrvCompoundElement>()->findElementByName(name);
+            elem = elem->asA<PrvCompound>()->findElementByName(name);
         }
         else if (elem->hasApi(RtApiType::NODE))
         {
@@ -118,6 +118,18 @@ PrvObjectHandle PrvCompoundElement::findElementByPath(const string& path) const
     }
 
     return elem;
+}
+
+
+PrvUnknown::PrvUnknown(const RtToken& name, const RtToken& category) :
+    PrvCompound(RtObjType::UNKNOWN, name),
+    _category(category)
+{
+}
+
+PrvObjectHandle PrvUnknown::createNew(const RtToken& name, const RtToken& category)
+{
+    return std::make_shared<PrvUnknown>(name, category);
 }
 
 }

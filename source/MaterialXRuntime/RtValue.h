@@ -70,12 +70,27 @@ public:
     /// Return reference to token value.
     const RtToken& asToken() const
     {
+        if (_data[0] == 0 && _data[1] == 0)
+        {
+            return EMPTY_TOKEN;
+        }
         return *reinterpret_cast<const RtToken*>(&_data);
     }
     /// Return reference to token value.
     RtToken& asToken()
     {
         return *reinterpret_cast<RtToken*>(&_data);
+    }
+
+    /// Return Color2 value.
+    const Color2& asColor2() const
+    {
+        return *reinterpret_cast<const Color2*>(&_data);
+    }
+    /// Return reference to Color2 value.
+    Color2& asColor2()
+    {
+        return *reinterpret_cast<Color2*>(&_data);
     }
 
     /// Return Color3 value.
@@ -87,6 +102,39 @@ public:
     Color3& asColor3()
     {
         return *reinterpret_cast<Color3*>(&_data);
+    }
+
+    /// Return Color4 value.
+    const Color4& asColor4() const
+    {
+        return *reinterpret_cast<const Color4*>(&_data);
+    }
+    /// Return reference to Color4 value.
+    Color4& asColor4()
+    {
+        return *reinterpret_cast<Color4*>(&_data);
+    }
+
+    /// Return Vector2 value.
+    const Vector2& asVector2() const
+    {
+        return *reinterpret_cast<const Vector2*>(&_data);
+    }
+    /// Return reference to Vector2 value.
+    Vector2& asVector2()
+    {
+        return *reinterpret_cast<Vector2*>(&_data);
+    }
+
+    /// Return Vector3 value.
+    const Vector3& asVector3() const
+    {
+        return *reinterpret_cast<const Vector3*>(&_data);
+    }
+    /// Return reference to Vector3 value.
+    Vector3& asVector3()
+    {
+        return *reinterpret_cast<Vector3*>(&_data);
     }
 
     /// Return Vector4 value.

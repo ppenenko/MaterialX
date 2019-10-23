@@ -273,42 +273,94 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
 
 TEST_CASE("Runtime: CoreIo", "[runtime]")
 {
-    // Create a document.
-    mx::DocumentPtr doc = mx::createDocument();
-
-    // Load in stdlib
     mx::FilePath searchPath = mx::FilePath::getCurrentPath() / mx::FilePath("libraries");
-    loadLibraries({ "stdlib" }, searchPath, doc);
 
-    // Create a stage and load the document data.
-    mx::RtObject stageObj = mx::RtStage::createNew("test");
-    mx::RtCoreIo stageIo(stageObj);
-    stageIo.read(doc);
+    {
+        // Create a document.
+        mx::DocumentPtr doc = mx::createDocument();
 
-    // Get a nodegraph and write a dot file for inspection.
-    mx::RtStage stage(stageObj);
-    mx::RtNodeGraph graph = stage.findElementByName("NG_tiledimage_float");
-    REQUIRE(graph);
-    std::ofstream dotfile;
-    dotfile.open(graph.getName().str() + ".dot");
-    dotfile << graph.asStringDot();
-    dotfile.close();
+        // Load in stdlib
+        loadLibraries({ "stdlib" }, searchPath, doc);
 
-    // Get a nodedef and create two new instances of it.
-    mx::RtObject multiplyObj = stage.findElementByName("ND_multiply_color3");
-    REQUIRE(multiplyObj);
-    mx::RtNode mul1 = mx::RtNode::createNew("mul1", multiplyObj, stageObj);
-    mx::RtNode mul2 = mx::RtNode::createNew("mul2", multiplyObj, stageObj);
-    REQUIRE(mul1);
-    REQUIRE(mul2);
-    mul2.findPort("in1").setValue(mx::Color3(0.3f, 0.5f, 0.4f));
-    mul2.findPort("in2").setValue(mx::Color3(0.6f, 0.3f, 0.5f));
-    mul2.findPort("in2").setColorSpace("srgb_texture");
+        // Create a stage and import the document data.
+        mx::RtObject stageObj = mx::RtStage::createNew("test1");
+        mx::RtCoreIo stageIo(stageObj);
+        stageIo.read(doc);
 
-    // Write the stage to another document.
-    mx::DocumentPtr doc2 = mx::createDocument();
-    stageIo.write(doc2);
-    mx::writeToXmlFile(doc2, stage.getName().str() + ".mtlx");
+        // Get a nodegraph and write a dot file for inspection.
+        mx::RtStage stage(stageObj);
+        mx::RtNodeGraph graph = stage.findElementByName("NG_tiledimage_float");
+        REQUIRE(graph);
+        std::ofstream dotfile;
+        dotfile.open(graph.getName().str() + ".dot");
+        dotfile << graph.asStringDot();
+        dotfile.close();
+
+        // Get a nodedef and create two new instances of it.
+        mx::RtObject multiplyObj = stage.findElementByName("ND_multiply_color3");
+        REQUIRE(multiplyObj);
+        mx::RtNode mul1 = mx::RtNode::createNew("mul1", multiplyObj, stageObj);
+        mx::RtNode mul2 = mx::RtNode::createNew("mul2", multiplyObj, stageObj);
+        REQUIRE(mul1);
+        REQUIRE(mul2);
+        mul2.findPort("in1").setValue(mx::Color3(0.3f, 0.5f, 0.4f));
+        mul2.findPort("in2").setValue(mx::Color3(0.6f, 0.3f, 0.5f));
+        mul2.findPort("in2").setColorSpace("srgb_texture");
+
+        // Write the full stage to a new document
+        // and save it to file for inspection.
+        mx::DocumentPtr exportDoc = mx::createDocument();
+        stageIo.write(exportDoc);
+        mx::writeToXmlFile(exportDoc, stage.getName().str() + "_export.mtlx");
+
+        // Write only nodegraphs to a new document
+        // and save it to file for inspection.
+        auto nodeGraphFilter = [](const mx::RtObject& obj) -> bool
+        {
+            return obj.hasApi(mx::RtApiType::NODEGRAPH);
+        };
+        mx::DocumentPtr exportNodeGraphDoc = mx::createDocument();
+        stageIo.write(exportNodeGraphDoc, nodeGraphFilter);
+        mx::writeToXmlFile(exportNodeGraphDoc, stage.getName().str() + "_nodegraph_export.mtlx");
+    }
+
+    {
+        // Load stdlib into a stage
+        mx::DocumentPtr stdlibDoc = mx::createDocument();
+        loadLibraries({ "stdlib" }, searchPath, stdlibDoc);
+
+        // Create a stage and import the stdlib data.
+        mx::RtStage stdlibStage = mx::RtStage::createNew("stdlib");
+        mx::RtCoreIo(stdlibStage.getObject()).read(stdlibDoc);
+
+        // Create a new working space stage.
+        mx::RtStage stage = mx::RtStage::createNew("test2");
+
+        // Add reference to stdlib
+        stage.addReference(stdlibStage.getObject());
+
+        // Create a small node network.
+        mx::RtObject tiledimageDef = stage.findElementByName("ND_tiledimage_color3");
+        mx::RtObject texcoordDef = stage.findElementByName("ND_texcoord_vector2");
+        REQUIRE(tiledimageDef);
+        REQUIRE(texcoordDef);
+        mx::RtNode tiledimage1 = mx::RtNode::createNew("tiledimage1", tiledimageDef, stage.getObject());
+        mx::RtNode texcoord1 = mx::RtNode::createNew("texcoord1", texcoordDef, stage.getObject());
+        REQUIRE(tiledimage1);
+        REQUIRE(texcoord1);
+        mx::RtPort tiledimage1_texcoord = tiledimage1.findPort("texcoord");
+        mx::RtPort texcoord1_index = texcoord1.findPort("index");
+        mx::RtPort texcoord1_out = texcoord1.findPort("out");
+        REQUIRE(tiledimage1_texcoord);
+        REQUIRE(texcoord1_index);
+        REQUIRE(texcoord1_out);
+        texcoord1_out.connectTo(tiledimage1_texcoord);
+        texcoord1_index.setValue(2);
+
+        mx::DocumentPtr exportDoc = mx::createDocument();
+        mx::RtCoreIo(stage.getObject()).write(exportDoc);
+        mx::writeToXmlFile(exportDoc, stage.getName().str() + "_export.mtlx");
+    }
 }
 
 TEST_CASE("Runtime: Stage References", "[runtime]")
