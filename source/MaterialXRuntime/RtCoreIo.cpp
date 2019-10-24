@@ -35,7 +35,7 @@ namespace
     static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
     static const StringSet unknownIgnoreAttr    = { "name" };
 
-    RtValue readValue(const ValuePtr& v, const RtToken& type, LargeValueStorage& storage)
+    RtValue readValue(const ValuePtr& v, const RtToken& type, RtLargeValueStorage& storage)
     {
         if (!v)
         {
@@ -109,6 +109,7 @@ namespace
         {
             if (!ignoreList.count(name))
             {
+                // Save all attributes as string tokens.
                 const RtToken attrName(name);
                 const RtToken attrValue(src->getAttribute(name));
                 dest->addAttribute(attrName, RtType::TOKEN, RtValue(attrValue));
@@ -121,10 +122,7 @@ namespace
         for (size_t i = 0; i < elem->numAttributes(); ++i)
         {
             const RtAttribute* attr = elem->getAttribute(i);
-            if (attr->getType() == RtType::TOKEN)
-            {
-                dest->setAttribute(attr->getName(), attr->getValue().asToken().str());
-            }
+            dest->setAttribute(attr->getName(), attr->getValue().getValueString(attr->getType()));
         }
     }
 
@@ -167,7 +165,7 @@ namespace
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                const RtValue portValue(readValue(elem->getValue(), portType, nodedef->getLargeValueStorage()));
+                const RtValue portValue(readValue(elem->getValue(), portType, nodedef->getValueStorage()));
 
                 PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, portValue, RtPortFlag::INPUT);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
@@ -181,7 +179,7 @@ namespace
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                const RtValue portValue(readValue(elem->getValue(), portType, nodedef->getLargeValueStorage()));
+                const RtValue portValue(readValue(elem->getValue(), portType, nodedef->getValueStorage()));
 
                 PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, portValue, RtPortFlag::INPUT | RtPortFlag::UNIFORM);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
@@ -229,7 +227,7 @@ namespace
                 throw ExceptionRuntimeError("No port named '" + elem->getName() + "' was found on runtime node '" + node->getName().str() + "'");
             }
             const RtToken portType(elem->getType());
-            const RtValue portValue(readValue(elem->getValue(), portType, node->getLargeValueStorage()));
+            const RtValue portValue(readValue(elem->getValue(), portType, node->getValueStorage()));
             port.setValue(portValue);
         }
 

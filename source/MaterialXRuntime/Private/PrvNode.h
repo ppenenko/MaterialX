@@ -69,6 +69,11 @@ public:
 
     static void disconnect(const RtPort& source, const RtPort& dest);
 
+    RtLargeValueStorage& getValueStorage()
+    {
+        return _storage;
+    }
+
     // Short syntax getter for convenience.
     PrvNodeDef* nodedef() { return (PrvNodeDef*)_nodedef.get(); }
     const PrvNodeDef* nodedef() const { return (PrvNodeDef*)_nodedef.get(); }
@@ -86,6 +91,7 @@ protected:
     PrvObjectHandle _nodedef;
     vector<Port> _ports;
     RtTokenMap<size_t> _portIndices;
+    RtLargeValueStorage _storage;
     friend class RtPort;
 };
 

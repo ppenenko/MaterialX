@@ -45,6 +45,7 @@ private:
     std::vector<T*> _storage;
 };
 
+
 /// @class RtValue
 /// Generic value class for storing values of all the data types
 /// supported by the system. Values that fit into 16 bytes of data
@@ -255,6 +256,16 @@ private:
     // Storage is aligned to 64-bit to hold pointers for
     // heap allocated data types as well as other pointers.
     uint64_t _data[2];
+};
+
+
+/// @struct RtLargeValueStorage
+/// Struct with storage classes for the data types that need this.
+struct RtLargeValueStorage
+{
+    RtValueStore<string> str;
+    RtValueStore<Matrix33> mtx33;
+    RtValueStore<Matrix44> mtx44;
 };
 
 }

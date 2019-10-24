@@ -19,14 +19,6 @@ namespace MaterialX
 using PrvObjectHandleVec = vector<PrvObjectHandle>;
 using PrvObjectHandleSet = std::set<PrvObjectHandle>;
 
-struct LargeValueStorage
-{
-    RtValueStore<string> str;
-    RtValueStore<Matrix33> mtx33;
-    RtValueStore<Matrix44> mtx44;
-};
-
-
 class PrvElement : public PrvObject
 {
 public:
@@ -67,11 +59,6 @@ public:
         return _attributes.size();
     }
 
-    LargeValueStorage& getLargeValueStorage()
-    {
-        return _lvstore;
-    }
-
 protected:
     PrvElement(RtObjType objType, const RtToken& name);
 
@@ -85,7 +72,6 @@ protected:
     RtToken _name;
     vector<AttrPtr> _attributes;
     RtTokenMap<AttrPtr> _attributesByName;
-    LargeValueStorage _lvstore;
     friend class PrvStage;
 };
 
@@ -118,11 +104,17 @@ public:
     virtual PrvObjectHandle findElementByName(const RtToken& name) const;
     virtual PrvObjectHandle findElementByPath(const string& path) const;
 
+    RtLargeValueStorage& getValueStorage()
+    {
+        return _storage;
+    }
+
     static const string PATH_SEPARATOR;
 
 protected:
     PrvObjectHandleVec _elements;
     RtTokenMap<PrvObjectHandle> _elementsByName;
+    RtLargeValueStorage _storage;
 };
 
 
