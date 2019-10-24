@@ -1,6 +1,7 @@
 #ifndef MATERIALXVIEW_VIEWER_H
 #define MATERIALXVIEW_VIEWER_H
 
+#include <MaterialXCore/UnitConverter.h>
 #include <MaterialXView/Editor.h>
 #include <MaterialXView/Material.h>
 #include <MaterialXRender/GeometryHandler.h>
@@ -86,8 +87,9 @@ class Viewer : public ng::Screen
     void drawScene2D();
 
     void setupLights(mx::DocumentPtr doc);
+    void setupUnitConverter(mx::DocumentPtr doc);
     void loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries);
-    void reloadShaders();
+    void reloadShaders(bool forceCreation);
     void loadStandardLibraries();
     void saveShaderSource();
     void loadShaderSource();
@@ -105,6 +107,7 @@ class Viewer : public ng::Screen
     void updateMaterialSelections();
     void updateMaterialSelectionUI();
     void updateDisplayedProperties();
+    void updateUnitSelections();
 
     void createLoadMeshInterface(Widget* parent, const std::string& label);
     void createLoadMaterialsInterface(Widget* parent, const std::string& label);
@@ -188,6 +191,7 @@ class Viewer : public ng::Screen
 
     // Material options
     bool _mergeMaterials;
+    bool _bakeTextures;
 
     // Render options
     bool _outlineSelection;
@@ -202,6 +206,12 @@ class Viewer : public ng::Screen
     // Image save
     bool _captureFrame;
     mx::FilePath _captureFrameFileName;
+
+    // Working unit space
+    mx::StringVec _unitOptions;
+    ng::ComboBox* _unitOptionsUI;
+    mx::UnitConverterRegistryPtr _unitRegistry;
+    mx::DistanceUnitConverterPtr _distanceUnitConverter;
 
     // UV wireframe drawing
     bool _drawUVGeometry;

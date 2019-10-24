@@ -93,6 +93,12 @@ class GenOptions
     /// compress a set of UDIMs into a single normalized image for
     /// hardware rendering.
     bool hwNormalizeUdimTexCoords;
+
+    /// Define the target unit space for distance.
+    /// Shader fragments will be generated to transform
+    /// input unit values to this unit space.
+    string targetDistanceUnit;
+    
 };
 
 } // namespace MaterialX

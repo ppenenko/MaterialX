@@ -17,9 +17,9 @@
 #include <dirent.h>
 #endif
 
+#include <array>
 #include <cctype>
 #include <cerrno>
-#include <climits>
 #include <cstring>
 
 namespace MaterialX
@@ -209,9 +209,20 @@ FilePathVec FilePath::getSubDirectories() const
         while (struct dirent* entry = readdir(dir))
         {
             string path = entry->d_name;
-            if (entry->d_type == DT_DIR && (path != "." && path != ".."))
+            if (path == "." || path == "..") continue;
+
+            auto d_type = entry->d_type;
+            FilePath newDir = *this / path;
+
+            if (d_type == DT_UNKNOWN)
             {
-                FilePath newDir = *this / path;
+                if (newDir.isDirectory())
+                {
+                    d_type = DT_DIR;
+                }
+            }
+            if (d_type == DT_DIR)
+            {
                 FilePathVec newDirs = newDir.getSubDirectories();
                 dirs.insert(dirs.end(), newDirs.begin(), newDirs.end());
             }
@@ -223,7 +234,7 @@ FilePathVec FilePath::getSubDirectories() const
     return dirs;
 }
 
-void FilePath::createDirectory()
+void FilePath::createDirectory() const
 {
 #if defined(_WIN32)
     _mkdir(asString().c_str());
@@ -235,19 +246,19 @@ void FilePath::createDirectory()
 FilePath FilePath::getCurrentPath()
 {
 #if defined(_WIN32)
-    char buf[MAX_PATH];
-    if (!GetCurrentDirectory(MAX_PATH, buf))
+    std::array<char, MAX_PATH> buf;
+    if (!GetCurrentDirectory(MAX_PATH, buf.data()))
     {
         throw Exception("Error in getCurrentPath: " + std::to_string(GetLastError()));
     }
-    return FilePath(buf);
+    return FilePath(buf.data());
 #else
-    char buf[PATH_MAX];
-    if (getcwd(buf, PATH_MAX) == NULL)
+    std::array<char, PATH_MAX> buf;
+    if (getcwd(buf.data(), PATH_MAX) == NULL)
     {
         throw Exception("Error in getCurrentPath: " + string(strerror(errno)));
     }
-    return FilePath(buf);
+    return FilePath(buf.data());
 #endif
 }
 

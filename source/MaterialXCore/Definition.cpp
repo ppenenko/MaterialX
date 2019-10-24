@@ -26,6 +26,8 @@ const string TypeDef::CONTEXT_ATTRIBUTE = "context";
 const string Implementation::FILE_ATTRIBUTE = "file";
 const string Implementation::FUNCTION_ATTRIBUTE = "function";
 const string Implementation::LANGUAGE_ATTRIBUTE = "language";
+const string UnitDef::UNITTYPE_ATTRIBUTE = "unittype";
+const string UnitTypeDef::DEFAULT_ATTRIBUTE = "default";
 
 //
 // NodeDef methods
@@ -49,7 +51,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
         {
             continue;
         }
-        if (!matchLanguage || 
+        if (!matchLanguage ||
             implement->getLanguage() == language)
         {
             return interface;
@@ -60,7 +62,7 @@ InterfaceElementPtr NodeDef::getImplementation(const string& target, const strin
     // There is no language check as node graphs are considered to be language independent.
     for (InterfaceElementPtr interface : interfaces)
     {
-        if (interface->isA<Implementation>() || 
+        if (interface->isA<Implementation>() ||
             !targetStringsMatch(interface->getTarget(), target) ||
             !isVersionCompatible(interface))
         {
@@ -91,15 +93,7 @@ vector<ShaderRefPtr> NodeDef::getInstantiatingShaderRefs() const
 bool NodeDef::validate(string* message) const
 {
     bool res = true;
-    validateRequire(hasType(), res, message, "Missing type");
-    if (isMultiOutputType())
-    {
-        validateRequire(getOutputCount() >= 2, res, message, "Multioutput nodedefs must have two or more output ports");
-    }
-    else
-    {
-        validateRequire(getOutputCount() == 0, res, message, "Only multioutput nodedefs support output ports");
-    }
+    validateRequire(!hasType(), res, message, "Nodedef should not have a type but an explicit output");
     return InterfaceElement::validate(message) && res;
 }
 
@@ -145,6 +139,19 @@ NodeDefPtr Implementation::getNodeDef() const
 ConstNodeDefPtr Implementation::getDeclaration(const string&) const
 {
     return getNodeDef();
+}
+
+vector<UnitDefPtr> UnitTypeDef::getUnitDefs() const
+{
+    vector<UnitDefPtr> unitDefs;
+    for (UnitDefPtr unitDef : getDocument()->getChildrenOfType<UnitDef>())
+    {
+        if (unitDef->getUnitType() == _name)
+        {
+            unitDefs.push_back(unitDef);
+        }
+    }
+    return unitDefs;
 }
 
 } // namespace MaterialX

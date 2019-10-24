@@ -71,7 +71,7 @@ class GlslProgram
     /// @return Program identifier.
     unsigned int build();
 
-    /// Structure to hold information about program inputs
+    /// Structure to hold information about program inputs.
     /// The structure is populated by directly scanning the program so may not contain
     /// some inputs listed on any associated HwShader as those inputs may have been
     /// optimized out if they are unused.
@@ -94,6 +94,8 @@ class GlslProgram
         bool isConstant;
         /// Element path (if any)
         string path;
+        /// Unit
+        string unit;
 
         /// Program input constructor
         Input(int inputLocation, int inputType, int inputSize, string inputPath)
@@ -234,7 +236,7 @@ class GlslProgram
                      ImageDesc& desc);
 
     /// Utility to check for OpenGL context errors.
-    /// Will throw an ExceptionShaderValidationError exception which will list of the errors found
+    /// Will throw an ExceptionShaderRenderError exception which will list of the errors found
     /// if any errors encountered.
     void checkErrors();
 

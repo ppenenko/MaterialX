@@ -235,18 +235,10 @@ class Element : public std::enable_shared_from_this<Element>
 
     /// Return the color space string that is active at the scope of this
     /// element, taking all ancestor elements into account.
-    const string& getActiveColorSpace() const
-    {
-        for (ConstElementPtr elem = getSelf(); elem; elem = elem->getParent())
-        {
-            if (elem->hasColorSpace())
-            {
-                return elem->getColorSpace();
-            }
-        }
-        return EMPTY_STRING;
-    }
-
+    /// @param returnFirst If set to be true will return the first non-empty color space
+    /// string found starting from the current Element. The default value is true.
+    const string& getActiveColorSpace(bool returnFirst=true) const;
+   
     /// @}
     /// @name Target
     /// @{
@@ -910,7 +902,7 @@ class TypedElement : public Element
     }
 
     /// Return the element's type string.
-    const string& getType() const
+    virtual const string& getType() const
     {
         return getAttribute(TYPE_ATTRIBUTE);
     }
@@ -1098,6 +1090,47 @@ class ValueElement : public TypedElement
     ValuePtr getDefaultValue() const;
 
     /// @}
+    /// @name Units
+    /// @{
+
+    /// Set the unit.
+    void setUnit(const string& unit)
+    {
+        setAttribute(UNIT_ATTRIBUTE, unit);
+    }
+
+    /// Return true if a unit attribute exists.
+    bool hasUnit() const
+    {
+        return hasAttribute(UNIT_ATTRIBUTE);
+    }
+
+    /// Return the unit.
+    const string& getUnit() const
+    {
+        return getAttribute(UNIT_ATTRIBUTE);
+    }
+
+    /// Set the unit type.
+    void setUnitType(const string& unit)
+    {
+        setAttribute(UNITTYPE_ATTRIBUTE, unit);
+    }
+
+    /// Return true if a unit attribute exists.
+    bool hasUnitType() const
+    {
+        return hasAttribute(UNITTYPE_ATTRIBUTE);
+    }
+
+    /// Return the unit type
+    const string& getUnitType() const
+    {
+        return getAttribute(UNITTYPE_ATTRIBUTE);
+    }
+
+
+    /// @}
     /// @name Validation
     /// @{
 
@@ -1118,7 +1151,12 @@ class ValueElement : public TypedElement
     static const string UI_FOLDER_ATTRIBUTE;
     static const string UI_MIN_ATTRIBUTE;
     static const string UI_MAX_ATTRIBUTE;
+    static const string UI_SOFT_MIN_ATTRIBUTE;
+    static const string UI_SOFT_MAX_ATTRIBUTE;
+    static const string UI_STEP_ATTRIBUTE;
     static const string UI_ADVANCED_ATTRIBUTE;
+    static const string UNIT_ATTRIBUTE;
+    static const string UNITTYPE_ATTRIBUTE;
 };
 
 /// @class Token

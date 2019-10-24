@@ -147,6 +147,7 @@ void Document::initialize()
 void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions* copyOptions)
 {
     bool skipConflictingElements = copyOptions && copyOptions->skipConflictingElements;
+    const string&  libraryColorSpace = library->getColorSpace();
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
@@ -169,9 +170,12 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
         {
             childCopy->setGeomPrefix(library->getGeomPrefix());
         }
-        if (!childCopy->hasColorSpace() && library->hasColorSpace())
+        if (!libraryColorSpace.empty())
         {
-            childCopy->setColorSpace(library->getColorSpace());
+            if (!childCopy->hasColorSpace() || childCopy->isA<Output>())
+            {
+                childCopy->setColorSpace(library->getColorSpace());
+            }
         }
         if (!childCopy->hasNamespace() && library->hasNamespace())
         {
@@ -599,6 +603,21 @@ void Document::upgradeVersion()
             }
         }
         minorVersion = 36;
+    }
+
+    // Upgrade path for 1.37 (change types to child outputs)
+    for (NodeDefPtr nodeDef : getNodeDefs())
+    {
+        InterfaceElementPtr interfaceElem = std::static_pointer_cast<InterfaceElement>(nodeDef);
+        if (interfaceElem && interfaceElem->hasType())
+        {
+            string type = interfaceElem->getType();
+            if (type != MULTI_OUTPUT_TYPE_STRING)
+            {
+                interfaceElem->addOutput("out", type);
+            }
+            interfaceElem->removeAttribute(TypedElement::TYPE_ATTRIBUTE);
+        }
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&

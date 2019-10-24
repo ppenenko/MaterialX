@@ -179,13 +179,13 @@ void Material::updateUniformsList()
     delete[] uniformName;
 }
 
-bool Material::generateShader(mx::GenContext& context)
+bool Material::generateShader(mx::GenContext& context, bool forceCreation)
 {
     if (!_elem)
     {
         return false;
     }
-    if (!_hwShader)
+    if (forceCreation || !_hwShader)
     {
         _hwShader = createShader("Shader", context, _elem);
     }
@@ -196,7 +196,7 @@ bool Material::generateShader(mx::GenContext& context)
 
     _hasTransparency = context.getOptions().hwTransparency;
 
-    if (!_glShader)
+    if (forceCreation || !_glShader)
     {
         std::string vertexShader = _hwShader->getSourceCode(mx::Stage::VERTEX);
         std::string pixelShader = _hwShader->getSourceCode(mx::Stage::PIXEL);
@@ -288,8 +288,14 @@ void Material::bindViewInformation(const mx::Matrix44& world, const mx::Matrix44
     mx::Matrix44 invTransWorld = world.getInverse().getTranspose();
 
     // Bind view properties.
-    _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.getTranspose().data()));
-    _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.getTranspose().data()));
+    if (_glShader->uniform(mx::HW::WORLD_MATRIX, false) != -1)
+    {
+        _glShader->setUniform(mx::HW::WORLD_MATRIX, ng::Matrix4f(world.getTranspose().data()));
+    }
+    if (_glShader->uniform(mx::HW::VIEW_PROJECTION_MATRIX, false) != -1)
+    {
+        _glShader->setUniform(mx::HW::VIEW_PROJECTION_MATRIX, ng::Matrix4f(viewProj.getTranspose().data()));
+    }
     if (_glShader->uniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, false) != -1)
     {
         _glShader->setUniform(mx::HW::WORLD_INVERSE_TRANSPOSE_MATRIX, ng::Matrix4f(invTransWorld.getTranspose().data()));
@@ -558,6 +564,41 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::GLTextureHandler
         }
 
         ++index;
+    }
+}
+
+void Material::bindUnits(mx::UnitConverterRegistryPtr& registry, const mx::GenContext& context)
+{
+    mx::ShaderPort* port = nullptr;
+    mx::VariableBlock* publicUniforms = getPublicUniforms();
+    if (publicUniforms)
+    {
+        // Scan block based on unit name match predicate
+        port = publicUniforms->find(
+            [](mx::ShaderPort* port)
+        {
+            return (port && (port->getName() == mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME));
+        });
+
+        // Check if the uniform exists in the shader program
+        if (port && !_uniformVariable.count(port->getVariable()))
+        {
+            port = nullptr;
+        }
+    }
+
+    if (port)
+    {
+        int intPortValue = registry->getUnitAsInteger(context.getOptions().targetDistanceUnit);
+        if (intPortValue >= 0)
+        {
+            port->setValue(mx::Value::createValue(intPortValue));
+            _glShader->bind();
+            if (_glShader->uniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, false) != -1)
+            {
+                _glShader->setUniform(mx::UnitSystem::DISTANCE_UNIT_TARGET_NAME, intPortValue);
+            }
+        }
     }
 }
 

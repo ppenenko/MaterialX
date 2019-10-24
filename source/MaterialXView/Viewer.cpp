@@ -1,11 +1,15 @@
 #include <MaterialXView/Viewer.h>
 
-#include <MaterialXGenShader/DefaultColorManagementSystem.h>
-#include <MaterialXGenShader/Shader.h>
+#include <MaterialXRenderGlsl/TextureBaker.h>
+
 #include <MaterialXRender/OiioImageLoader.h>
 #include <MaterialXRender/StbImageLoader.h>
 #include <MaterialXRender/TinyObjLoader.h>
 #include <MaterialXRender/Util.h>
+
+#include <MaterialXGenShader/DefaultColorManagementSystem.h>
+#include <MaterialXGenShader/UnitSystem.h>
+#include <MaterialXGenShader/Shader.h>
 
 #include <nanogui/button.h>
 #include <nanogui/combobox.h>
@@ -79,7 +83,7 @@ mx::DocumentPtr loadLibraries(const mx::FilePathVec& libraryFolders, const mx::F
         readOptions.skipConflictingElements = true;
 
         mx::FilePath libraryPath = searchPath.find(libraryFolder);
-        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory("mtlx"))
+        for (const mx::FilePath& filename : libraryPath.getFilesInDirectory(mx::MTLX_EXTENSION))
         {
             mx::DocumentPtr libDoc = mx::createDocument();
             mx::readFromXmlFile(libDoc, libraryPath / filename, mx::FileSearchPath(), &readOptions);
@@ -192,6 +196,7 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _genContext(mx::GlslShaderGenerator::create()),
     _splitByUdims(false),
     _mergeMaterials(false),
+    _bakeTextures(false),
     _outlineSelection(false),
     _specularEnvironmentMethod(specularEnvironmentMethod),
     _envSamples(DEFAULT_ENV_SAMPLES),
@@ -203,6 +208,11 @@ Viewer::Viewer(const mx::FilePathVec& libraryFolders,
     _uvTranslation(-0.5f, 0.5f, 0.0f),
     _uvZoom(1.0f)
 {
+
+    // Set default unit
+    _unitRegistry = mx::UnitConverterRegistry::create();
+    _unitOptionsUI = nullptr;
+    
     // Transpary option before creating Advanced UI 
     // as this flag is used to set the default value.
     _genContext.getOptions().hwTransparency = true;
@@ -411,6 +421,23 @@ void Viewer::setupLights(mx::DocumentPtr doc)
     }
 }
 
+void Viewer::setupUnitConverter(mx::DocumentPtr doc)
+{
+    mx::UnitSystemPtr unitSystem = mx::UnitSystem::create(_genContext.getShaderGenerator().getLanguage());
+    unitSystem->loadLibrary(_stdLib);
+    unitSystem->setUnitConverterRegistry(_unitRegistry);
+    _genContext.getShaderGenerator().setUnitSystem(unitSystem);
+    mx::UnitTypeDefPtr distanceTypeDef = doc->getUnitTypeDef(mx::DistanceUnitConverter::DISTANCE_UNIT);
+    _distanceUnitConverter = mx::DistanceUnitConverter::create(distanceTypeDef);
+    _unitRegistry->addUnitConverter(distanceTypeDef, _distanceUnitConverter);
+    _unitOptions.clear();
+    for (int unitid = 0; unitid < static_cast<int>(_distanceUnitConverter->getUnitScale().size()); unitid++)
+    {
+        _unitOptions.push_back(_distanceUnitConverter->getUnitFromInteger(unitid));
+    }
+    _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getDefaultUnit();
+}
+
 void Viewer::assignMaterial(mx::MeshPartitionPtr geometry, MaterialPtr material)
 {
     const mx::MeshList& meshes = _geometryHandler->getMeshes();
@@ -508,30 +535,43 @@ void Viewer::createSaveMaterialsInterface(Widget* parent, const std::string& lab
     materialButton->setCallback([this]()
     {
         mProcessEvents = false;
-        std::string filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
+        MaterialPtr material = getSelectedMaterial();
+        mx::FilePath filename = ng::file_dialog({ { "mtlx", "MaterialX" } }, true);
 
         // Save document
-        if (!filename.empty() && !_materials.empty())
+        if (material && !filename.isEmpty())
         {
-            mx::DocumentPtr doc = _materials.front()->getDocument();
-            // Add element predicate to prune out writing elements from included files
-            auto skipXincludes = [this](mx::ConstElementPtr elem)
+            mx::DocumentPtr doc = material->getDocument();
+            if (filename.getExtension() != mx::MTLX_EXTENSION)
             {
-                if (elem->hasSourceUri())
-                {
-                    return (_xincludeFiles.count(elem->getSourceUri()) == 0);
-                }
-                return true;
-            };
-            mx::XmlWriteOptions writeOptions;
-            writeOptions.writeXIncludeEnable = true;
-            writeOptions.elementPredicate = skipXincludes;
-            mx::writeToXmlFile(doc, filename, &writeOptions);
-        }
+                filename = mx::FilePath(filename.asString() + "." + mx::MTLX_EXTENSION);
+            }
 
-        // Update material file name
-        if (!filename.empty() && _materialFilename != filename)
-        {
+            mx::ShaderRefPtr shaderRef = material->getElement()->asA<mx::ShaderRef>();
+            if (_bakeTextures && shaderRef)
+            {
+                mx::TextureBakerPtr baker = mx::TextureBaker::create();
+                baker->bakeShaderInputs(shaderRef, _searchPath, _genContext, filename.getParentPath());
+                baker->writeBakedDocument(shaderRef, filename);
+            }
+            else
+            {
+                // Add element predicate to prune out writing elements from included files
+                auto skipXincludes = [this](mx::ConstElementPtr elem)
+                {
+                    if (elem->hasSourceUri())
+                    {
+                        return (_xincludeFiles.count(elem->getSourceUri()) == 0);
+                    }
+                    return true;
+                };
+                mx::XmlWriteOptions writeOptions;
+                writeOptions.writeXIncludeEnable = true;
+                writeOptions.elementPredicate = skipXincludes;
+                mx::writeToXmlFile(doc, filename, &writeOptions);
+            }
+
+            // Update material file name
             _materialFilename = filename;
         }
         mProcessEvents = true;
@@ -575,6 +615,13 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _mergeMaterials = enable;
     });    
 
+    ng::CheckBox* bakeTexturesBox = new ng::CheckBox(advancedPopup, "Bake Textures");
+    bakeTexturesBox->setChecked(_bakeTextures);
+    bakeTexturesBox->setCallback([this](bool enable)
+    {
+        _bakeTextures = enable;
+    });    
+
     new ng::Label(advancedPopup, "Lighting Options");
 
     ng::CheckBox* directLightingBox = new ng::CheckBox(advancedPopup, "Direct lighting");
@@ -612,7 +659,7 @@ void Viewer::createAdvancedSettings(Widget* parent)
     transparencyBox->setCallback([this](bool enable)
     {
         _genContext.getOptions().hwTransparency = enable;
-        reloadShaders();
+        reloadShaders(false);
     });
 
     ng::CheckBox* drawEnvironmentBox = new ng::CheckBox(advancedPopup, "Render Environment");
@@ -652,6 +699,17 @@ void Viewer::createAdvancedSettings(Widget* parent)
         _showAdvancedProperties = enable;
         updateDisplayedProperties();
     });
+
+    // Units
+    {
+        new ng::Label(advancedPopup, "Unit Options");
+        // Unit selection widget
+        Widget* sampleGroup = new Widget(advancedPopup);
+        sampleGroup->setLayout(new ng::BoxLayout(ng::Orientation::Horizontal));
+        new ng::Label(sampleGroup, "Unit Space:");
+        _unitOptionsUI = new ng::ComboBox(sampleGroup, _unitOptions);
+        _unitOptionsUI->setChevronIcon(-1);
+    }
 }
 
 void Viewer::updateGeometrySelections()
@@ -762,6 +820,35 @@ void Viewer::updateMaterialSelectionUI()
     }
 }
 
+void Viewer::updateUnitSelections()
+{
+    mProcessEvents = false;
+    if (_unitOptionsUI)
+    {
+        if (_unitOptionsUI->items().empty()) 
+        {
+            _unitOptionsUI->setItems(_unitOptions);
+            std::vector<Widget*> children = _unitOptionsUI->children();
+            for (Widget* child : children)
+            {
+                child->setFontSize(13);
+            }
+            std::string workingUnitSpace = _distanceUnitConverter->getDefaultUnit();
+            int index = _distanceUnitConverter->getUnitAsInteger(workingUnitSpace);
+            _unitOptionsUI->setSelectedIndex(index);
+            _unitOptionsUI->setCallback([this](int index)
+            {
+                _genContext.getOptions().targetDistanceUnit = _distanceUnitConverter->getUnitFromInteger(index);
+                for (MaterialPtr material : _materials)
+                {
+                    material->bindUnits(_unitRegistry, _genContext);
+                }
+            });
+        }
+    }
+    mProcessEvents = true;
+}
+
 void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr libraries)
 {
     // Set up read options.
@@ -811,6 +898,9 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
 
         // Add lighting 
         setupLights(doc);
+
+        // Define Unit converters
+        setupUnitConverter(doc);
 
         // Apply modifiers to the content document.
         applyModifiers(doc, _modifiers);
@@ -956,15 +1046,23 @@ void Viewer::loadDocument(const mx::FilePath& filename, mx::DocumentPtr librarie
     // Update material UI.
     updateMaterialSelections();
     updateMaterialSelectionUI();
+
+    // Update units UI.
+    updateUnitSelections();
 }
 
-void Viewer::reloadShaders()
+void Viewer::reloadShaders(bool forceCreation)
 {
     try
     {
+        const mx::MeshList& meshes = _geometryHandler->getMeshes();
         for (MaterialPtr material : _materials)
         {
-            material->generateShader(_genContext);
+            material->generateShader(_genContext, forceCreation);
+            if (forceCreation && !meshes.empty())
+            {
+                material->bindMesh(meshes[0]);
+            }
         }
     }
     catch (std::exception& e)
@@ -1071,12 +1169,13 @@ void Viewer::loadStandardLibraries()
 {
     // Initialize standard library and color management.
     _stdLib = loadLibraries(_libraryFolders, _searchPath);
+    for (std::string sourceUri : _stdLib->getReferencedSourceUris())
+    {
+        _xincludeFiles.insert(sourceUri);
+    }
     mx::DefaultColorManagementSystemPtr cms = mx::DefaultColorManagementSystem::create(_genContext.getShaderGenerator().getLanguage());
     cms->loadLibrary(_stdLib);
-    for (const mx::FilePath& filePath : _searchPath)
-    {
-        _genContext.registerSourceCodeSearchPath(filePath);
-    }
+    _genContext.registerSourceCodeSearchPath(_searchPath);
     _genContext.getShaderGenerator().setColorManagementSystem(cms);
 }
 
