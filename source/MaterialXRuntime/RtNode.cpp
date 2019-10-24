@@ -95,6 +95,12 @@ bool RtPort::isConnectable() const
     return node->nodedef()->port(_index)->isConnectable();
 }
 
+bool RtPort::isInterface() const
+{
+    PrvNode* node = _data->asA<PrvNode>();
+    return node->nodedef()->port(_index)->isInterface();
+}
+
 const RtValue& RtPort::getValue() const
 {
     PrvNode* node = _data->asA<PrvNode>();
@@ -105,6 +111,12 @@ RtValue& RtPort::getValue()
 {
     PrvNode* node = _data->asA<PrvNode>();
     return node->_ports[_index].value;
+}
+
+void RtPort::setValue(const RtValue& v)
+{
+    PrvNode* node = _data->asA<PrvNode>();
+    node->_ports[_index].value = v;
 }
 
 string RtPort::getValueString()
@@ -119,58 +131,16 @@ const RtToken& RtPort::getColorSpace() const
     return node->_ports[_index].colorspace;
 }
 
-const RtToken& RtPort::getUnit() const
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    return node->_ports[_index].unit;
-}
-
-void RtPort::setValue(const RtValue& v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value = v;
-}
-
-void RtPort::setValue(bool v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value.asBool() = v;
-}
-
-void RtPort::setValue(int v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value.asInt() = v;
-}
-
-void RtPort::setValue(float v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value.asFloat() = v;
-}
-
-void RtPort::setValue(const Color3& v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value.asColor3() = v;
-}
-
-void RtPort::setValue(const Vector4& v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value.asVector4() = v;
-}
-
-void RtPort::setValue(void* v)
-{
-    PrvNode* node = _data->asA<PrvNode>();
-    node->_ports[_index].value.asPtr() = v;
-}
-
 void RtPort::setColorSpace(const RtToken& colorspace)
 {
     PrvNode* node = _data->asA<PrvNode>();
     node->_ports[_index].colorspace = colorspace;
+}
+
+const RtToken& RtPort::getUnit() const
+{
+    PrvNode* node = _data->asA<PrvNode>();
+    return node->_ports[_index].unit;
 }
 
 void RtPort::setUnit(const RtToken& unit)

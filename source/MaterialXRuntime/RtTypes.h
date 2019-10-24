@@ -29,6 +29,7 @@ public:
     static const RtToken COLOR4;
     static const RtToken MATRIX33;
     static const RtToken MATRIX44;
+    static const RtToken TOKEN;
     static const RtToken STRING;
     static const RtToken FILENAME;
     static const RtToken INTEGERARRAY;

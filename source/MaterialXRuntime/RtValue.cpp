@@ -11,57 +11,23 @@
 namespace MaterialX
 {
 
-RtValue::RtValue(const ValuePtr& v) : 
-    _data{0,0}
+RtValue::RtValue(const Matrix33& v, RtValueStore<Matrix33>& store)
 {
-    if (!v)
-    {
-        return;
-    }
-    if (v->isA<bool>())
-    {
-        asBool() = v->asA<bool>();
-    }
-    else if (v->isA<float>())
-    {
-        asFloat() = v->asA<float>();
-    }
-    else if (v->isA<int>())
-    {
-        asInt() = v->asA<int>();
-    }
-    else if (v->isA<Color2>())
-    {
-        asColor2() = v->asA<Color2>();
-    }
-    else if (v->isA<Color3>())
-    {
-        asColor3() = v->asA<Color3>();
-    }
-    else if (v->isA<Color4>())
-    {
-        asColor4() = v->asA<Color4>();
-    }
-    else if (v->isA<Vector2>())
-    {
-        asVector2() = v->asA<Vector2>();
-    }
-    else if (v->isA<Vector3>())
-    {
-        asVector3() = v->asA<Vector3>();
-    }
-    else if (v->isA<Vector4>())
-    {
-        asVector4() = v->asA<Vector4>();
-    }
-    else if (v->isA<string>())
-    {
-        asToken() = v->asA<string>();
-    }
-    else
-    {
-//        throw ExceptionRuntimeError("Not implemented!");
-    }
+    *reinterpret_cast<Matrix33**>(&_data) = store.alloc();
+    asMatrix33() = v;
+}
+
+RtValue::RtValue(const Matrix44& v, RtValueStore<Matrix44>& store)
+{
+    *reinterpret_cast<Matrix44**>(&_data) = store.alloc();
+    asMatrix44() = v;
+}
+
+RtValue::RtValue(const string& v, RtValueStore<string>& store)
+{
+    string* ptr = store.alloc();
+    *ptr = v;
+    asPtr() = ptr;
 }
 
 string RtValue::getValueString(const RtToken& type) const
@@ -109,16 +75,49 @@ string RtValue::getValueString(const RtToken& type) const
         const Vector4& v = asVector4();
         ss << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3];
     }
+    else if (type == RtType::MATRIX33)
+    {
+        const Matrix33& v = asMatrix33();
+        for (size_t i = 0; i < 3; i++)
+        {
+            for (size_t j = 0; j < 3; j++)
+            {
+                ss << v[i][j];
+                if (i + j < 9)
+                {
+                    ss << ", ";
+                }
+            }
+        }
+    }
+    else if (type == RtType::MATRIX44)
+    {
+        const Matrix44& v = asMatrix44();
+        for (size_t i = 0; i < 4; i++)
+        {
+            for (size_t j = 0; j < 4; j++)
+            {
+                ss << v[i][j];
+                if (i + j < 16)
+                {
+                    ss << ", ";
+                }
+            }
+        }
+    }
     else if (type == RtType::STRING || type == RtType::FILENAME)
+    {
+        ss << asString();
+    }
+    else if (type == RtType::TOKEN)
     {
         ss << asToken().str();
     }
     else
     {
-        throw ExceptionRuntimeError("Not implemented!");
+        return EMPTY_STRING;
     }
     return ss.str();
 }
-
 
 }

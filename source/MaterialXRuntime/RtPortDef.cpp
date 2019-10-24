@@ -55,54 +55,24 @@ RtValue& RtPortDef::getValue()
     return data()->asA<PrvPortDef>()->getValue();
 }
 
-const RtToken& RtPortDef::getColorSpace() const
-{
-    return data()->asA<PrvPortDef>()->getColorSpace();
-}
-
-const RtToken& RtPortDef::getUnit() const
-{
-    return data()->asA<PrvPortDef>()->getUnit();
-}
-
 void RtPortDef::setValue(const RtValue& v)
 {
     return data()->asA<PrvPortDef>()->setValue(v);
 }
 
-void RtPortDef::setValue(bool v)
+const RtToken& RtPortDef::getColorSpace() const
 {
-    return data()->asA<PrvPortDef>()->setValue(v);
-}
-
-void RtPortDef::setValue(int v)
-{
-    return data()->asA<PrvPortDef>()->setValue(v);
-}
-
-void RtPortDef::setValue(float v)
-{
-    return data()->asA<PrvPortDef>()->setValue(v);
-}
-
-void RtPortDef::setValue(const Color3& v)
-{
-    return data()->asA<PrvPortDef>()->setValue(v);
-}
-
-void RtPortDef::setValue(const Vector4& v)
-{
-    return data()->asA<PrvPortDef>()->setValue(v);
-}
-
-void RtPortDef::setValue(void* v)
-{
-    return data()->asA<PrvPortDef>()->setValue(v);
+    return data()->asA<PrvPortDef>()->getColorSpace();
 }
 
 void RtPortDef::setColorSpace(const RtToken& colorspace)
 {
     return data()->asA<PrvPortDef>()->setColorSpace(colorspace);
+}
+
+const RtToken& RtPortDef::getUnit() const
+{
+    return data()->asA<PrvPortDef>()->getUnit();
 }
 
 void RtPortDef::setUnit(const RtToken& unit)
@@ -133,6 +103,11 @@ bool RtPortDef::isConnectable() const
 bool RtPortDef::isUniform() const
 {
     return data()->asA<PrvPortDef>()->isUniform();
+}
+
+bool RtPortDef::isInterface() const
+{
+    return data()->asA<PrvPortDef>()->isInterface();
 }
 
 }

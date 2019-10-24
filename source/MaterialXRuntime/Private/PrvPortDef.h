@@ -40,54 +40,24 @@ public:
         return _value;
     }
 
-    const RtToken& getColorSpace() const
-    {
-        return _colorspace;
-    }
-
-    const RtToken& getUnit() const
-    {
-        return _unit;
-    }
-
     void setValue(const RtValue& v)
     {
         _value = v;
     }
 
-    void setValue(bool v)
+    const RtToken& getColorSpace() const
     {
-        _value.asBool() = v;
-    }
-
-    void setValue(int v)
-    {
-        _value.asInt() = v;
-    }
-
-    void setValue(float v)
-    {
-        _value.asFloat() = v;
-    }
-
-    void setValue(const Color3& v)
-    {
-        _value.asColor3() = v;
-    }
-
-    void setValue(const Vector4& v)
-    {
-        _value.asVector4() = v;
-    }
-
-    void setValue(void* v)
-    {
-        _value.asPtr() = v;
+        return _colorspace;
     }
 
     void setColorSpace(const RtToken& colorspace)
     {
         _colorspace = colorspace;
+    }
+
+    const RtToken& getUnit() const
+    {
+        return _unit;
     }
 
     void setUnit(const RtToken& unit)
@@ -118,6 +88,11 @@ public:
     bool isUniform() const
     {
         return _flags & RtPortFlag::UNIFORM;
+    }
+
+    bool isInterface() const
+    {
+        return _flags & RtPortFlag::INTERFACE;
     }
 
     static const RtToken DEFAULT_OUTPUT_NAME;

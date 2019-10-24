@@ -65,14 +65,26 @@ TEST_CASE("Runtime: Values", "[runtime]")
     REQUIRE(vector4.asVector4()[3] == 1.0f);
 
     mx::RtValue v4 = vector4;
-    REQUIRE(v4.asA<mx::Vector4>()[0] == 4.0f);
+    REQUIRE(v4.asVector4()[0] == 4.0f);
 
     mx::RtValue ptr;
     ptr.asPtr() = &vector4;
     REQUIRE(ptr.asPtr() == &vector4);
-
     ptr.clear();
     REQUIRE(ptr.asPtr() == (void*)0);
+
+    mx::RtValueStore<std::string> stringStore;
+    mx::RtValueStore<mx::Matrix33> mtx33Store;
+
+    const std::string teststring("MaterialX");
+    mx::RtValue str(teststring, stringStore);
+    REQUIRE(str.asString() == teststring);
+
+    const mx::Matrix33 testmatrix(mx::Matrix33::IDENTITY);
+    mx::RtValue mtx33(testmatrix, mtx33Store);
+    REQUIRE(mtx33.asMatrix33().isEquivalent(testmatrix, 1e-6f));
+    mtx33.asMatrix33()[0][0] = 42.0f;
+    REQUIRE(!mtx33.asMatrix33().isEquivalent(testmatrix, 1e-6f));
 }
 
 TEST_CASE("Runtime: Types", "[runtime]")
@@ -159,7 +171,7 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(in1.isValid());
     REQUIRE(in1.isInput());
     REQUIRE(in1.isConnectable());
-    in1.setValue(7.0f);
+    in1.getValue().asFloat() = 7.0f;
     REQUIRE(in1.getValue().asFloat() == 7.0f);
 
     // Try to create a node from an invalid nodedef object
@@ -303,8 +315,8 @@ TEST_CASE("Runtime: CoreIo", "[runtime]")
         mx::RtNode mul2 = mx::RtNode::createNew("mul2", multiplyObj, stageObj);
         REQUIRE(mul1);
         REQUIRE(mul2);
-        mul2.findPort("in1").setValue(mx::Color3(0.3f, 0.5f, 0.4f));
-        mul2.findPort("in2").setValue(mx::Color3(0.6f, 0.3f, 0.5f));
+        mul2.findPort("in1").getValue().asColor3() = mx::Color3(0.3f, 0.5f, 0.4f);
+        mul2.findPort("in2").getValue().asColor3() = mx::Color3(0.6f, 0.3f, 0.5f);
         mul2.findPort("in2").setColorSpace("srgb_texture");
 
         // Write the full stage to a new document
@@ -355,7 +367,7 @@ TEST_CASE("Runtime: CoreIo", "[runtime]")
         REQUIRE(texcoord1_index);
         REQUIRE(texcoord1_out);
         texcoord1_out.connectTo(tiledimage1_texcoord);
-        texcoord1_index.setValue(2);
+        texcoord1_index.getValue().asInt() = 2;
 
         mx::DocumentPtr exportDoc = mx::createDocument();
         mx::RtCoreIo(stage.getObject()).write(exportDoc);

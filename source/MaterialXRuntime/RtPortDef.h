@@ -53,23 +53,17 @@ public:
     /// Return the default value for this port.
     RtValue& getValue();
 
+    /// Set a new default value on the port.
+    void setValue(const RtValue& v);
+
     /// Return the default color space for this port.
     const RtToken& getColorSpace() const;
 
-    /// Return the default unit for this port.
-    const RtToken& getUnit() const;
-
-    /// Set a new default value on the port.
-    void setValue(const RtValue& v);
-    void setValue(bool v);
-    void setValue(int v);
-    void setValue(float v);
-    void setValue(const Color3& v);
-    void setValue(const Vector4& v);
-    void setValue(void* v);
-
     /// Set the default color space for this port.
     void setColorSpace(const RtToken& colorspace);
+
+    /// Return the default unit for this port.
+    const RtToken& getUnit() const;
 
     /// Set the default unit for this port.
     void setUnit(const RtToken& unit);
@@ -88,6 +82,9 @@ public:
 
     /// Return true if this port is uniform.
     bool isUniform() const;
+
+    /// Return true if this is a graph interface port.
+    bool isInterface() const;
 };
 
 }

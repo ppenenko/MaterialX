@@ -30,10 +30,75 @@ namespace
     // TODO: Make into a TokenSet
     //
     static const StringSet nodedefIgnoreAttr    = { "name", "type", "node" };
-    static const StringSet portdefIgnoreAttr    = { "name", "type", "nodename", "output", "colorspace", "unit" };
+    static const StringSet portdefIgnoreAttr    = { "name", "type", "value", "nodename", "output", "colorspace", "unit" };
     static const StringSet nodeIgnoreAttr       = { "name", "type", "node" };
     static const StringSet nodegraphIgnoreAttr  = { "name", "nodedef" };
     static const StringSet unknownIgnoreAttr    = { "name" };
+
+    RtValue readValue(const ValuePtr& v, const RtToken& type, LargeValueStorage& storage)
+    {
+        if (!v)
+        {
+            return RtValue();
+        }
+
+        if (type == RtType::BOOLEAN)
+        {
+            return RtValue(v->asA<bool>());
+        }
+        else if (type == RtType::FLOAT)
+        {
+            return RtValue(v->asA<float>());
+        }
+        else if (type == RtType::INTEGER)
+        {
+            return RtValue(v->asA<int>());
+        }
+        else if (type == RtType::COLOR2)
+        {
+            return RtValue(v->asA<Color2>());
+        }
+        else if (type == RtType::COLOR3)
+        {
+            return RtValue(v->asA<Color3>());
+        }
+        else if (type == RtType::COLOR4)
+        {
+            return RtValue(v->asA<Color4>());
+        }
+        else if (type == RtType::VECTOR2)
+        {
+            return RtValue(v->asA<Vector2>());
+        }
+        else if (type == RtType::VECTOR3)
+        {
+            return RtValue(v->asA<Vector3>());
+        }
+        else if (type == RtType::VECTOR4)
+        {
+            return RtValue(v->asA<Vector4>());
+        }
+        else if (type == RtType::MATRIX33)
+        {
+            return RtValue(v->asA<Matrix33>(), storage.mtx33);
+        }
+        else if (type == RtType::MATRIX44)
+        {
+            return RtValue(v->asA<Matrix44>(), storage.mtx44);
+        }
+        else if (type == RtType::STRING || type == RtType::FILENAME)
+        {
+            return RtValue(v->asA<string>(), storage.str);
+        }
+        else if (type == RtType::TOKEN)
+        {
+            return RtValue(RtToken(v->asA<string>()));
+        }
+        else
+        {
+            return RtValue();
+        }
+    }
 
     void readAttributes(const ElementPtr src, PrvElement* dest, const StringSet& ignoreList)
     {
@@ -44,9 +109,9 @@ namespace
         {
             if (!ignoreList.count(name))
             {
-                const RtToken attrValue(src->getAttribute(name));
                 const RtToken attrName(name);
-                dest->addAttribute(attrName, RtType::STRING, RtValue(attrValue));
+                const RtToken attrValue(src->getAttribute(name));
+                dest->addAttribute(attrName, RtType::TOKEN, RtValue(attrValue));
             }
         }
     }
@@ -56,7 +121,7 @@ namespace
         for (size_t i = 0; i < elem->numAttributes(); ++i)
         {
             const RtAttribute* attr = elem->getAttribute(i);
-            if (attr->getType() == RtType::STRING)
+            if (attr->getType() == RtType::TOKEN)
             {
                 dest->setAttribute(attr->getName(), attr->getValue().asToken().str());
             }
@@ -102,8 +167,9 @@ namespace
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, RtValue(elem->getValue()),
-                                                               RtPortFlag::INPUT);
+                const RtValue portValue(readValue(elem->getValue(), portType, nodedef->getLargeValueStorage()));
+
+                PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, portValue, RtPortFlag::INPUT);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
                 input->setColorSpace(RtToken(elem->getColorSpace()));
                 // TODO: fix when units are implemented in core
@@ -115,8 +181,9 @@ namespace
             {
                 const RtToken portName(elem->getName());
                 const RtToken portType(elem->getType());
-                PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, RtValue(elem->getValue()),
-                                                               RtPortFlag::INPUT | RtPortFlag::UNIFORM);
+                const RtValue portValue(readValue(elem->getValue(), portType, nodedef->getLargeValueStorage()));
+
+                PrvObjectHandle inputH = PrvPortDef::createNew(portName, portType, portValue, RtPortFlag::INPUT | RtPortFlag::UNIFORM);
                 PrvPortDef* input = inputH->asA<PrvPortDef>();
                 input->setColorSpace(RtToken(elem->getColorSpace()));
                 // TODO: fix when units are implemented in core
@@ -161,8 +228,9 @@ namespace
             {
                 throw ExceptionRuntimeError("No port named '" + elem->getName() + "' was found on runtime node '" + node->getName().str() + "'");
             }
-            RtValue value(elem->getValue());
-            port.setValue(value);
+            const RtToken portType(elem->getType());
+            const RtValue portValue(readValue(elem->getValue(), portType, node->getLargeValueStorage()));
+            port.setValue(portValue);
         }
 
         return nodeH;
@@ -311,6 +379,7 @@ namespace
 
         string type = numOutputs == 1 ? nodedef->port(0)->getType().str() : "multioutput";
         NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), type, nodedef->getCategory());
+        writeAttributes(nodedef, destNodeDef);
 
         for (size_t i = numOutputs; i < numPorts; ++i)
         {
@@ -326,11 +395,12 @@ namespace
                 destInput = destNodeDef->addInput(input->getName(), input->getType().str());
             }
 
+            destInput->setValueString(input->getValue().getValueString(input->getType()));
+
             if (input->getColorSpace())
             {
                 destInput->setColorSpace(input->getColorSpace().str());
             }
-
             if (input->getUnit())
             {
                 // TODO: fix when units are implemented in core.
@@ -345,8 +415,6 @@ namespace
             OutputPtr destOutput = destNodeDef->addOutput(output->getName(), output->getType().str());
             writeAttributes(output, destOutput);
         }
-
-        writeAttributes(nodedef, destNodeDef);
     }
 
     template<typename T>
@@ -370,7 +438,18 @@ namespace
                 if (inputDef->isUniform())
                 {
                     valueElem = destNode->addParameter(input.getName().str(), input.getType().str());
-                    valueElem->setValueString(input.getValueString());
+                    if (input.isConnected())
+                    {
+                        RtPort sourcePort = input.getSourcePort();
+                        if (sourcePort.isInterface())
+                        {
+                            valueElem->setInterfaceName(sourcePort.getName());
+                        }
+                    }
+                    else
+                    {
+                        valueElem->setValueString(input.getValueString());
+                    }
                 }
                 else
                 {
@@ -378,12 +457,19 @@ namespace
                     if (input.isConnected())
                     {
                         RtPort sourcePort = input.getSourcePort();
-                        PrvNode* sourceNode = sourcePort.data()->asA<PrvNode>();
-                        InputPtr inputElem = valueElem->asA<Input>();
-                        inputElem->setNodeName(sourceNode->getName());
-                        if (sourceNode->numOutputs() > 1)
+                        if (sourcePort.isInterface())
                         {
-                            inputElem->setOutputString(sourcePort.getName());
+                            valueElem->setInterfaceName(sourcePort.getName());
+                        }
+                        else
+                        {
+                            PrvNode* sourceNode = sourcePort.data()->asA<PrvNode>();
+                            InputPtr inputElem = valueElem->asA<Input>();
+                            inputElem->setNodeName(sourceNode->getName());
+                            if (sourceNode->numOutputs() > 1)
+                            {
+                                inputElem->setOutputString(sourcePort.getName());
+                            }
                         }
                     }
                     else

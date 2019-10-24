@@ -16,8 +16,40 @@
 namespace MaterialX
 {
 
+/// @class RtValueStore
+/// Class for allocating and keeping ownership of values
+/// that are to large in size to fit into a RtValue.
+template<typename T>
+class RtValueStore
+{
+public:
+    // Destructor.
+    ~RtValueStore()
+    {
+        for (T* ptr : _storage)
+        {
+            delete[] ptr;
+        }
+        _storage.clear();
+    }
+
+    // Allocate and return a new value.
+    T* alloc(size_t count = 1)
+    {
+        T* ptr = new T[count];
+        _storage.push_back(ptr);
+        return ptr;
+    }
+
+private:
+    std::vector<T*> _storage;
+};
+
 /// @class RtValue
-/// TODO: Docs
+/// Generic value class for storing values of all the data types
+/// supported by the system. Values that fit into 16 bytes of data
+/// are stored directly. Values larger than 16 bytes are allocated
+/// and lifetime managed by a RtValueStore class.
 class RtValue
 {
 public:
@@ -28,11 +60,19 @@ public:
     explicit RtValue(bool v) { asBool() = v; }
     explicit RtValue(int v) { asInt() = v; }
     explicit RtValue(float v) { asFloat() = v; }
+    explicit RtValue(const Color2& v) { asColor2() = v; }
     explicit RtValue(const Color3& v) { asColor3() = v; }
+    explicit RtValue(const Color4& v) { asColor4() = v; }
+    explicit RtValue(const Vector2& v) { asVector2() = v; }
+    explicit RtValue(const Vector3& v) { asVector3() = v; }
     explicit RtValue(const Vector4& v) { asVector4() = v; }
-    explicit RtValue(void* v) { asPtr() = v; }
     explicit RtValue(const RtToken& v) { asToken() = v; }
-    explicit RtValue(const ValuePtr& v);
+    explicit RtValue(void* v) { asPtr() = v; }
+
+    /// Explicit value constructor for large values
+    explicit RtValue(const Matrix33& v, RtValueStore<Matrix33>& store);
+    explicit RtValue(const Matrix44& v, RtValueStore<Matrix44>& store);
+    explicit RtValue(const string& v, RtValueStore<string>& store);
 
     /// Return bool value.
     const bool& asBool() const
@@ -65,21 +105,6 @@ public:
     float& asFloat()
     {
         return *reinterpret_cast<float*>(&_data);
-    }
-
-    /// Return reference to token value.
-    const RtToken& asToken() const
-    {
-        if (_data[0] == 0 && _data[1] == 0)
-        {
-            return EMPTY_TOKEN;
-        }
-        return *reinterpret_cast<const RtToken*>(&_data);
-    }
-    /// Return reference to token value.
-    RtToken& asToken()
-    {
-        return *reinterpret_cast<RtToken*>(&_data);
     }
 
     /// Return Color2 value.
@@ -148,28 +173,59 @@ public:
         return *reinterpret_cast<Vector4*>(&_data);
     }
 
+    /// Return token value.
+    const RtToken& asToken() const
+    {
+        return *reinterpret_cast<const RtToken*>(&_data);
+    }
+    /// Return reference to token value.
+    RtToken& asToken()
+    {
+        return *reinterpret_cast<RtToken*>(&_data);
+    }
+
     /// Return const pointer.
     void* const& asPtr() const
     {
         return *reinterpret_cast<void* const*>(&_data);
     }
-    /// Return pointer.
-    void* & asPtr()
+    /// Return reference to pointer.
+    void*& asPtr()
     {
         return *reinterpret_cast<void**>(&_data);
     }
 
-    /// Return const pointer of template argument type.
-    template<typename T>
-    const T& asA() const
+    /// Return Matrix33 value.
+    const Matrix33& asMatrix33() const
     {
-        return *reinterpret_cast<const T*>(&_data);
+        return **reinterpret_cast<const Matrix33* const*>(&_data);
     }
-    /// Return pointer of template argument type.
-    template<typename T>
-    T& asA()
+    /// Return reference to Matrix33 value.
+    Matrix33& asMatrix33()
     {
-        return *reinterpret_cast<T*>(&_data);
+        return **reinterpret_cast<Matrix33**>(&_data);
+    }
+
+    /// Return Matrix44 value.
+    const Matrix44& asMatrix44() const
+    {
+        return **reinterpret_cast<Matrix44* const*>(&_data);
+    }
+    /// Return reference to Matrix44 value.
+    Matrix44& asMatrix44()
+    {
+        return **reinterpret_cast<Matrix44**>(&_data);
+    }
+
+    /// Return string value.
+    const string& asString() const
+    {
+        return **reinterpret_cast<string* const*>(&_data);
+    }
+    /// Return reference to string value.
+    string& asString()
+    {
+        return **reinterpret_cast<string**>(&_data);
     }
 
     /// Clear the value with zeores.
@@ -194,9 +250,9 @@ public:
 
 private:
     // 16 bytes of data storage to hold the main data types,
-    // up to four component vector/color. Larger data types 
-    // needs heap allocation.
-    // Storage is aligned to 64-bit to hold pointers for 
+    // up to four component vector/color. Larger data types
+    // needs to be allocated through the RtValueStore class.
+    // Storage is aligned to 64-bit to hold pointers for
     // heap allocated data types as well as other pointers.
     uint64_t _data[2];
 };

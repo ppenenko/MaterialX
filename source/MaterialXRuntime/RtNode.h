@@ -62,11 +62,17 @@ public:
     /// Return true if this port is connectable.
     bool isConnectable() const;
 
+    /// Return true if this is a graph interface port.
+    bool isInterface() const;
+
     /// Return the value for this port.
     const RtValue& getValue() const;
 
     /// Return the value for this port.
     RtValue& getValue();
+
+    /// Set a new value on the port.
+    void setValue(const RtValue& v);
 
     /// Return a string representation for the value of this port.
     string getValueString();
@@ -74,32 +80,11 @@ public:
     /// Get the color space for this value.
     const RtToken& getColorSpace() const;
 
-    /// Get the color space for this value.
-    const RtToken& getUnit() const;
-
-    /// Set a new value on the port.
-    void setValue(const RtValue& v);
-
-    /// Set a new bool value on the port.
-    void setValue(bool v);
-
-    /// Set a new integer value on the port.
-    void setValue(int v);
-
-    /// Set a new float value on the port.
-    void setValue(float v);
-
-    /// Set a new color3 value on the port.
-    void setValue(const Color3& v);
-
-    /// Set a new vector3 value on the port.
-    void setValue(const Vector4& v);
-
-    /// Set a new pointer value on the port.
-    void setValue(void* v);
-
     /// Set the color space for this value.
     void setColorSpace(const RtToken& colorspace);
+
+    /// Get the color space for this value.
+    const RtToken& getUnit() const;
 
     /// Set the unit for this value.
     void setUnit(const RtToken& unit);

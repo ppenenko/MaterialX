@@ -49,16 +49,16 @@ struct RtTokenRegistry
         const size_t hash = farmhash::Hash(s.c_str(), s.size());
         return getEntry(s, hash);
     }
-    
-    // TODO: Improve to use multiple tables and mutexes
-    std::unordered_map<size_t, const Entry*> _table;
-    std::mutex _mutex;
 
     static RtTokenRegistry& get()
     {
         static RtTokenRegistry _registry;
         return _registry;
     }
+
+    // TODO: Improve to use multiple tables and mutexes
+    std::unordered_map<size_t, const Entry*> _table;
+    std::mutex _mutex;
 };
 
 RtToken::RtToken(const char* s) :

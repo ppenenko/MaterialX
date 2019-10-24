@@ -19,6 +19,7 @@ const RtToken RtType::COLOR3("color3");
 const RtToken RtType::COLOR4("color4");
 const RtToken RtType::MATRIX33("matrix33");
 const RtToken RtType::MATRIX44("matrix44");
+const RtToken RtType::TOKEN("token");
 const RtToken RtType::STRING("string");
 const RtToken RtType::FILENAME("filename");
 const RtToken RtType::INTEGERARRAY("integerarray");
@@ -40,7 +41,7 @@ namespace
 
     struct TypeDesc
     {
-        TypeDesc(string name, unsigned char basetype, unsigned char sematic, 
+        TypeDesc(string name, unsigned char basetype, unsigned char sematic,
                  size_t size, const ChannelMap& channelMapping = ChannelMap()) :
             _name(name),
             _basetype(basetype),
@@ -74,6 +75,7 @@ namespace
             newType("color4", RtTypeDesc::BASETYPE_FLOAT, RtTypeDesc::SEMANTIC_COLOR, 4, { {'r', 0}, {'g', 1}, {'b', 2}, {'a', 3} });
             newType("matrix33", RtTypeDesc::BASETYPE_FLOAT, RtTypeDesc::SEMANTIC_MATRIX, 9);
             newType("matrix44", RtTypeDesc::BASETYPE_FLOAT, RtTypeDesc::SEMANTIC_MATRIX, 16);
+            newType("token", RtTypeDesc::BASETYPE_STRING);
             newType("string", RtTypeDesc::BASETYPE_STRING);
             newType("filename", RtTypeDesc::BASETYPE_STRING, RtTypeDesc::SEMANTIC_FILENAME);
             newType("integerarray", RtTypeDesc::BASETYPE_INTEGER, RtTypeDesc::SEMANTIC_NONE, 0);
@@ -108,12 +110,16 @@ namespace
             return it != _map.end() ? it->second.get() : nullptr;
         }
 
+        static TypeDescRegistry& get()
+        {
+            static TypeDescRegistry _registry;
+            return _registry;
+        }
+
     private:
         using RtTypeDescPtr = std::unique_ptr<RtTypeDesc>;
         RtTokenMap<RtTypeDescPtr> _map;
     };
-
-    static TypeDescRegistry g_registry;
 }
 
 RtTypeDesc::RtTypeDesc(const string& name, unsigned char basetype, unsigned char semantic, size_t size):
@@ -161,16 +167,16 @@ void RtTypeDesc::setChannelIndex(char channel, int index)
 RtTypeDesc* RtTypeDesc::registerType(const RtToken& name, unsigned char basetype,
                                      unsigned char semantic, size_t size)
 {
-    if (g_registry.findType(name))
+    if (TypeDescRegistry::get().findType(name))
     {
         throw ExceptionRuntimeError("A type named '" + name.str() + "' is already registered");
     }
-    return g_registry.newType(name, basetype, semantic, size);
+    return TypeDescRegistry::get().newType(name, basetype, semantic, size);
 }
 
 const RtTypeDesc* RtTypeDesc::findType(const RtToken& name)
 {
-    return g_registry.findType(name);
+    return TypeDescRegistry::get().findType(name);
 }
 
 }
