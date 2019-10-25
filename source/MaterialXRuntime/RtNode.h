@@ -9,13 +9,14 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtElement.h>
 
 namespace MaterialX
 {
 
 /// @class RtPort
-/// TODO: Docs
+/// Class representing a port on a node instance.
 class RtPort
 {
 public:
@@ -144,14 +145,15 @@ private:
 };
 
 /// @class RtNode
-/// TODO: Docs
+/// API for accessing a node instance. This API can only be
+/// attached to objects of type NODE.
 class RtNode : public RtElement
 {
 public:
     /// Constructor attaching and object to the API.
     RtNode(const RtObject& obj);
 
-    /// Create a new node instance of the given nodedef
+    /// Create a new node instance of the given nodedef type
     /// and add it to the parent object if specified.
     /// The parent must be a stage or a nodegraph object.
     static RtObject createNew(const RtToken& name, RtObject nodedef, RtObject parent = RtObject());

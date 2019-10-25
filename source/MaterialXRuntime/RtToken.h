@@ -11,18 +11,21 @@
 
 #include <MaterialXRuntime/Library.h>
 
-#include <unordered_set>
-
 namespace MaterialX
 {
 
 class RtToken;
 
-/// Token representing empty string.
+/// Token representing an empty string.
 extern const RtToken EMPTY_TOKEN;
 
 /// @class RtToken
-/// TODO: Docs
+/// Interned string class. Holds a unique reference to a string.
+/// To be used for strings that changes rarely and where fast
+/// compare operations are more important.
+/// All string instances are kept in an internal registry and
+/// a hash of the string content is used in comparisons making
+/// such operations very efficient.
 class RtToken
 {
 public:

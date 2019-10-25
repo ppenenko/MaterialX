@@ -9,22 +9,23 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtElement.h>
 
 namespace MaterialX
 {
 
 /// @class RtNodeGraph
-/// TODO: Docs
+/// API for creating and editing nodegraphs. This API can only be
+/// attached to objects of type NODEGRAPH.
 class RtNodeGraph : public RtElement
 {
 public:
     /// Constructor attaching and object to the API.
     RtNodeGraph(const RtObject& obj);
 
-    /// Create a new nodegraph and add it to a parent if specified.
-    /// The parent must be a stage object.
-    static RtObject createNew(const RtToken& name, RtObject parent = RtObject());
+    /// Create a new nodegraph and add it to a stage if specified.
+    static RtObject createNew(const RtToken& name, RtObject stage = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
@@ -44,7 +45,7 @@ public:
     RtObject findNode(const RtToken& name) const;
 
     /// Set the interface for the graph, creating inputs and outputs 
-    /// according to the given nodedef.
+    /// according to the given nodedef object.
     void setInterface(RtObject nodedef);
 
     /// Return the internal node holding the input interface.

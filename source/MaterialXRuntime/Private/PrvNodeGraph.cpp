@@ -5,6 +5,8 @@
 
 #include <MaterialXRuntime/Private/PrvNodeGraph.h>
 
+#include <MaterialXRuntime/RtTypes.h>
+
 /// @file
 /// TODO: Docs
 
@@ -13,8 +15,10 @@ namespace MaterialX
 
 const RtToken PrvNodeGraph::INPUTS("inputs");
 const RtToken PrvNodeGraph::OUTPUTS("outputs");
-const RtToken PrvNodeGraph::NODEGRAPH_INPUTS("nodegraphoutputs");
-const RtToken PrvNodeGraph::NODEGRAPH_OUTPUTS("nodegraphinputs");
+const RtToken PrvNodeGraph::GRAPH_INPUTS("graphoutputs");
+const RtToken PrvNodeGraph::GRAPH_OUTPUTS("graphinputs");
+const RtToken PrvNodeGraph::GRAPH_INTERFACE_CATEGORY("__graphinterface"); // internal name so use prefix to reduce risk of name collisions
+const RtToken PrvNodeGraph::ATTR_NODEDEF("nodedef");
 
 PrvNodeGraph::PrvNodeGraph(const RtToken& name) :
     PrvCompound(RtObjType::NODEGRAPH, name)
@@ -50,9 +54,14 @@ void PrvNodeGraph::setInterface(PrvObjectHandle nodedef)
 
     PrvNodeDef* nd = nodedef->asA<PrvNodeDef>();
 
+    if (nd->getCategory() != GRAPH_INTERFACE_CATEGORY)
+    {
+        addAttribute(ATTR_NODEDEF, RtType::TOKEN, RtValue(nd->getName()));
+    }
+
     // Create nodedefs for the input and output interface nodes.
-    _inputsDef = PrvNodeDef::createNew(INPUTS, NODEGRAPH_INPUTS);
-    _outputsDef = PrvNodeDef::createNew(OUTPUTS, NODEGRAPH_OUTPUTS);
+    _inputsDef = PrvNodeDef::createNew(INPUTS, GRAPH_INPUTS);
+    _outputsDef = PrvNodeDef::createNew(OUTPUTS, GRAPH_OUTPUTS);
 
     for (size_t i = 0; i < nd->numElements(); ++i)
     {

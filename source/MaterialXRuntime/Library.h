@@ -9,7 +9,11 @@
 /// @file
 /// Library-wide includes and types.  This file should be the first include for
 /// any public header in the MaterialXRuntime library.
+
 #include <MaterialXCore/Library.h>
+
+#include <unordered_set>
+#include <limits>
 
 namespace MaterialX
 {

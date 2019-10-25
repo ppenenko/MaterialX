@@ -247,8 +247,12 @@ namespace
         }
         else
         {
+            // No nodedef was set on the graph, so create an interface
+            // with the graph outputs, and assign the interface below.
+            // Set the category to the custom graph interface category
+            // to indicate this is not a "real" nodedef from a library.
             const RtToken nodedefName("ND_" + src->getName());
-            graphInterfaceH = PrvNodeDef::createNew(nodedefName, EMPTY_TOKEN);
+            graphInterfaceH = PrvNodeDef::createNew(nodedefName, PrvNodeGraph::GRAPH_INTERFACE_CATEGORY);
             graphInterface = graphInterfaceH->asA<PrvNodeDef>();
 
             for (auto elem : src->getOutputs())
@@ -267,7 +271,7 @@ namespace
 
         readAttributes(src, nodegraph, nodegraphIgnoreAttr);
 
-        // Create the graph interface.
+        // Assign the graph interface.
         nodegraph->setInterface(graphInterfaceH);
         PrvNode* graphInputs = nodegraph->inputsNode();
         PrvNode* graphOutputs = nodegraph->outputsNode();
@@ -375,8 +379,7 @@ namespace
         const size_t numPorts = nodedef->numPorts();
         const size_t numOutputs = nodedef->numOutputs();
 
-        string type = numOutputs == 1 ? nodedef->port(0)->getType().str() : "multioutput";
-        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), type, nodedef->getCategory());
+        NodeDefPtr destNodeDef = dest->addNodeDef(nodedef->getName(), EMPTY_STRING, nodedef->getCategory());
         writeAttributes(nodedef, destNodeDef);
 
         for (size_t i = numOutputs; i < numPorts; ++i)

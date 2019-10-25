@@ -9,6 +9,7 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
 
 #include <MaterialXCore/Value.h>
@@ -18,7 +19,7 @@ namespace MaterialX
 
 /// @class RtValueStore
 /// Class for allocating and keeping ownership of values
-/// that are to large in size to fit into a RtValue.
+/// that are too large in size to fit into a RtValue.
 template<typename T>
 class RtValueStore
 {
@@ -48,9 +49,10 @@ private:
 
 /// @class RtValue
 /// Generic value class for storing values of all the data types
-/// supported by the system. Values that fit into 16 bytes of data
-/// are stored directly. Values larger than 16 bytes are allocated
-/// and lifetime managed by a RtValueStore class.
+/// supported by the API. Values that fit into 16 bytes of data
+/// are stored directly. Values larger than 16 bytes are stored
+/// as pointers. The large values are allocated and managed by an
+/// instance of the RtValueStore class.
 class RtValue
 {
 public:
@@ -260,7 +262,7 @@ private:
 
 
 /// @struct RtLargeValueStorage
-/// Struct with storage classes for the data types that need this.
+/// Struct with storage for data types that are larger than 16 bytes.
 struct RtLargeValueStorage
 {
     RtValueStore<string> str;

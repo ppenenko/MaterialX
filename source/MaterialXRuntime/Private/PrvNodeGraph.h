@@ -54,8 +54,10 @@ public:
     // Token constants.
     static const RtToken INPUTS;
     static const RtToken OUTPUTS;
-    static const RtToken NODEGRAPH_INPUTS;
-    static const RtToken NODEGRAPH_OUTPUTS;
+    static const RtToken GRAPH_INPUTS;
+    static const RtToken GRAPH_OUTPUTS;
+    static const RtToken GRAPH_INTERFACE_CATEGORY;
+    static const RtToken ATTR_NODEDEF;
 
 protected:
     PrvObjectHandle _inputsNode;

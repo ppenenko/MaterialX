@@ -9,6 +9,7 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtElement.h>
 #include <MaterialXRuntime/RtNodeDef.h>
 #include <MaterialXRuntime/RtTraversal.h>
@@ -17,7 +18,8 @@ namespace MaterialX
 {
 
 /// @class RtStage
-/// TODO: Docs
+/// API for accessing a stage. This API can only be
+/// attached to objects of type STAGE.
 class RtStage : public RtElement
 {
 public:
@@ -31,7 +33,7 @@ public:
     static RtObject createNew(const RtToken& name);
 
     /// Add a reference to another stage.
-    void addReference(RtObject refStage);
+    void addReference(RtObject stage);
 
     /// Remove a reference to another stage.
     void removeReference(const RtToken& name);
@@ -60,10 +62,9 @@ public:
     ///
     RtObject findElementByPath(const string& path) const;
 
-    /// Return an iterator traversing the stage,
-    /// including any referenced stages.
-    /// If a filter is set will will be called to control 
-    /// which objects to return.
+    /// Return an iterator traversing the stage, including any referenced
+    /// stages. If a filter is set it will be called to control which
+    /// objects to return.
     RtStageIterator traverseStage(RtTraversalFilter filter = nullptr);
 };
 

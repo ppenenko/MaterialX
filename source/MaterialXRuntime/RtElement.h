@@ -9,6 +9,7 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 #include <MaterialXRuntime/RtValue.h>
 #include <MaterialXRuntime/RtTraversal.h>
@@ -17,7 +18,11 @@ namespace MaterialX
 {
 
 /// @class RtAttribute
-/// TODO: Docs
+/// Class representing an attribute on an element. An attribute
+/// holds a name, a type and a value and is used to store data,
+/// or metadata, on an element. Any data that is not explicitly 
+/// expressed by elements and sub-elements needs to be stored as
+/// attributes.
 class RtAttribute
 {
 public:
@@ -67,7 +72,8 @@ private:
 
 
 /// @class RtElement
-/// TODO: Docs
+/// API for accessing an element. This API can be
+/// attached to objects of all element types.
 class RtElement : public RtApiBase
 {
 public:

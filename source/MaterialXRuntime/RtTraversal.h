@@ -9,6 +9,7 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtObject.h>
 
 namespace MaterialX
@@ -39,16 +40,18 @@ struct RtApiFilter
 
 
 /// @class RtStageIterator
-/// TODO: Docs
+/// API for iterating over elements in a stage. Only root level
+/// elements are returned. Using a filter this iterator can be
+/// used to find all elements of a specific object type, or all
+/// objects supporting a specific API, etc.
 class RtStageIterator : public RtApiBase
 {
 public:
-    /// EMpty constructor.
+    /// Empty constructor.
     RtStageIterator();
 
-    /// Constructor, setting the stage to iterate on
-    /// and optionally a filter restricting the set of 
-    /// returned objects.
+    /// Constructor, setting the stage to iterate on and optionally
+    /// a filter restricting the set of returned objects.
     RtStageIterator(RtObject stage, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
@@ -85,20 +88,25 @@ private:
 
 
 /// @class RtTreeIterator
-/// TODO: Docs
+/// API for traversing over the complete tree of elements in a stage.
+/// Both root level elements and reqursively their child element are
+/// returned. Using a filter this iterator can be used to find all
+/// elements of a specific object type, or all objects supporting a
+/// specific API, etc.
 class RtTreeIterator : public RtApiBase
 {
 public:
-    /// Constructor
+    /// Constructor.
     RtTreeIterator();
 
-    /// Constructor
+    /// Constructor, setting the root element to start traversal on,
+    /// and optionally a filter restricting the set of returned objects.
     RtTreeIterator(RtObject root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
     RtTreeIterator(const RtTreeIterator& other);
 
-    /// Destructor
+    /// Destructor.
     ~RtTreeIterator();
 
     /// Return the type for this API.
@@ -133,17 +141,23 @@ class RtPort;
 using RtEdge = std::pair<RtPort, RtPort>;
 
 /// @class RtGraphIterator
-/// TODO: Docs
+/// API for traversing port connections. Traversal starts at a given 
+/// port and moves upstream, visiting all edges the DAG formed by a
+/// node network. Using a filter the graph can be pruned, terminating
+/// the traversal upstream from specific nodes visited.
+///
+/// TODO: Implement support for the filter to prune edges in the graph.
+///
 class RtGraphIterator : public RtApiBase
 {
 public:
-    /// Constructor
+    /// Constructor.
     RtGraphIterator(RtPort root, RtTraversalFilter filter = nullptr);
 
     /// Copy constructor.
     RtGraphIterator(const RtGraphIterator& other);
 
-    /// Destructor
+    /// Destructor.
     ~RtGraphIterator();
 
     /// Return the type for this API.
@@ -155,14 +169,14 @@ public:
     /// Inequality operator.
     bool operator!=(const RtGraphIterator& other) const;
 
-    /// Iterate to the next element in the traversal.
+    /// Iterate to the next edge in the traversal.
     RtGraphIterator& operator++();
 
-    /// Dereference this iterator, returning the current element in the
+    /// Dereference this iterator, returning the current edge in the
     /// traversal.
     RtEdge operator*() const;
 
-    /// Return true if there are no more elements in the interation.
+    /// Return true if there are no more edges in the interation.
     bool isDone() const;
 
     /// Force the iterator to terminate the traversal.

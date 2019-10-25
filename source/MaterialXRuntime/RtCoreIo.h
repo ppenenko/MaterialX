@@ -6,9 +6,10 @@
 #ifndef MATERIALX_RTCOREIO_H
 #define MATERIALX_RTCOREIO_H
 
-#include <MaterialXCore/Document.h>
-
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtStage.h>
+
+#include <MaterialXCore/Document.h>
 
 /// @file
 /// TODO: Docs
@@ -16,16 +17,19 @@
 namespace MaterialX
 {
 
+/// API for read and write of data from MaterialXCore documents
+/// to MaterialXRuntime stages.
 class RtCoreIo : public RtApiBase
 {
 public:
-    /// Filter function type used for filtering elements during file read.
+    /// Filter function type used for filtering elements during read.
     using RtReadFilter = std::function<bool(const ElementPtr& elem)>;
 
-    /// Filter function type used for filtering elements during file write.
+    /// Filter function type used for filtering elements during write.
     using RtWriteFilter = std::function<bool(const RtObject& obj)>;
 
 public:
+    /// Constructor attaching this API to a stage.
     RtCoreIo(RtObject stage);
 
     /// Return the type for this API.

@@ -7,14 +7,15 @@
 #define MATERIALX_RTTYPES_H
 
 /// @file
-/// Type descriptors for a runtime data types.
+/// Type identifiers and type descriptors for runtime data types.
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtToken.h>
 
 namespace MaterialX
 {
 
-/// Class holding tokens for the built in data types
+/// Class holding identifier tokens for the built in data types.
 class RtType
 {
 public:
@@ -45,8 +46,6 @@ public:
     static const RtToken VOLUMEMATERIAL;
     static const RtToken AUTO;
 };
-
-using ChannelMap = std::unordered_map<char, int>;
 
 /// @class RtTypeDesc
 /// A type descriptor for MaterialX data types.

@@ -9,22 +9,23 @@
 /// @file
 /// TODO: Docs
 
+#include <MaterialXRuntime/Library.h>
 #include <MaterialXRuntime/RtElement.h>
 
 namespace MaterialX
 {
 
-/// @class RtNodeDef API
-/// TODO: Docs
+/// @class RtNodeDef
+/// API for accessing a node definition. This API can only be
+/// attached to objects of type NODEDEF.
 class RtNodeDef : public RtElement
 {
 public:
     /// Constructor attaching and object to the API.
     RtNodeDef(const RtObject& obj);
 
-    /// Create a new nodegraph and add it to a parent if specified.
-    /// The parent must be a stage object.
-    static RtObject createNew(const RtToken& name, const RtToken& category, RtObject parent = RtObject());
+    /// Create a new nodedef and add it to a stage if specified.
+    static RtObject createNew(const RtToken& name, const RtToken& category, RtObject stage = RtObject());
 
     /// Return the type for this API.
     RtApiType getApiType() const override;
