@@ -221,17 +221,16 @@ private:
         string _str;
         size_t _hash;
     };
-    struct Entry;
     const Entry* _entry;
     friend struct RtTokenRegistry;
 };
 
 /// Class representing an unordered map with token keys and templated value type.
 template<typename T>
-class RtTokenMap : public std::unordered_map<RtToken, T, RtToken::FastHash>{};
+using RtTokenMap = std::unordered_map<RtToken, T, RtToken::FastHash>;
 
 /// Class representing an unordered set of tokens.
-class RtTokenSet : public std::unordered_set<RtToken, RtToken::FastLess>{};
+using RtTokenSet = std::unordered_set<RtToken, RtToken::FastHash>;
 
 }
 
