@@ -217,6 +217,13 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     mx::RtPort add2_in2 = add2.findPort("in2");
     mx::RtPort add2_out = add2.findPort("out");
 
+    // Test port connectability
+    REQUIRE(add1_out.canConnectTo(add2_in1));
+    REQUIRE(add2_in1.canConnectTo(add1_out));
+    REQUIRE(!add1_out.canConnectTo(add1_in1));
+    REQUIRE(!add1_out.canConnectTo(add2_out));
+    REQUIRE(!add2_in1.canConnectTo(add1_in1));
+
     // Make port connections
     mx::RtNode::connect(add1_out, add2_in1);
     REQUIRE(add1_out.isConnected());
