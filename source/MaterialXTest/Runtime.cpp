@@ -148,6 +148,11 @@ TEST_CASE("Runtime: Types", "[runtime]")
 
     // Make sure we can't request an unknown type
     REQUIRE(mx::RtTypeDef::findType("bar") == nullptr);
+
+    // Make sure a type is connectable to its own type
+    // TODO: Extend to test more types when type auto cast is implemented.
+    REQUIRE(floatType->getValidConnectionTypes().count(floatType->getName()));
+    REQUIRE(!floatType->getValidConnectionTypes().count(color4Type->getName()));
 }
 
 TEST_CASE("Runtime: Nodes", "[runtime]")

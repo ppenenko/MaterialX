@@ -139,6 +139,10 @@ public:
         return getSize() == 4 && (getSemantic() == SEMANTIC_COLOR || getSemantic() == SEMANTIC_VECTOR);
     }
 
+    /// Return a set of all types that this type can be connected to.
+    /// The type itself is also included in this set.
+    const RtTokenSet& getValidConnectionTypes() const;
+
     /// Register a type descriptor for a MaterialX data type.
     /// Throws an exception if a type with the same name is already registered.
     static RtTypeDef* registerType(const RtToken& name, const RtToken& basetype,

@@ -39,9 +39,9 @@ namespace
 {
     using ChannelMap = std::unordered_map<char, int>;
 
-    struct TypeDesc
+    struct TypeDef
     {
-        TypeDesc(const RtToken& name, const RtToken& basetype, const RtToken& sematic,
+        TypeDef(const RtToken& name, const RtToken& basetype, const RtToken& sematic,
                  size_t size, const ChannelMap& channelMapping = ChannelMap()) :
             _name(name),
             _basetype(basetype),
@@ -49,6 +49,13 @@ namespace
             _size(size),
             _channelMapping(channelMapping)
         {
+            // TODO: Handle other types in connections
+            _connectionTypes.insert(name);
+        }
+
+        const RtTokenSet& getValidConnectionTypes() const
+        {
+            return _connectionTypes;
         }
 
         const RtToken _name;
@@ -56,12 +63,13 @@ namespace
         const RtToken _semantic;
         const size_t _size;
         std::unordered_map<char, int> _channelMapping;
+        RtTokenSet _connectionTypes;
     };
 
-    class TypeDescRegistry
+    class TypeDefRegistry
     {
     public:
-        TypeDescRegistry()
+        TypeDefRegistry()
         {
             // Register all default types.
             newType("boolean", RtTypeDef::BASETYPE_BOOLEAN);
@@ -110,15 +118,15 @@ namespace
             return it != _map.end() ? it->second.get() : nullptr;
         }
 
-        static TypeDescRegistry& get()
+        static TypeDefRegistry& get()
         {
-            static TypeDescRegistry _registry;
+            static TypeDefRegistry _registry;
             return _registry;
         }
 
     private:
-        using RtTypeDescPtr = std::unique_ptr<RtTypeDef>;
-        RtTokenMap<RtTypeDescPtr> _map;
+        using RtTypeDefPtr = std::unique_ptr<RtTypeDef>;
+        RtTokenMap<RtTypeDefPtr> _map;
     };
 }
 
@@ -138,60 +146,65 @@ const RtToken RtTypeDef::SEMANTIC_CLOSURE = "closure";
 const RtToken RtTypeDef::SEMANTIC_SHADER = "shader";
 
 RtTypeDef::RtTypeDef(const RtToken& name, const RtToken& basetype, const RtToken& semantic, size_t size) :
-    _ptr(new TypeDesc(name, basetype, semantic, size))
+    _ptr(new TypeDef(name, basetype, semantic, size))
 {
 }
 
 RtTypeDef::~RtTypeDef()
 {
-    delete static_cast<TypeDesc*>(_ptr);
+    delete static_cast<TypeDef*>(_ptr);
 }
 
 const RtToken& RtTypeDef::getName() const
 {
-    return static_cast<TypeDesc*>(_ptr)->_name;
+    return static_cast<TypeDef*>(_ptr)->_name;
 }
 
 const RtToken& RtTypeDef::getBaseType() const
 {
-    return static_cast<TypeDesc*>(_ptr)->_basetype;
+    return static_cast<TypeDef*>(_ptr)->_basetype;
 }
 
 const RtToken& RtTypeDef::getSemantic() const
 {
-    return static_cast<TypeDesc*>(_ptr)->_semantic;
+    return static_cast<TypeDef*>(_ptr)->_semantic;
 }
 
 size_t RtTypeDef::getSize() const
 {
-    return static_cast<TypeDesc*>(_ptr)->_size;
+    return static_cast<TypeDef*>(_ptr)->_size;
 }
 
 int RtTypeDef::getChannelIndex(char channel) const
 {
-    TypeDesc* ptr = static_cast<TypeDesc*>(_ptr);
+    TypeDef* ptr = static_cast<TypeDef*>(_ptr);
     auto it = ptr->_channelMapping.find(channel);
     return it != ptr->_channelMapping.end() ? it->second : -1;
 }
 
 void RtTypeDef::setChannelIndex(char channel, int index)
 {
-    static_cast<TypeDesc*>(_ptr)->_channelMapping[channel] = index;
+    static_cast<TypeDef*>(_ptr)->_channelMapping[channel] = index;
+}
+
+const RtTokenSet& RtTypeDef::getValidConnectionTypes() const
+{
+    return static_cast<TypeDef*>(_ptr)->getValidConnectionTypes();
 }
 
 RtTypeDef* RtTypeDef::registerType(const RtToken& name, const RtToken& basetype,
                                      const RtToken& semantic, size_t size)
 {
-    if (TypeDescRegistry::get().findType(name))
+    if (TypeDefRegistry::get().findType(name))
     {
         throw ExceptionRuntimeError("A type named '" + name.str() + "' is already registered");
     }
-    return TypeDescRegistry::get().newType(name, basetype, semantic, size);
+    return TypeDefRegistry::get().newType(name, basetype, semantic, size);
 }
 
 const RtTypeDef* RtTypeDef::findType(const RtToken& name)
 {
-    return TypeDescRegistry::get().findType(name);
+    return TypeDefRegistry::get().findType(name);
 }
 
 }
