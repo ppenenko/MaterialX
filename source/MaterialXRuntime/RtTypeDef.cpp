@@ -101,9 +101,11 @@ namespace
         RtTypeDef* newType(const RtToken& name, const RtToken& basetype, const RtToken& sematic = RtTypeDef::SEMANTIC_NONE,
                             size_t size = 1, const ChannelMap& channelMapping = ChannelMap())
         {
-            _map[name] = std::unique_ptr<RtTypeDef>(new RtTypeDef(name, basetype, sematic, size));
+            _types.push_back(std::unique_ptr<RtTypeDef>(new RtTypeDef(name, basetype, sematic, size)));
 
-            RtTypeDef* ptr = _map[name].get();
+            RtTypeDef* ptr = _types.back().get();
+            _typesByName[name] = ptr;
+
             for (auto it : channelMapping)
             {
                 ptr->setChannelIndex(it.first, it.second);
@@ -112,10 +114,20 @@ namespace
             return ptr;
         }
 
+        size_t numTypes()
+        {
+            return _types.size();
+        }
+
+        const RtTypeDef* getType(size_t index)
+        {
+            return index < _types.size() ? _types[index].get() : nullptr;
+        }
+
         const RtTypeDef* findType(const RtToken& name)
         {
-            auto it = _map.find(name);
-            return it != _map.end() ? it->second.get() : nullptr;
+            auto it = _typesByName.find(name);
+            return it != _typesByName.end() ? it->second : nullptr;
         }
 
         static TypeDefRegistry& get()
@@ -126,7 +138,8 @@ namespace
 
     private:
         using RtTypeDefPtr = std::unique_ptr<RtTypeDef>;
-        RtTokenMap<RtTypeDefPtr> _map;
+        vector<RtTypeDefPtr> _types;
+        RtTokenMap<RtTypeDef*> _typesByName;
     };
 }
 
@@ -200,6 +213,16 @@ RtTypeDef* RtTypeDef::registerType(const RtToken& name, const RtToken& basetype,
         throw ExceptionRuntimeError("A type named '" + name.str() + "' is already registered");
     }
     return TypeDefRegistry::get().newType(name, basetype, semantic, size);
+}
+
+size_t RtTypeDef::numTypes()
+{
+    return TypeDefRegistry::get().numTypes();
+}
+
+const RtTypeDef* RtTypeDef::getType(size_t index)
+{
+    return TypeDefRegistry::get().getType(index);
 }
 
 const RtTypeDef* RtTypeDef::findType(const RtToken& name)

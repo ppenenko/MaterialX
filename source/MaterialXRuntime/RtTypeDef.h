@@ -148,7 +148,14 @@ public:
     static RtTypeDef* registerType(const RtToken& name, const RtToken& basetype,
                                     const RtToken& semantic = SEMANTIC_NONE, size_t size = 1);
 
-    /// Get a type descriptor for given type name.
+    /// Return the number of registered types.
+    static size_t numTypes();
+
+    /// Get the typedef for the i:th registered data type.
+    /// Returns nullptr if no such type is registered.
+    static const RtTypeDef* getType(size_t index);
+
+    /// Get the typedef for the given type name.
     /// Returns nullptr if no such type is registered.
     static const RtTypeDef* findType(const RtToken& name);
 
