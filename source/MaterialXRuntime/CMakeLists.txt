@@ -48,7 +48,6 @@ target_include_directories(MaterialXRuntime
 install(TARGETS MaterialXRuntime
     EXPORT MaterialX
     ARCHIVE DESTINATION lib)
-)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/MaterialXRuntime/ MESSAGE_NEVER
