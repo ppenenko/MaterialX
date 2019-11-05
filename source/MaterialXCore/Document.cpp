@@ -616,6 +616,56 @@ void Document::upgradeVersion()
         }
     }
 
+    // Upgrade path for shaderref
+    for (MaterialPtr material : getMaterials())
+    {
+        // Create a new material node
+        NodePtr materialNode = addNode("material", material->getName(), "materialnode");        
+
+        for (ShaderRefPtr shaderRef : material->getShaderRefs())
+        {
+            NodeDefPtr nodeDef = getNodeDef(shaderRef->getName());
+            if (nodeDef)
+            {
+                NodePtr shaderNode = addNode(nodeDef->getCategory(), shaderRef->getName(), nodeDef->getType());
+                for (auto valueElement : shaderRef->getChildrenOfType<ValueElement>())
+                {
+                    ElementPtr portChild = nullptr;
+                    
+                    // Copy over bindinputs as inputs, and bindparams as params
+                    if (valueElement->isA<BindInput>())
+                    {
+                        portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
+                    }
+                    else if (valueElement->isA<BindParam>())
+                    {
+                        portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
+                    }
+                    if (portChild)
+                    {
+                        // Copy attributes over
+                        portChild->copyContentFrom(valueElement);
+                    }
+
+                    // Q: What to do about bindtokens
+                }
+
+                // Add an input to reference the new shader node
+                InputPtr shaderInput = materialNode->addInput(nodeDef->getCategory(), shaderNode->getType());
+                shaderInput->setNodeName(shaderNode->getName());
+            }
+        }
+
+    }
+    for (MaterialPtr material : getMaterials())
+    {
+        for (auto shaderRef : material->getShaderRefs())
+        {
+            material->removeShaderRef(shaderRef->getName());
+        }
+        removeChild(material->getName());
+    }
+
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
         minorVersion == MATERIALX_MINOR_VERSION)
     {

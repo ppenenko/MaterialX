@@ -30,6 +30,7 @@
   <typedef name="displacementshader" semantic="shader" context="displacement"/>
   <typedef name="volumeshader" semantic="shader" context="volume"/>
   <typedef name="lightshader" semantic="shader" context="light"/>
+  <typedef name="material" semantic="material" />
   <typedef name="none"/>
 
   <typedef name="integerarray"/>
@@ -80,6 +81,18 @@
   <geompropdef name="Bworld" type="vector3" geomprop="bitangent" space="world" index="0"/>
   <geompropdef name="UV0" type="vector2" geomprop="texcoord" index="0"/>
   <geompropdef name="Vworld" type="vector3" geomprop="viewdirection" space="world"/>
+
+  <!-- ======================================================================== -->
+  <!-- Material nodes                                                            -->
+  <!-- ======================================================================== -->
+
+  <nodedef name="ND_material" node="materialnode"
+        doc="A constructor node for the material type.">
+    <input name="surface" type="surfaceshader" value="" />
+    <input name="displacement" type="displacementshader" value="" />
+    <input name="volume" type="volumeshader" value="" />
+    <output name="out" type="material" />
+  </nodedef>
 
   <!-- ======================================================================== -->
   <!-- Texture nodes                                                            -->

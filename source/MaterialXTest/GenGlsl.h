@@ -16,8 +16,8 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
   public:
     using ParentClass = GenShaderUtil::ShaderGeneratorTester;
 
-    GlslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths, 
-                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath, 
+    GlslShaderGeneratorTester(mx::ShaderGeneratorPtr shaderGenerator, const mx::FilePathVec& testRootPaths,
+                              const mx::FilePath& libSearchPath, const mx::FileSearchPath& srcSearchPath,
                               const mx::FilePath& logFilePath) :
         GenShaderUtil::ShaderGeneratorTester(shaderGenerator, testRootPaths, libSearchPath, srcSearchPath, logFilePath)
     {}
@@ -44,7 +44,7 @@ class GlslShaderGeneratorTester : public GenShaderUtil::ShaderGeneratorTester
         {
             "ambientocclusion", "arrayappend", "backfacing", "screen", "curveadjust", "displacementshader",
             "volumeshader", "IM_constant_", "IM_dot_", "IM_geomattrvalue", "IM_light_genglsl",
-            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle"
+            "IM_point_light_genglsl", "IM_spot_light_genglsl", "IM_directional_light_genglsl", "IM_angle", "material", "ND_material"
         };
     }
 };
