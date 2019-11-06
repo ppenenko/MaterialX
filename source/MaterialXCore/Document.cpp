@@ -647,6 +647,12 @@ bool Document::updateMaterialNodes()
         bool dumpND = false;
         for (auto m : materials)
         {
+            // Need to skip those materials that we're defined in an include. TODO
+            //if (m->getSourceUri() != m->getActiveSourceUri())
+            //{
+            //    continue;
+            //}
+
             // Rename material element to avoid name clash
             string materialName = "materialnode_" + m->getName();
             //m->setName(materialName + "____TEMP______");

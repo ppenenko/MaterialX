@@ -644,7 +644,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         if (modified)
         {
             _logFile << "Wrote materialnode version to: " << doc->getSourceUri() + "modified.txt";
-            mx::writeToXmlFile(doc, doc->getSourceUri() + "modified.txt");
+            writeOptions.writeXIncludeEnable = false;
+            mx::writeToXmlFile(doc, doc->getSourceUri() + "modified.txt", &writeOptions);
         }
 
         // Find and register lights
