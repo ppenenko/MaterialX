@@ -6,8 +6,11 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXCore/Util.h>
+#include <MaterialXFormat/Xmlio.h>
 
 #include <mutex>
+#include <iostream>
+#include <fstream>
 
 namespace MaterialX
 {
@@ -617,17 +620,34 @@ void Document::upgradeVersion()
     }
 
     // Upgrade path for shaderref
-    for (MaterialPtr material : getMaterials())
+    vector<MaterialPtr> materials = getMaterials();
+    bool dump = !materials.empty();
+    for (auto m : materials)   
     {
-        // Create a new material node
-        NodePtr materialNode = addNode("material", material->getName(), "materialnode");        
+        // Rename material element to avoid name clash
+        const string materialName = m->getName();
+        m->setName(materialName + "____TEMP______");
 
-        for (ShaderRefPtr shaderRef : material->getShaderRefs())
+        // Create a new material node
+        NodePtr materialNode = addNode("materialnode", materialName, "materialnode");
+        std::cout << "Add materialnode: " << materialName << " for material element\n";
+
+        for (ShaderRefPtr shaderRef : m->getShaderRefs())
         {
-            NodeDefPtr nodeDef = getNodeDef(shaderRef->getName());
-            if (nodeDef)
+            const string shaderNodeCategory = shaderRef->getNodeString();
+            std::cout << "- Get nodedef for shaderref: " << shaderRef->getName() << "Node category: " << shaderNodeCategory << "\n";
+            NodeDefPtr nodeDef = shaderRef->getNodeDef();
+            if (!nodeDef)
             {
-                NodePtr shaderNode = addNode(nodeDef->getCategory(), shaderRef->getName(), nodeDef->getType());
+                std::cout << "-- FAILED !\n";
+            }
+            else
+            {
+                string shaderNodeName = materialName + shaderRef->getName();
+                string shaderNodeType = nodeDef->getType();
+                NodePtr shaderNode = addNode(shaderRef->getNodeString(), shaderNodeName, shaderNodeType);
+                std::cout << "- Add shader node: " << shaderNodeName << " type: " << shaderNodeType << std::endl;
+
                 for (auto valueElement : shaderRef->getChildrenOfType<ValueElement>())
                 {
                     ElementPtr portChild = nullptr;
@@ -635,10 +655,12 @@ void Document::upgradeVersion()
                     // Copy over bindinputs as inputs, and bindparams as params
                     if (valueElement->isA<BindInput>())
                     {
+                        std::cout << "Add input from bindinput: " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
                         portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
                     }
                     else if (valueElement->isA<BindParam>())
                     {
+                        std::cout << "Add param from bindparam : " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
                         portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
                     }
                     if (portChild)
@@ -651,19 +673,29 @@ void Document::upgradeVersion()
                 }
 
                 // Add an input to reference the new shader node
-                InputPtr shaderInput = materialNode->addInput(nodeDef->getCategory(), shaderNode->getType());
+                std::cout << "Add material shader input: " << shaderNodeType << std::endl;
+                InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
                 shaderInput->setNodeName(shaderNode->getName());
+                materialNode->addOutput("out", "material");
             }
         }
 
     }
-    for (MaterialPtr material : getMaterials())
+    for (MaterialPtr m : getMaterials())
     {
-        for (auto shaderRef : material->getShaderRefs())
-        {
-            material->removeShaderRef(shaderRef->getName());
-        }
-        removeChild(material->getName());
+        removeChild(m->getName());
+    }
+    //if (dump)
+    //{
+    //    writeToXmlFile(getDocument(), "d:/dump.mtlx");
+    //}
+    if (dump)
+    {
+        string dotString = asStringDot();
+        std::ofstream file;
+        file.open("d:/dump.mtlx");
+        file << dotString;
+        file.close();
     }
 
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
