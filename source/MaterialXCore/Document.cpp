@@ -6,11 +6,10 @@
 #include <MaterialXCore/Document.h>
 
 #include <MaterialXCore/Util.h>
-#include <MaterialXFormat/Xmlio.h>
 
 #include <mutex>
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 
 namespace MaterialX
 {
@@ -153,6 +152,10 @@ void Document::importLibrary(const ConstDocumentPtr& library, const CopyOptions*
     for (const ConstElementPtr& child : library->getChildren())
     {
         string childName = child->getQualifiedName(child->getName());
+        if (child->getCategory().empty())
+        {
+            std::cout << "Trying to import child without a category????" << child->getName() << std::endl;
+        }
 
         // Check for duplicate elements.
         ConstElementPtr previous = getChild(childName);
@@ -619,13 +622,21 @@ void Document::upgradeVersion()
         }
     }
 
-    // Upgrade path for shaderref
-    for (auto td : getTypeDefs())
+#define _MATERIAL_NODE_SUPPORTED_
+#if defined(_MATERIAL_NODE_SUPPORTED_)
+    if (!getSourceUri().empty())
     {
-        std::cout << "Typedef: " << td->getName() << ". Semantic: " << td->getSemantic() << std::endl;
+        std::cout << "*********************************************************************\n";
+        std::cout << " Update file: " << getSourceUri() << std::endl;
+        std::cout << "*********************************************************************\n";
     }
+    // Upgrade path for shaderref
+    //for (auto td : getTypeDefs())
+    //{
+    //    std::cout << "Typedef: " << td->getName() << ". Semantic: " << td->getSemantic() << std::endl;
+    //}
     vector<MaterialPtr> materials = getMaterials();
-    bool dump = !materials.empty();
+    //bool dump = !materials.empty();
     for (auto m : materials)   
     {
         // Rename material element to avoid name clash
@@ -634,8 +645,7 @@ void Document::upgradeVersion()
         //m->setName(materialName + "____TEMP______");
 
         // Create a new material node
-        NodePtr materialNode = addNode("materialnode", materialName, MATERIAL_TYPE_STRING);
-        std::cout << "Add materialnode: " << materialName << " for material element\n";
+        NodePtr materialNode = nullptr;
 
         ShaderRefPtr sr;
         vector<ShaderRefPtr> srs = m->getShaderRefs();
@@ -682,6 +692,11 @@ void Document::upgradeVersion()
                 }
 
                 // Add an input to reference the new shader node
+                if (!materialNode)
+                {
+                    materialNode = addNode("materialnode", materialName, MATERIAL_TYPE_STRING);
+                    std::cout << "Add materialnode: " << materialName << " for material element\n";
+                }
                 std::cout << "Add material shader input: " << shaderNodeType << std::endl;
                 InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
                 shaderInput->setNodeName(shaderNode->getName());
@@ -699,15 +714,15 @@ void Document::upgradeVersion()
     //{
     //    writeToXmlFile(getDocument(), "d:/dump.mtlx");
     //}
-    if (dump)
-    {
-        string dotString = asStringDot();
-        std::ofstream file;
-        file.open("d:/dump.mtlx");
-        file << dotString;
-        file.close();
-    }
-
+    //if (dump)
+    //{
+    //    string dotString = asStringDot();
+    //    std::ofstream file;
+    //    file.open("d:/dump.mtlx");
+    //    file << dotString;
+    //    file.close();
+    //}
+#endif
     if (majorVersion == MATERIALX_MAJOR_VERSION &&
         minorVersion == MATERIALX_MINOR_VERSION)
     {

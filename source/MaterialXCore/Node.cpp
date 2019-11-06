@@ -16,6 +16,27 @@ namespace MaterialX
 //
 // Node methods
 //
+NodePtr GraphElement::addNode(const string& category,
+    const string& name ,
+    const string& type )
+{
+    if (name == "1")
+    {
+        throw Exception("No category specified: type: " + type + ". name: " + name + ". category: " + category);
+    }
+    if (category.empty())
+    {
+        throw Exception("No category specified: type: " + type + ". name: " + name + ". category: " + category);
+    }
+    if (type.empty())
+    {
+        throw Exception("No type specified: type: " + type + ". name: " + name + ". category: " + category);
+    }
+    NodePtr node = addChild<Node>(name);
+    node->setCategory(category);
+    node->setType(type);
+    return node;
+}
 
 InputPtr Node::setConnectedNode(const string& inputName, NodePtr node)
 {

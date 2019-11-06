@@ -74,7 +74,8 @@ void checkImplementations(mx::GenContext& context,
         "thin_film_brdf",
         "worleynoise2d",
         "worleynoise3d",
-        "geompropvalue"
+        "geompropvalue",
+        "materialnode"
     };
     skipNodeTypes.insert(generatorSkipNodeTypes.begin(), generatorSkipNodeTypes.end());
 
@@ -92,7 +93,8 @@ void checkImplementations(mx::GenContext& context,
         "ND_multiply_vdfC",
         "ND_mix_displacementshader",
         "ND_mix_volumeshader",
-        "ND_mix_vdf"
+        "ND_mix_vdf",
+        "ND_material"
     };
     skipNodeDefs.insert(generatorSkipNodeDefs.begin(), generatorSkipNodeDefs.end());
 
@@ -631,6 +633,12 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             CHECK(importedLibrary);
             continue;
         }
+
+        doc->validate();
+        mx::XmlWriteOptions writeOptions;
+        writeOptions.writeXIncludeEnable = true;
+        std::string docString = mx::writeToXmlString(doc, &writeOptions);
+        CHECK(!docString.empty());
 
         // Find and register lights
         findLights(doc, _lights);
