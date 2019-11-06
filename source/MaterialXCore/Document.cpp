@@ -640,9 +640,12 @@ void Document::upgradeVersion()
     for (auto m : materials)   
     {
         // Rename material element to avoid name clash
-        string materialName = m->getName();
-        materialName += "material_";
+        string materialName = "materialnode_" + m->getName(); 
         //m->setName(materialName + "____TEMP______");
+        if (getNode(materialName))
+        {
+            continue;
+        }
 
         // Create a new material node
         NodePtr materialNode = nullptr;
@@ -662,8 +665,12 @@ void Document::upgradeVersion()
             }
             else
             {
-                string shaderNodeName = materialName + sr->getName();
+                string shaderNodeName = "shadernode_" + materialName + "_" + sr->getName();
                 string shaderNodeType = nodeDef->getType();
+                if (getNode(shaderNodeName))
+                {
+                    continue;
+                }
                 NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
                 std::cout << "- Add shader node: " << shaderNodeName << " type: " << shaderNodeType << std::endl;
 

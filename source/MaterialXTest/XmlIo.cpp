@@ -88,7 +88,7 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Verify that the serialized document is identical.
         mx::DocumentPtr writtenDoc = mx::createDocument();
-        mx::readFromXmlString(writtenDoc, xmlString);
+        mx::readFromXmlString(writtenDoc, xmlString, &serialReadOptions);
         REQUIRE(*writtenDoc == *doc);
 
         // Flatten subgraph references.
@@ -123,9 +123,9 @@ TEST_CASE("Load content", "[xmlio]")
             mx::NodePtr node = elem->asA<mx::Node>();
             if (node)
             {
-                if (!node->getNodeDef())
+                if (!node->getNodeDefString().empty() && !node->getNodeDef())
                 {
-                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching NodeDef");
+                    WARN("[" + node->getActiveSourceUri() + "] Node " + node->getName() + " has no matching NodeDef for " + node->getNodeDefString());
                     referencesValid = false;
                 }
             }
@@ -144,10 +144,12 @@ TEST_CASE("Load content", "[xmlio]")
     // Import libraries twice and verify that duplicate elements are
     // skipped.
     mx::DocumentPtr libDoc = doc->copy();
+    mx::CopyOptions copyOptions;
+    copyOptions.skipConflictingElements = true;
     for (mx::DocumentPtr lib : libs)
     {
-        libDoc->importLibrary(lib);
-        libDoc->importLibrary(lib);
+        libDoc->importLibrary(lib, &copyOptions);
+        libDoc->importLibrary(lib, &copyOptions);
     }
     REQUIRE(libDoc->validate());
 

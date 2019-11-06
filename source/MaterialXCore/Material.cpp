@@ -265,7 +265,8 @@ NodeDefPtr ShaderRef::getNodeDef() const
         vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getNodeString()));
         vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getNodeString());
         nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
-        std::cout << "Search for shaderref nodedef: " << nds << ". NDcount: << " << std::to_string(nodeDefs.size()) << std::endl;
+        if (nodeDefs.size() == 0)
+            std::cout << "Failed search for shaderref nodedef: " << nds << ". NDcount: << " << std::to_string(nodeDefs.size()) << std::endl;
         for (NodeDefPtr nodeDef : nodeDefs)
         {
             if (targetStringsMatch(nodeDef->getTarget(), getTarget()) &&
