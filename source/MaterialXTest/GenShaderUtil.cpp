@@ -644,7 +644,17 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
         if (modified)
         {
             _logFile << "Wrote materialnode version to: " << doc->getSourceUri() + "modified.txt";
-            writeOptions.writeXIncludeEnable = false;
+            mx::StringSet xincludeFiles = doc->getReferencedSourceUris();
+            auto skipXincludes = [xincludeFiles](mx::ConstElementPtr elem)
+            {
+                if (elem->hasSourceUri())
+                {
+                    return (xincludeFiles.count(elem->getSourceUri()) == 0);
+                }
+                return true;
+            };
+            writeOptions.writeXIncludeEnable = true;
+            writeOptions.elementPredicate = skipXincludes;
             mx::writeToXmlFile(doc, doc->getSourceUri() + "modified.txt", &writeOptions);
         }
 
