@@ -634,11 +634,18 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             continue;
         }
 
+        bool modified = doc->updateMaterialNodes();
         doc->validate();
         mx::XmlWriteOptions writeOptions;
         writeOptions.writeXIncludeEnable = true;
         std::string docString = mx::writeToXmlString(doc, &writeOptions);
         CHECK(!docString.empty());
+
+        if (modified)
+        {
+            _logFile << "Wrote materialnode version to: " << doc->getSourceUri() + "modified.txt";
+            mx::writeToXmlFile(doc, doc->getSourceUri() + "modified.txt");
+        }
 
         // Find and register lights
         findLights(doc, _lights);

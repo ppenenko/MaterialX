@@ -526,6 +526,8 @@ class Document : public GraphElement
     /// the library version.  Documents from future versions are left unmodified.
     void upgradeVersion();
 
+    bool updateMaterialNodes();
+
     /// @}
     /// @name Color Management System
     /// @{

@@ -88,6 +88,8 @@ TEST_CASE("Load content", "[xmlio]")
 
         // Verify that the serialized document is identical.
         mx::DocumentPtr writtenDoc = mx::createDocument();
+        mx::XmlReadOptions serialReadOptions;
+        serialReadOptions.skipConflictingElements = true;
         mx::readFromXmlString(writtenDoc, xmlString, &serialReadOptions);
         REQUIRE(*writtenDoc == *doc);
 

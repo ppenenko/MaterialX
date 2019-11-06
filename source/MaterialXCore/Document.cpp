@@ -622,119 +622,131 @@ void Document::upgradeVersion()
         }
     }
 
-#define _MATERIAL_NODE_SUPPORTED_
-#if defined(_MATERIAL_NODE_SUPPORTED_)
-    if (!getSourceUri().empty())
+    updateMaterialNodes();
+
+    if (majorVersion == MATERIALX_MAJOR_VERSION &&
+        minorVersion == MATERIALX_MINOR_VERSION)
     {
-        std::cout << "*********************************************************************\n";
-        std::cout << " Update file: " << getSourceUri() << std::endl;
-        std::cout << "*********************************************************************\n";
+        setVersionString(DOCUMENT_VERSION_STRING);
     }
+}
+
+bool Document::updateMaterialNodes()
+{
+    bool modified = false;
+
     // Upgrade path for shaderref
     //for (auto td : getTypeDefs())
     //{
     //    std::cout << "Typedef: " << td->getName() << ". Semantic: " << td->getSemantic() << std::endl;
     //}
     vector<MaterialPtr> materials = getMaterials();
-    //bool dump = !materials.empty();
-    for (auto m : materials)   
+    if (!getNodeDefs().empty() && !materials.empty())
     {
-        // Rename material element to avoid name clash
-        string materialName = "materialnode_" + m->getName(); 
-        //m->setName(materialName + "____TEMP______");
-        if (getNode(materialName))
+        bool dump = false;
+        bool dumpND = false;
+        for (auto m : materials)
         {
-            continue;
-        }
-
-        // Create a new material node
-        NodePtr materialNode = nullptr;
-
-        ShaderRefPtr sr;
-        vector<ShaderRefPtr> srs = m->getShaderRefs();
-        for (size_t i=0; i<srs.size(); i++)
-        {
-            sr = srs[i];
-
-            const string shaderNodeCategory = sr->getNodeString();
-            std::cout << "- Get nodedef for shaderref: " << sr->getName() << "Node category: " << shaderNodeCategory << "\n";
-            NodeDefPtr nodeDef = sr->getNodeDef();
-            if (!nodeDef)
+            // Rename material element to avoid name clash
+            string materialName = "materialnode_" + m->getName();
+            //m->setName(materialName + "____TEMP______");
+            if (getNode(materialName))
             {
-                std::cout << "-- FAILED !\n";
+                continue;
             }
-            else
+
+            // Create a new material node
+            NodePtr materialNode = nullptr;
+
+            ShaderRefPtr sr;
+            vector<ShaderRefPtr> srs = m->getShaderRefs();
+            for (size_t i = 0; i < srs.size(); i++)
             {
-                string shaderNodeName = "shadernode_" + materialName + "_" + sr->getName();
-                string shaderNodeType = nodeDef->getType();
-                if (getNode(shaderNodeName))
-                {
-                    continue;
-                }
-                NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
-                std::cout << "- Add shader node: " << shaderNodeName << " type: " << shaderNodeType << std::endl;
+                sr = srs[i];
 
-                for (auto valueElement : sr->getChildrenOfType<ValueElement>())
+                const string shaderNodeCategory = sr->getNodeString();
+                std::cout << "- Get nodedef for shaderref: " << sr->getName() << "Node category: " << shaderNodeCategory << "\n";
+                NodeDefPtr nodeDef = sr->getNodeDef();
+                if (!nodeDef)
                 {
-                    ElementPtr portChild = nullptr;
-                    
-                    // Copy over bindinputs as inputs, and bindparams as params
-                    if (valueElement->isA<BindInput>())
+                    std::cout << "FAILED TO GET NODEF. Nodedef count: " << getNodeDefs().size() << ". File: " << getActiveSourceUri() << std::endl;
+                    if (!dumpND)
                     {
-                        std::cout << "Add input from bindinput: " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
-                        portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
+                        for (auto nd : getNodeDefs())
+                        {
+                            std::cout << "Nodedef: " << nd->getName() << "nodedefstring: " << nd->getNodeDefString() << "category: " << nd->getCategory() << std::endl;
+                        }
+                        dumpND = true;
                     }
-                    else if (valueElement->isA<BindParam>())
+                }
+                else
+                {
+                    string shaderNodeType = nodeDef->getType();
+                    string shaderNodeName = "shadernode_" + materialName + "_" + sr->getName();
+                    if (getNode(shaderNodeName))
                     {
-                        std::cout << "Add param from bindparam : " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
-                        portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
-                    }
-                    if (portChild)
-                    {
-                        // Copy attributes over
-                        portChild->copyContentFrom(valueElement);
+                        continue;
                     }
 
-                    // Q: What to do about bindtokens
-                }
+                    if (!dump)
+                    {
+                        string sourceURI = getActiveSourceUri();
+                        if (!sourceURI.empty())
+                        {
+                            std::cout << "*********************************************************************\n";
+                            std::cout << " Update file: " << sourceURI << std::endl;
+                            std::cout << "*********************************************************************\n";
+                        }
+                        dump = true;
+                        modified = true;
+                    }
 
-                // Add an input to reference the new shader node
-                if (!materialNode)
-                {
-                    materialNode = addNode("materialnode", materialName, MATERIAL_TYPE_STRING);
-                    std::cout << "Add materialnode: " << materialName << " for material element\n";
+                    NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
+                    std::cout << "- Add shader node: " << shaderNodeName << " type: " << shaderNodeType << std::endl;
+
+                    for (auto valueElement : sr->getChildrenOfType<ValueElement>())
+                    {
+                        ElementPtr portChild = nullptr;
+
+                        // Copy over bindinputs as inputs, and bindparams as params
+                        if (valueElement->isA<BindInput>())
+                        {
+                            std::cout << "-- Add input from bindinput: " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
+                            portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
+                        }
+                        else if (valueElement->isA<BindParam>())
+                        {
+                            std::cout << "-- Add param from bindparam : " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
+                            portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
+                        }
+                        if (portChild)
+                        {
+                            // Copy attributes over
+                            portChild->copyContentFrom(valueElement);
+                        }
+
+                        // Q: What to do about bindtokens
+                    }
+
+                    // Add an input to reference the new shader node
+                    if (!materialNode)
+                    {
+                        materialNode = addNode("materialnode", materialName, MATERIAL_TYPE_STRING);
+                        std::cout << "- Add materialnode: " << materialName << " for material element\n";
+                    }
+                    std::cout << "-- Add material shader input: " << shaderNodeType << std::endl;
+                    InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
+                    shaderInput->setNodeName(shaderNode->getName());
                 }
-                std::cout << "Add material shader input: " << shaderNodeType << std::endl;
-                InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
-                shaderInput->setNodeName(shaderNode->getName());
-                //materialNode->addOutput("out", MATERIAL_TYPE_STRING);
             }
+
         }
-
+        //for (MaterialPtr m : getMaterials())
+        //{
+        //    removeChild(m->getName());
+        //}
     }
-    //for (MaterialPtr m : getMaterials())
-    //{
-    //    removeChild(m->getName());
-    //}
-
-    //if (dump)
-    //{
-    //    writeToXmlFile(getDocument(), "d:/dump.mtlx");
-    //}
-    //if (dump)
-    //{
-    //    string dotString = asStringDot();
-    //    std::ofstream file;
-    //    file.open("d:/dump.mtlx");
-    //    file << dotString;
-    //    file.close();
-    //}
-#endif
-    if (majorVersion == MATERIALX_MAJOR_VERSION &&
-        minorVersion == MATERIALX_MINOR_VERSION)
-    {
-        setVersionString(DOCUMENT_VERSION_STRING);
-    }
+    return modified;
 }
 
 void Document::onAddElement(ElementPtr, ElementPtr)
