@@ -6,6 +6,7 @@
 #include <MaterialXCore/Material.h>
 
 #include <MaterialXCore/Document.h>
+#include <iostream>
 
 namespace MaterialX
 {
@@ -260,9 +261,11 @@ NodeDefPtr ShaderRef::getNodeDef() const
     }
     if (hasNodeString())
     {
+        const string nds = getNodeString();
         vector<NodeDefPtr> nodeDefs = getDocument()->getMatchingNodeDefs(getQualifiedName(getNodeString()));
         vector<NodeDefPtr> secondary = getDocument()->getMatchingNodeDefs(getNodeString());
         nodeDefs.insert(nodeDefs.end(), secondary.begin(), secondary.end());
+        std::cout << "Search for shaderref nodedef: " << nds << ". NDcount: << " << std::to_string(nodeDefs.size()) << std::endl;
         for (NodeDefPtr nodeDef : nodeDefs)
         {
             if (targetStringsMatch(nodeDef->getTarget(), getTarget()) &&

@@ -620,35 +620,44 @@ void Document::upgradeVersion()
     }
 
     // Upgrade path for shaderref
+    for (auto td : getTypeDefs())
+    {
+        std::cout << "Typedef: " << td->getName() << ". Semantic: " << td->getSemantic() << std::endl;
+    }
     vector<MaterialPtr> materials = getMaterials();
     bool dump = !materials.empty();
     for (auto m : materials)   
     {
         // Rename material element to avoid name clash
-        const string materialName = m->getName();
-        m->setName(materialName + "____TEMP______");
+        string materialName = m->getName();
+        materialName += "material_";
+        //m->setName(materialName + "____TEMP______");
 
         // Create a new material node
-        NodePtr materialNode = addNode("materialnode", materialName, "materialnode");
+        NodePtr materialNode = addNode("materialnode", materialName, MATERIAL_TYPE_STRING);
         std::cout << "Add materialnode: " << materialName << " for material element\n";
 
-        for (ShaderRefPtr shaderRef : m->getShaderRefs())
+        ShaderRefPtr sr;
+        vector<ShaderRefPtr> srs = m->getShaderRefs();
+        for (size_t i=0; i<srs.size(); i++)
         {
-            const string shaderNodeCategory = shaderRef->getNodeString();
-            std::cout << "- Get nodedef for shaderref: " << shaderRef->getName() << "Node category: " << shaderNodeCategory << "\n";
-            NodeDefPtr nodeDef = shaderRef->getNodeDef();
+            sr = srs[i];
+
+            const string shaderNodeCategory = sr->getNodeString();
+            std::cout << "- Get nodedef for shaderref: " << sr->getName() << "Node category: " << shaderNodeCategory << "\n";
+            NodeDefPtr nodeDef = sr->getNodeDef();
             if (!nodeDef)
             {
                 std::cout << "-- FAILED !\n";
             }
             else
             {
-                string shaderNodeName = materialName + shaderRef->getName();
+                string shaderNodeName = materialName + sr->getName();
                 string shaderNodeType = nodeDef->getType();
-                NodePtr shaderNode = addNode(shaderRef->getNodeString(), shaderNodeName, shaderNodeType);
+                NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
                 std::cout << "- Add shader node: " << shaderNodeName << " type: " << shaderNodeType << std::endl;
 
-                for (auto valueElement : shaderRef->getChildrenOfType<ValueElement>())
+                for (auto valueElement : sr->getChildrenOfType<ValueElement>())
                 {
                     ElementPtr portChild = nullptr;
                     
@@ -676,15 +685,16 @@ void Document::upgradeVersion()
                 std::cout << "Add material shader input: " << shaderNodeType << std::endl;
                 InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
                 shaderInput->setNodeName(shaderNode->getName());
-                materialNode->addOutput("out", "material");
+                //materialNode->addOutput("out", MATERIAL_TYPE_STRING);
             }
         }
 
     }
-    for (MaterialPtr m : getMaterials())
-    {
-        removeChild(m->getName());
-    }
+    //for (MaterialPtr m : getMaterials())
+    //{
+    //    removeChild(m->getName());
+    //}
+
     //if (dump)
     //{
     //    writeToXmlFile(getDocument(), "d:/dump.mtlx");

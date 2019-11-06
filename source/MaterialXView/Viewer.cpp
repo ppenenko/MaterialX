@@ -365,17 +365,25 @@ void Viewer::setupLights(mx::DocumentPtr doc)
     std::vector<mx::NodePtr> lights;
     for (mx::NodePtr node : doc->getNodes())
     {
-        const mx::TypeDesc* type = mx::TypeDesc::get(node->getType());
+        const mx::TypeDesc* type = nullptr;
+        try
+        {
+            type = mx::TypeDesc::get(node->getType());
+        }
+        catch (std::exception&)
+        {
+            std::cout << "Cannot find type: " << node->getType() << " for node: " << node->getName() << std::endl;
+        }
         if (type == mx::Type::LIGHTSHADER)
         {
             lights.push_back(node);
         }
     }
-
+    
     // Create a new light handler
     _lightHandler = mx::LightHandler::create();
 
-    try 
+    try
     {
         // Set lights on the generator. Set to empty if no lights found
         _lightHandler->setLightSources(lights);

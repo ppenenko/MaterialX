@@ -445,7 +445,7 @@ void Material::bindLights(mx::LightHandlerPtr lightHandler, mx::ImageHandlerPtr 
                           const mx::FileSearchPath& imagePath, bool directLighting,
                           bool indirectLighting, mx::HwSpecularEnvironmentMethod specularEnvironmentMethod, int envSamples)
 {
-    if (!_glShader)
+    if (!_glShader || !lightHandler)
     {
         return;
     }
