@@ -634,7 +634,8 @@ void ShaderGeneratorTester::validate(const mx::GenOptions& generateOptions, cons
             continue;
         }
 
-        bool modified = doc->updateMaterialNodes();
+        //bool modified = doc->updateMaterialNodes();
+        bool modified = !doc->getNodes("materialnode").empty();
         doc->validate();
         mx::XmlWriteOptions writeOptions;
         writeOptions.writeXIncludeEnable = true;
