@@ -666,15 +666,16 @@ bool Document::updateMaterialNodes()
             NodePtr materialNode = nullptr;
 
             ShaderRefPtr sr;
-            vector<ShaderRefPtr> srs = m->getShaderRefs();
+            // Include all inherited shader refs when creating the instance
+            vector<ShaderRefPtr> srs = m->getActiveShaderRefs();
             for (size_t i = 0; i < srs.size(); i++)
             {
                 sr = srs[i];
 
                 const string shaderNodeCategory = sr->getNodeString();
-                string shaderNodeType = SURFACE_SHADER_TYPE_STRING; // Assume it's a surface shader
+                string shaderNodeType = SURFACE_SHADER_TYPE_STRING; // Assume a surface shader
 
-                std::cout << "- Get nodedef for shaderref: " << sr->getName() << "Node category: " << shaderNodeCategory << "\n";
+                //std::cout << "- Get nodedef for shaderref: " << sr->getName() << "Node category: " << shaderNodeCategory << "\n";
                 NodeDefPtr nodeDef = sr->getNodeDef();
                 if (nodeDef)
                 {
@@ -701,7 +702,7 @@ bool Document::updateMaterialNodes()
                     }
 
                     NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
-                    std::cout << "- Add shader node: " << shaderNodeName << " type: " << shaderNodeType << ". Use noddef: " << std::to_string(nodeDef != nullptr) << std::endl;
+                    shaderNode->setSourceUri(sr->getSourceUri());
 
                     for (auto valueElement : sr->getChildrenOfType<ValueElement>())
                     {
@@ -710,12 +711,10 @@ bool Document::updateMaterialNodes()
                         // Copy over bindinputs as inputs, and bindparams as params
                         if (valueElement->isA<BindInput>())
                         {
-                            std::cout << "-- Add input from bindinput: " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
                             portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
                         }
                         else if (valueElement->isA<BindParam>())
                         {
-                            std::cout << "-- Add param from bindparam : " << valueElement->getName() << " type: " << valueElement->getType() << std::endl;
                             portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
                         }
                         if (portChild)
@@ -743,14 +742,26 @@ bool Document::updateMaterialNodes()
                     if (!materialNode)
                     {
                         materialNode = addNode(MATERIAL_NODE_STRING, materialName, MATERIAL_TYPE_STRING);
-                        std::cout << "- Add materialnode: " << materialName << " for material element\n";
+                        materialNode->setSourceUri(m->getSourceUri());
+                        // Inheritance cannot be set on a node. We instead map all inherited shaderrefs to shader nodes.
+                        //materialNode->setInheritString(m->getInheritString()); 
+                        std::cout << "- Convert material: " << m->getName() << std::endl;
                     }
-                    std::cout << "-- Add material shader input: " << shaderNodeType << std::endl;
+                    //std::cout << "-- Add material shader input: " << shaderNodeType << std::endl;
                     InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
+                    // Make sure to copy over any target and version information from the shaderref.
+                    shaderInput->setTarget(sr->getTarget()); 
+                    shaderInput->setVersionString(sr->getVersionString());
                     shaderInput->setNodeName(shaderNode->getName());
+
+                    std::cout << prettyPrint(shaderNode) << std::endl;
                 }
             }
 
+            if (materialNode)
+            {
+                std::cout << prettyPrint(materialNode) << std::endl;
+            }
         }
         //for (MaterialPtr m : getMaterials())
         //{
