@@ -666,8 +666,8 @@ bool Document::updateMaterialNodes()
             NodePtr materialNode = nullptr;
 
             ShaderRefPtr sr;
-            // Include all inherited shader refs when creating the instance
-            vector<ShaderRefPtr> srs = m->getActiveShaderRefs();
+            // Only include the shader refs explicitly specified on the material instance
+            vector<ShaderRefPtr> srs = m->getShaderRefs();
             for (size_t i = 0; i < srs.size(); i++)
             {
                 sr = srs[i];
@@ -675,87 +675,83 @@ bool Document::updateMaterialNodes()
                 const string shaderNodeCategory = sr->getNodeString();
                 string shaderNodeType = SURFACE_SHADER_TYPE_STRING; // Assume a surface shader
 
-                //std::cout << "- Get nodedef for shaderref: " << sr->getName() << "Node category: " << shaderNodeCategory << "\n";
                 NodeDefPtr nodeDef = sr->getNodeDef();
                 if (nodeDef)
                 {
                     shaderNodeType = nodeDef->getType();
                 }
+                string shaderNodeName = "shadernode_" + materialName + "_" + sr->getName();
+                if (getNode(shaderNodeName))
                 {
-                    string shaderNodeName = "shadernode_" + materialName + "_" + sr->getName();
-                    if (getNode(shaderNodeName))
-                    {
-                        continue;
-                    }
-
-                    if (!dump)
-                    {
-                        string sourceURI = getActiveSourceUri();
-                        if (!sourceURI.empty())
-                        {
-                            std::cout << "*********************************************************************\n";
-                            std::cout << " Update file: " << sourceURI << std::endl;
-                            std::cout << "*********************************************************************\n";
-                        }
-                        dump = true;
-                        modified = true;
-                    }
-
-                    NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
-                    shaderNode->setSourceUri(sr->getSourceUri());
-
-                    for (auto valueElement : sr->getChildrenOfType<ValueElement>())
-                    {
-                        ElementPtr portChild = nullptr;
-
-                        // Copy over bindinputs as inputs, and bindparams as params
-                        if (valueElement->isA<BindInput>())
-                        {
-                            portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
-                        }
-                        else if (valueElement->isA<BindParam>())
-                        {
-                            portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
-                        }
-                        if (portChild)
-                        {
-                            // Copy attributes over
-                            portChild->copyContentFrom(valueElement);
-                            // Replace "nodegraph" syntax with "nodename".
-                            const string& nodegraphValue = valueElement->getAttribute(BindInput::NODE_GRAPH_ATTRIBUTE);
-                            if (!nodegraphValue.empty())
-                            {
-                                portChild->removeAttribute(BindInput::NODE_GRAPH_ATTRIBUTE);
-                                portChild->setAttribute(PortElement::NODE_NAME_ATTRIBUTE, nodegraphValue);
-                            }
-                        }
-                    }
-
-                    // Copy over any bindtokens as tokens
-                    for (auto bt : sr->getBindTokens())
-                    {
-                        TokenPtr token = shaderNode->addToken(bt->getName());
-                        token->copyContentFrom(bt);
-                    }
-
-                    // Add an input to reference the new shader node
-                    if (!materialNode)
-                    {
-                        materialNode = addNode(MATERIAL_NODE_STRING, materialName, MATERIAL_TYPE_STRING);
-                        materialNode->setSourceUri(m->getSourceUri());
-                        // Inheritance cannot be set on a node. We instead map all inherited shaderrefs to shader nodes.
-                        //materialNode->setInheritString(m->getInheritString()); 
-                        std::cout << "- Convert material: " << m->getName() << std::endl;
-                    }
-                    //std::cout << "-- Add material shader input: " << shaderNodeType << std::endl;
-                    InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
-                    // Make sure to copy over any target and version information from the shaderref.
-                    shaderInput->setTarget(sr->getTarget()); 
-                    shaderInput->setVersionString(sr->getVersionString());
-                    shaderInput->setNodeName(shaderNode->getName());
-
-                    std::cout << prettyPrint(shaderNode) << std::endl;
+                    continue;
                 }
+
+                if (!dump)
+                {
+                    string sourceURI = getActiveSourceUri();
+                    if (!sourceURI.empty())
+                    {
+                        std::cout << "*********************************************************************\n";
+                        std::cout << " Update file: " << sourceURI << std::endl;
+                        std::cout << "*********************************************************************\n";
+                    }
+                    dump = true;
+                    modified = true;
+                }
+
+                NodePtr shaderNode = addNode(sr->getNodeString(), shaderNodeName, shaderNodeType);
+                shaderNode->setSourceUri(sr->getSourceUri());
+
+                for (auto valueElement : sr->getChildrenOfType<ValueElement>())
+                {
+                    ElementPtr portChild = nullptr;
+
+                    // Copy over bindinputs as inputs, and bindparams as params
+                    if (valueElement->isA<BindInput>())
+                    {
+                        portChild = shaderNode->addInput(valueElement->getName(), valueElement->getType());
+                    }
+                    else if (valueElement->isA<BindParam>())
+                    {
+                        portChild = shaderNode->addParameter(valueElement->getName(), valueElement->getType());
+                    }
+                    if (portChild)
+                    {
+                        // Copy attributes over
+                        portChild->copyContentFrom(valueElement);
+                        // Replace "nodegraph" syntax with "nodename".
+                        const string& nodegraphValue = valueElement->getAttribute(BindInput::NODE_GRAPH_ATTRIBUTE);
+                        if (!nodegraphValue.empty())
+                        {
+                            portChild->removeAttribute(BindInput::NODE_GRAPH_ATTRIBUTE);
+                            portChild->setAttribute(PortElement::NODE_NAME_ATTRIBUTE, nodegraphValue);
+                        }
+                    }
+                }
+
+                // Copy over any bindtokens as tokens
+                for (auto bt : sr->getBindTokens())
+                {
+                    TokenPtr token = shaderNode->addToken(bt->getName());
+                    token->copyContentFrom(bt);
+                }
+
+                // Add an input to reference the new shader node
+                if (!materialNode)
+                {
+                    materialNode = addNode(MATERIAL_NODE_STRING, materialName, MATERIAL_TYPE_STRING);
+                    materialNode->setSourceUri(m->getSourceUri());
+                    // Inheritance does not get transfered to the node.
+                    //materialNode->setInheritString(m->getInheritString()); 
+                    std::cout << "- Convert material: " << m->getName() << std::endl;
+                }
+                InputPtr shaderInput = materialNode->addInput(shaderNodeType, shaderNodeType);
+                // Make sure to copy over any target and version information from the shaderref.
+                shaderInput->setTarget(sr->getTarget());
+                shaderInput->setVersionString(sr->getVersionString());
+                shaderInput->setNodeName(shaderNode->getName());
+
+                std::cout << prettyPrint(shaderNode) << std::endl;
             }
 
             if (materialNode)
