@@ -21,9 +21,19 @@ public:
 
     static PrvObjectHandle createNew(const RtToken& name);
 
+    void initialize();
+
     void addReference(PrvObjectHandle stage);
 
     void removeReference(const RtToken& name);
+
+    void removeReferences();
+
+    size_t numReferences() const;
+
+    PrvObjectHandle getReference(size_t index) const;
+
+    PrvObjectHandle findReference(const RtToken& name) const;
 
     const PrvObjectHandleVec& getReferencedStages() const
     {

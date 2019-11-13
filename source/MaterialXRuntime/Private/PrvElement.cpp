@@ -20,6 +20,12 @@ PrvElement::PrvElement(RtObjType objType, const RtToken& name) :
 {
 }
 
+void PrvElement::initialize()
+{
+    clearAttributes();
+    clearChildren();
+}
+
 void PrvElement::addChild(PrvObjectHandle elem)
 {
     if (!elem->hasApi(RtApiType::ELEMENT))
@@ -86,6 +92,12 @@ PrvObjectHandle PrvElement::findChildByPath(const string& path) const
     return elem;
 }
 
+void PrvElement::clearChildren()
+{
+    _children.clear();
+    _childrenByName.clear();
+}
+
 void PrvElement::addAttribute(const RtToken& name, const RtToken& type, const RtValue& value)
 {
     auto it = _attributesByName.find(name);
@@ -112,6 +124,11 @@ void PrvElement::removeAttribute(const RtToken& name)
     _attributesByName.erase(name);
 }
 
+void PrvElement::clearAttributes()
+{
+    _attributes.clear();
+    _attributesByName.clear();
+}
 
 PrvUnknown::PrvUnknown(const RtToken& name, const RtToken& category) :
     PrvElement(RtObjType::UNKNOWN, name),

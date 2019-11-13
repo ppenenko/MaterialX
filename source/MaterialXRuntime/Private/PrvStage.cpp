@@ -27,6 +27,12 @@ PrvObjectHandle PrvStage::createNew(const RtToken& name)
     return std::make_shared<PrvStage>(name);
 }
 
+void PrvStage::initialize()
+{
+    PrvElement::initialize();
+    removeReferences();
+}
+
 void PrvStage::addReference(PrvObjectHandle stage)
 {
     if (!stage->hasApi(RtApiType::STAGE))
@@ -55,6 +61,36 @@ void PrvStage::removeReference(const RtToken& name)
             break;
         }
     }
+}
+
+void PrvStage::removeReferences()
+{
+    _selfRefCount = 0;
+    _refStages.clear();
+    _refStagesSet.clear();
+}
+
+size_t PrvStage::numReferences() const
+{
+    return _refStages.size();
+}
+
+PrvObjectHandle PrvStage::getReference(size_t index) const
+{
+    return index < _refStages.size() ? _refStages[index] : nullptr;
+}
+
+PrvObjectHandle PrvStage::findReference(const RtToken& name) const
+{
+    for (auto it = _refStages.begin(); it != _refStages.end(); ++it)
+    {
+        PrvStage* stage = (*it)->asA<PrvStage>();
+        if (stage->getName() == name)
+        {
+            return *it;
+        }
+    }
+    return nullptr;
 }
 
 PrvObjectHandle PrvStage::findChildByName(const RtToken& name) const

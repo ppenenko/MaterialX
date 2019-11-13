@@ -24,6 +24,8 @@ class PrvElement : public PrvObject
 public:
     virtual ~PrvElement() {}
 
+    void initialize();
+
     const RtToken& getName() const
     {
         return _name;
@@ -48,6 +50,8 @@ public:
         return _children;
     }
 
+    void clearChildren();
+
     virtual PrvObjectHandle findChildByName(const RtToken& name) const;
 
     virtual PrvObjectHandle findChildByPath(const string& path) const;
@@ -55,6 +59,8 @@ public:
     void addAttribute(const RtToken& name, const RtToken& type, const RtValue& value);
 
     void removeAttribute(const RtToken& name);
+
+    void clearAttributes();
 
     const RtAttribute* getAttribute(const RtToken& name) const
     {
