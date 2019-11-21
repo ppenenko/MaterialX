@@ -14,14 +14,12 @@
 namespace MaterialX
 {
 
-class PrvStage : public PrvElement
+class PrvStage : public PrvAllocatingElement
 {
 public:
     PrvStage(const RtToken& name);
 
     static PrvObjectHandle createNew(const RtToken& name);
-
-    void initialize();
 
     void addReference(PrvObjectHandle stage);
 

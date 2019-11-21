@@ -59,9 +59,6 @@ public:
     /// Remove an element from the stage.
     void removeElement(const RtToken& name);
 
-    /// Clear the elements in a stage
-    void clearElements();
-
     /// Return an element by name,
     /// or a null object if no such element exists.
     RtObject findElementByName(const RtToken& name) const;

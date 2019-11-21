@@ -10,6 +10,8 @@
 
 #include <MaterialXRuntime/RtObject.h>
 
+#include <MaterialXCore/Util.h>
+
 /// @file
 /// TODO: Docs
 
@@ -17,7 +19,7 @@ namespace MaterialX
 {
 
 PrvStage::PrvStage(const RtToken& name) :
-    PrvElement(RtObjType::STAGE, name),
+    PrvAllocatingElement(RtObjType::STAGE, nullptr, name),
     _selfRefCount(0)
 {
 }
@@ -25,12 +27,6 @@ PrvStage::PrvStage(const RtToken& name) :
 PrvObjectHandle PrvStage::createNew(const RtToken& name)
 {
     return std::make_shared<PrvStage>(name);
-}
-
-void PrvStage::initialize()
-{
-    PrvElement::initialize();
-    removeReferences();
 }
 
 void PrvStage::addReference(PrvObjectHandle stage)
