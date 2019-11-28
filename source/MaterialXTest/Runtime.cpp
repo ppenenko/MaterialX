@@ -287,17 +287,19 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(in1.getValue().asFloat() == 7.0f);
 
     // Try to create a node from an invalid nodedef object
-    REQUIRE_THROWS(mx::RtNode::createNew(stageObj, "foo", mx::RtObject()));
+    REQUIRE_THROWS(mx::RtNode::createNew(stageObj, mx::RtObject()));
 
     // Create two new node instances from the add nodedef
-    mx::RtObject add1Obj = mx::RtNode::createNew(stageObj, "add1", addDefObj);
-    mx::RtObject add2Obj = mx::RtNode::createNew(stageObj, "add2", addDefObj);
+    mx::RtObject add1Obj = mx::RtNode::createNew(stageObj, addDefObj);
+    mx::RtObject add2Obj = mx::RtNode::createNew(stageObj, addDefObj);
     REQUIRE(add1Obj.isValid());
     REQUIRE(add2Obj.isValid());
 
     // Attach the node API to these objects
     mx::RtNode add1(add1Obj);
     mx::RtNode add2(add2Obj);
+    REQUIRE(add1.getName() == "add1");
+    REQUIRE(add2.getName() == "add2");
 
     // Get the node instance ports
     mx::RtPort add1_in1 = add1.findPort("in1");
@@ -338,13 +340,28 @@ TEST_CASE("Runtime: Nodes", "[runtime]")
     REQUIRE(add2_in1.getSourcePort() == add1_out);
     REQUIRE(add2_in2.getSourcePort() == add1_out);
 
+    // Test node renaming
+    add1.setName("foo");
+    REQUIRE(add1.getName() == "foo");
+    add2.setName("foo");
+    REQUIRE(add2.getName() == "foo1");
+    add1.setName("add1");
+    REQUIRE(add1.getName() == "add1");
+    add2.setName("foo");
+    REQUIRE(add2.getName() == "foo");
+    add2.setName("add2");
+    REQUIRE(add2.getName() == "add2");
+
+    // Test node creation when name is not unique
+    mx::RtNode add3 = mx::RtNode::createNew(stageObj, addDefObj, "add1");
+    REQUIRE(add3.getName() == "add3");
+
     // Find object by path
     mx::RtObject elem1 = stage.findElementByPath("/add1/in2");
     REQUIRE(elem1.isValid());
     REQUIRE(elem1.hasApi(mx::RtApiType::PORTDEF));
     REQUIRE(mx::RtPortDef(elem1).getName() == "in2");
     REQUIRE(mx::RtPortDef(elem1).isInput());
-
 }
 
 TEST_CASE("Runtime: NodeGraphs", "[runtime]")
@@ -366,12 +383,12 @@ TEST_CASE("Runtime: NodeGraphs", "[runtime]")
     mx::RtNodeGraph graph1(graphObj1);
 
     // Create two add nodes in the graph.
-    mx::RtObject addObj1 = mx::RtNode::createNew(graphObj1, "add1", addFloatObj);
-    mx::RtObject addObj2 = mx::RtNode::createNew(graphObj1, "add2", addFloatObj);
+    mx::RtObject addObj1 = mx::RtNode::createNew(graphObj1, addFloatObj, "add1");
+    mx::RtObject addObj2 = mx::RtNode::createNew(graphObj1, addFloatObj, "add2");
     REQUIRE(graph1.numNodes() == 2);
 
     // Test deleting a node.
-    mx::RtObject addObj3 = mx::RtNode::createNew(graphObj1, "add3", addFloatObj);
+    mx::RtObject addObj3 = mx::RtNode::createNew(graphObj1, addFloatObj, "add3");
     REQUIRE(graph1.numNodes() == 3);
     graph1.removeNode(addObj3);
     REQUIRE(graph1.numNodes() == 2);
@@ -446,22 +463,25 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         dotfile.open(graph.getName().str() + ".dot");
         dotfile << graph.asStringDot();
         dotfile.close();
-        mx::RtObject image1 = mx::RtNode::createNew(stageObj, "tiledImage1", graphDef);
+        mx::RtObject image1 = mx::RtNode::createNew(stageObj, graphDef);
         REQUIRE(image1.hasApi(mx::RtApiType::NODE));
 
         // Get a nodedef and create two new instances of it.
         mx::RtObject multiplyColor3Obj = stage.findElementByName("ND_multiply_color3");
         REQUIRE(multiplyColor3Obj);
-        mx::RtNode mult1 = mx::RtNode::createNew(stageObj, "mul1", multiplyColor3Obj);
-        mx::RtNode mult2 = mx::RtNode::createNew(stageObj, "mul2", multiplyColor3Obj);
+        mx::RtNode mult1 = mx::RtNode::createNew(stageObj, multiplyColor3Obj);
+        mx::RtNode mult2 = mx::RtNode::createNew(stageObj, multiplyColor3Obj);
         REQUIRE(mult1);
         REQUIRE(mult2);
         mult2.findPort("in1").getValue().asColor3() = mx::Color3(0.3f, 0.5f, 0.4f);
         mult2.findPort("in2").getValue().asColor3() = mx::Color3(0.6f, 0.3f, 0.5f);
         mult2.findPort("in2").setColorSpace("srgb_texture");
 
-        mx::RtNodeGraph stageGraph = mx::RtNodeGraph::createNew(stageObj, "graph1");
+        mx::RtNodeGraph stageGraph = mx::RtNodeGraph::createNew(stageObj);
         REQUIRE(stageGraph);
+        REQUIRE(stageGraph.getName() == "nodegraph1");
+
+        // Move the image node into the graph.
         stageGraph.addNode(image1);
 
         // Write the full stage to a new document
@@ -507,8 +527,8 @@ TEST_CASE("Runtime: FileIo", "[runtime]")
         mx::RtObject texcoordDef = stage.findElementByName("ND_texcoord_vector2");
         REQUIRE(tiledimageDef);
         REQUIRE(texcoordDef);
-        mx::RtNode tiledimage1 = mx::RtNode::createNew(stage.getObject(), "tiledimage1", tiledimageDef);
-        mx::RtNode texcoord1 = mx::RtNode::createNew(stage.getObject(), "texcoord1", texcoordDef);
+        mx::RtNode tiledimage1 = mx::RtNode::createNew(stage.getObject(), tiledimageDef);
+        mx::RtNode texcoord1 = mx::RtNode::createNew(stage.getObject(), texcoordDef);
         REQUIRE(tiledimage1);
         REQUIRE(texcoord1);
         mx::RtPort tiledimage1_texcoord = tiledimage1.findPort("texcoord");
@@ -562,7 +582,7 @@ TEST_CASE("Runtime: Stage References", "[runtime]")
     // Test access and usage of contents from the referenced library.
     mx::RtNodeDef nodedef = mainStage.findElementByName("ND_complex_ior");
     REQUIRE(nodedef.isValid());
-    mx::RtObject nodeObj = mx::RtNode::createNew(mainStage.getObject(), "complex1", nodedef.getObject());
+    mx::RtObject nodeObj = mx::RtNode::createNew(mainStage.getObject(), nodedef.getObject());
     REQUIRE(nodeObj.isValid());
 
     // Write the stage to a new document, 
@@ -623,7 +643,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
 
     mx::RtNodeDef nodedef = mainStage.findElementByName("ND_subtract_vector3");
     REQUIRE(nodedef);
-    mx::RtObject nodeObj = mx::RtNode::createNew(mainStage.getObject(), "sub1", nodedef.getObject());
+    mx::RtObject nodeObj = mx::RtNode::createNew(mainStage.getObject(), nodedef.getObject());
     REQUIRE(nodeObj);
 
     // Travers using a filter to return only node objects.
