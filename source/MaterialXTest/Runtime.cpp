@@ -750,7 +750,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     REQUIRE(nodeDefCount == 0);
     REQUIRE(nodeGraphCount == 65);
 
-    // Travers a nodegraph using tree traversal.
+    // Traverse a nodegraph using tree traversal.
     mx::RtNodeGraph nodegraph = mainStage.findElementByName("NG_tiledimage_float");
     REQUIRE(nodegraph);
     nodeCount = 0;
@@ -761,7 +761,7 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
             nodeCount++;
         }
     }
-    REQUIRE(nodeCount == 3);
+    REQUIRE(nodeCount == 5);
 
     // Filter for finding input ports.
     auto inputFilter = [](const mx::RtObject& obj) -> bool
@@ -815,5 +815,5 @@ TEST_CASE("Runtime: Traversal", "[runtime]")
     {
         ++numEdges;
     }
-    REQUIRE(numEdges == 12);
+    REQUIRE(numEdges == 16);
 }
