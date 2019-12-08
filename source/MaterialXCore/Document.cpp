@@ -631,12 +631,76 @@ void Document::upgradeVersion()
             }
         }
 
-        // Convert backdrop nodes to backdrop elements
-        const string ND_BACKDROP = "backdrop";
+        const string BACKDROP_NODE = "backdrop";
+        const string INVERT_NODE = "invert";
+        const string INVERT_MATRIX_NODE = "invertmatrix";
+        const string ROTATE_NODE = "rotate";
+        const string ROTATE2D_NODE = "rotate2d";
+        const string ROTATE3D_NODE = "rotate3d";
+        const string COMPARE_NODE = "compare";
+        const string NODEDEF_PREFIX = "ND_";
+        StringVec nodesToRemove;
         for (NodePtr node : getNodes())
         {
             NodeDefPtr nodeDef = node->getNodeDef();
-            if (nodeDef && nodeDef->getName() == ND_BACKDROP)
+            if (!nodeDef)
+            {
+                continue;
+            }
+
+            bool removeNode = false;
+            const string& nodeCategory = node->getCategory();
+
+            // Convert from "invert" to "invertmatrix" nodes
+            if (nodeCategory == INVERT_NODE)
+            {
+                NodePtr invertMatrix = addNode(INVERT_MATRIX_NODE, node->getName());
+                invertMatrix->setType(node->getType());
+                invertMatrix->copyContentFrom(node);
+                removeNode = true;
+            }
+
+            // Convert from "rotate" to "rotate2d" or "rotate3d" nodes
+            else if (nodeCategory == ROTATE_NODE)
+            {
+                NodePtr rotateNode = addNode((node->getType() == "vector2") ? ROTATE2D_NODE : ROTATE3D_NODE, node->getName());
+                rotateNode->setType(node->getType());
+                rotateNode->copyContentFrom(node);
+                removeNode = true;
+            }
+
+            // Convert "compare" node with 2 inputs to "ifgreater".
+            else if (nodeCategory == COMPARE_NODE)
+            {
+                NodeDefPtr nodedef = node->getNodeDef();
+                if (!nodeDef->getChild("in4") && !nodeDef->getChild("in3"))
+                {
+                    NodePtr ifgreater = addNode("ifgreater", node->getName());
+                    ifgreater->setType(node->getType());
+                    ifgreater->copyContentFrom(node);
+                    ElementPtr intest = ifgreater->getChild("intest");
+                    if (intest)
+                    {
+                        intest->setName("in1");
+                    }
+                    ElementPtr cutoff = ifgreater->getChild("cutoff");
+                    if (cutoff)
+                    {
+                        cutoff->setName("cutoff");
+                    }
+
+                    removeNode = true;
+
+                }
+            }
+
+            // Convert "tranform[vector|point|normal]" which are not fromspace/tospace variants
+            // to "transformmatrix"
+
+            // Convert "seperate" to "seperate3" and "seperate4"
+
+            // Convert backdrop nodes to backdrop elements
+            else if (nodeCategory == BACKDROP_NODE)
             {
                 BackdropPtr backdrop = addBackdrop(node->getName());
                 for (const ParameterPtr param : node->getParameters())
@@ -654,10 +718,23 @@ void Document::upgradeVersion()
                         }
                     }
                 }
-                removeNode(node->getName());
+                removeNode = true;
+            }
+
+            if (removeNode)
+            {
+                nodesToRemove.push_back(node->getName());
             }
         }
-        removeNodeDef(ND_BACKDROP);
+
+        // Remove old nodes
+        for (const string& nodeName : nodesToRemove)
+        {
+            removeNode(nodeName);
+        }
+        // Remove old nodedefs
+        removeNodeDef(NODEDEF_PREFIX + BACKDROP_NODE);
+        removeNodeDef(NODEDEF_PREFIX + INVERT_NODE);
 
         minorVersion = 37;
     }
