@@ -36,6 +36,16 @@ string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* t
 const string GlslFragmentGenerator::TARGET = "ogsxml";
 const string GlslFragmentGenerator::MATRIX3_TO_MATRIX4_POSTFIX = "4";
 
+// Streams of the isRequirementOnly type require special handling.
+static const StringSet OGS_IS_REQUIREMENT_ONLY =
+{
+    { HW::T_POSITION_OBJECT },
+    { HW::T_NORMAL_OBJECT },
+    { HW::T_TANGENT_OBJECT },
+    { HW::T_BITANGENT_WORLD },
+    { HW::T_BITANGENT_OBJECT }
+};
+
 GlslFragmentGenerator::GlslFragmentGenerator() :
     GlslShaderGenerator()
 {
@@ -217,7 +227,12 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
         }
 
         for (size_t i = 0; i < vertexData.size(); ++i)
-            emitArgument(vertexData[i]);
+        {
+            if (OGS_IS_REQUIREMENT_ONLY.find(vertexData[i]->getName()) == OGS_IS_REQUIREMENT_ONLY.end())
+            {
+                emitArgument(vertexData[i]);
+            }
+        }
 
         if (context.getOptions().hwTransparency)
         {
@@ -258,12 +273,15 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
         for (size_t i = 0; i < vertexData.size(); ++i)
         {
             const string& name = vertexData[i]->getVariable();
-
             emitLineBegin(pixelStage);
             emitString(HW::T_VERTEX_DATA_INSTANCE, pixelStage);
             emitString(".", pixelStage);
             emitString(name, pixelStage);
             emitString(" = ", pixelStage);
+            if (OGS_IS_REQUIREMENT_ONLY.find(vertexData[i]->getName()) != OGS_IS_REQUIREMENT_ONLY.end())
+            {
+                emitString("PIX_IN.", pixelStage);
+            }
             emitString(name, pixelStage);
             emitLineEnd(pixelStage, true);
         }
