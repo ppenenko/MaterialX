@@ -14,7 +14,7 @@ namespace MaterialX
 
 namespace Stage
 {
-    const string PRIVATE_UNIFORMS = "private_uniforms";
+    const string IMPLICIT_UNIFORMS = "implicit_uniforms";
 }
 
 string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const
@@ -64,7 +64,7 @@ ShaderGeneratorPtr GlslFragmentGenerator::create()
 ShaderPtr GlslFragmentGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = GlslShaderGenerator::createShader(name, element, context);
-    createStage(Stage::PRIVATE_UNIFORMS, *shader);
+    createStage(Stage::IMPLICIT_UNIFORMS, *shader);
     return shader;
 }
 
@@ -208,10 +208,10 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
         const VariableBlock& publicUniforms = pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS);
         for (size_t i = 0; i < publicUniforms.size(); ++i)
         {
-            const ShaderPort* shaderPort = publicUniforms[i];
+            const ShaderPort* const shaderPort = publicUniforms[i];
 
             if (shaderPort->getType() == Type::MATRIX33)
-                convertMatrixStrings.push_back(publicUniforms[i]->getVariable());
+                convertMatrixStrings.push_back(shaderPort->getVariable());
 
             emitArgument(shaderPort);
         }
@@ -345,49 +345,74 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     // Replace all tokens with real identifier names
     replaceTokens(_tokenSubstitutions, pixelStage);
 
-    // Now emit private uniform definitions to a special stage which is only
+    // Now emit implicit uniform definitions to a special stage which is only
     // consumed by the HLSL cross-compiler.
     //
+    ShaderStage& implicitUniformsStage = shader->getStage(Stage::IMPLICIT_UNIFORMS);
+
+    auto emitImplicitUniform = [this, &implicitUniformsStage, &context](
+        const ShaderPort& shaderPort
+    ) -> void
+    {
+        const string& originalName = shaderPort.getVariable();
+        const string textureName = OgsXmlGenerator::samplerToTextureName(originalName);
+        if (!textureName.empty())
+        {
+            // GLSL for OpenGL (which MaterialX generates) uses combined
+            // samplers where the texture is implicit in the sampler.
+            // HLSL shader model 5.0 required by DX11 uses separate samplers
+            // and textures.
+            // We use a naming convention compatible with both OGS and
+            // SPIRV-Cross where we derive sampler names from texture names
+            // with a prefix and a suffix.
+            // Unfortunately, the cross-compiler toolchain converts GLSL
+            // samplers to HLSL textures preserving the original names and
+            // generates HLSL samplers with derived names. For this reason,
+            // we rename GLSL samplers with macros here to follow the
+            // texture naming convention which preserves the correct
+            // mapping.
+
+            emitLineBegin(implicitUniformsStage);
+            emitString("#define ", implicitUniformsStage);
+            emitString(originalName, implicitUniformsStage);
+            emitString(" ", implicitUniformsStage);
+            emitString(textureName, implicitUniformsStage);
+            emitLineEnd(implicitUniformsStage, false);
+        }
+
+        emitLineBegin(implicitUniformsStage);
+        emitVariableDeclaration(
+            &shaderPort, _syntax->getUniformQualifier(), context, implicitUniformsStage
+        );
+        emitString(SEMICOLON, implicitUniformsStage);
+        emitLineEnd(implicitUniformsStage, false);
+    };
+
     const VariableBlock& privateUniforms = pixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS);
     if (!privateUniforms.empty())
     {
-        ShaderStage& privateUniformsStage = shader->getStage(Stage::PRIVATE_UNIFORMS);
         for (size_t i = 0; i < privateUniforms.size(); ++i)
-        {
-            const std::string& originalName = privateUniforms[i]->getVariable();
-            const std::string textureName = OgsXmlGenerator::samplerToTextureName(originalName);
-            if (!textureName.empty())
-            {
-                // GLSL for OpenGL (which MaterialX generates) uses combined
-                // samplers where the texture is implicit in the sampler.
-                // HLSL shader model 5.0 required by DX11 uses separate samplers
-                // and textures.
-                // We use a naming convention compatible with both OGS and
-                // SPIRV-Cross where we derive sampler names from texture names
-                // with a prefix and a suffix.
-                // Unfortunately, the cross-compiler toolchain converts GLSL
-                // samplers to HLSL textures preserving the original names and
-                // generates HLSL samplers with derived names. For this reason,
-                // we rename GLSL samplers with macros here to follow the
-                // texture naming convention which preserves the correct
-                // mapping.
-
-                emitLineBegin(privateUniformsStage);
-                emitString("#define ", privateUniformsStage);
-                emitString(originalName, privateUniformsStage);
-                emitString(" ", privateUniformsStage);
-                emitString(textureName, privateUniformsStage);
-                emitLineEnd(privateUniformsStage, false);
-            }
-        }
-        emitLineBreak(privateUniformsStage);
-
-        emitVariableDeclarations(
-            privateUniforms, _syntax->getUniformQualifier(), SEMICOLON, context, privateUniformsStage
-        );
-        emitLineBreak(privateUniformsStage);
-        replaceTokens(_tokenSubstitutions, privateUniformsStage);
+            emitImplicitUniform(*privateUniforms[i]);
+        emitLineBreak(implicitUniformsStage);
     }
+
+    const VariableBlock& publicUniforms = pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS);
+    bool emittedPublicSamplers = false;
+    for (size_t i = 0; i < publicUniforms.size(); ++i)
+    {
+        const ShaderPort* const shaderPort = publicUniforms[i];
+
+        if (shaderPort->getType() == Type::FILENAME)
+        {
+            emitImplicitUniform(*shaderPort);
+            emittedPublicSamplers = true;
+        }
+    }
+
+    if (emittedPublicSamplers)
+        emitLineBreak(implicitUniformsStage);
+
+    replaceTokens(_tokenSubstitutions, implicitUniformsStage);
 
     return shader;
 }
