@@ -19,7 +19,7 @@ namespace Cross
     void finalize();
 
     /// Cross-compile GLSL fragment code to HLSL.
-    /// @param glslPrivateUniforms GLSL definitions for private uniforms.
+    /// @param glslUniforms GLSL definitions for uniforms accessed 
     ///     This GLSL code is not included in the VP2 fragment. Unlike public
     ///     uniforms and vertex data which are passed as arguments to the
     ///     fragment's root function by VP2, private uniforms are only
@@ -31,7 +31,7 @@ namespace Cross
     /// @return HLSL fragment code to be included in the fragment.
     ///
     std::string glslToHlsl(
-        const std::string& glslPrivateUniforms,
+        const std::string& glslUniforms,
         const std::string& glslFragment,
         const std::string& fragmentName
     );

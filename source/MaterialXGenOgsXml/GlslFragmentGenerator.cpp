@@ -14,7 +14,7 @@ namespace MaterialX
 
 namespace Stage
 {
-    const string IMPLICIT_UNIFORMS = "implicit_uniforms";
+    const string UNIFORMS = "uniforms";
 }
 
 string GlslFragmentSyntax::getVariableName(const string& name, const TypeDesc* type, IdentifierMap& identifiers) const
@@ -64,7 +64,7 @@ ShaderGeneratorPtr GlslFragmentGenerator::create()
 ShaderPtr GlslFragmentGenerator::createShader(const string& name, ElementPtr element, GenContext& context) const
 {
     ShaderPtr shader = GlslShaderGenerator::createShader(name, element, context);
-    createStage(Stage::IMPLICIT_UNIFORMS, *shader);
+    createStage(Stage::UNIFORMS, *shader);
     return shader;
 }
 
@@ -345,74 +345,62 @@ ShaderPtr GlslFragmentGenerator::generate(const string& fragmentName, ElementPtr
     // Replace all tokens with real identifier names
     replaceTokens(_tokenSubstitutions, pixelStage);
 
-    // Now emit implicit uniform definitions to a special stage which is only
+    // Now emit uniform definitions to a special stage which is only
     // consumed by the HLSL cross-compiler.
     //
-    ShaderStage& implicitUniformsStage = shader->getStage(Stage::IMPLICIT_UNIFORMS);
+    ShaderStage& uniformsStage = shader->getStage(Stage::UNIFORMS);
 
-    auto emitImplicitUniform = [this, &implicitUniformsStage, &context](
-        const ShaderPort& shaderPort
+    auto emitUniformBlock = [this, &uniformsStage, &context](
+        const VariableBlock& uniformBlock
     ) -> void
     {
-        const string& originalName = shaderPort.getVariable();
-        const string textureName = OgsXmlGenerator::samplerToTextureName(originalName);
-        if (!textureName.empty())
+        for (size_t i = 0; i < uniformBlock.size(); ++i)
         {
-            // GLSL for OpenGL (which MaterialX generates) uses combined
-            // samplers where the texture is implicit in the sampler.
-            // HLSL shader model 5.0 required by DX11 uses separate samplers
-            // and textures.
-            // We use a naming convention compatible with both OGS and
-            // SPIRV-Cross where we derive sampler names from texture names
-            // with a prefix and a suffix.
-            // Unfortunately, the cross-compiler toolchain converts GLSL
-            // samplers to HLSL textures preserving the original names and
-            // generates HLSL samplers with derived names. For this reason,
-            // we rename GLSL samplers with macros here to follow the
-            // texture naming convention which preserves the correct
-            // mapping.
+            const ShaderPort* const shaderPort = uniformBlock[i];
 
-            emitLineBegin(implicitUniformsStage);
-            emitString("#define ", implicitUniformsStage);
-            emitString(originalName, implicitUniformsStage);
-            emitString(" ", implicitUniformsStage);
-            emitString(textureName, implicitUniformsStage);
-            emitLineEnd(implicitUniformsStage, false);
+            const string& originalName = shaderPort->getVariable();
+            const string textureName =
+                OgsXmlGenerator::samplerToTextureName(originalName);
+            if (!textureName.empty())
+            {
+                // GLSL for OpenGL (which MaterialX generates) uses combined
+                // samplers where the texture is implicit in the sampler.
+                // HLSL shader model 5.0 required by DX11 uses separate samplers
+                // and textures.
+                // We use a naming convention compatible with both OGS and
+                // SPIRV-Cross where we derive sampler names from texture names
+                // with a prefix and a suffix.
+                // Unfortunately, the cross-compiler toolchain converts GLSL
+                // samplers to HLSL textures preserving the original names and
+                // generates HLSL samplers with derived names. For this reason,
+                // we rename GLSL samplers with macros here to follow the
+                // texture naming convention which preserves the correct
+                // mapping.
+
+                emitLineBegin(uniformsStage);
+                emitString("#define ", uniformsStage);
+                emitString(originalName, uniformsStage);
+                emitString(" ", uniformsStage);
+                emitString(textureName, uniformsStage);
+                emitLineEnd(uniformsStage, false);
+            }
+
+            emitLineBegin(uniformsStage);
+            emitVariableDeclaration(
+                shaderPort, _syntax->getUniformQualifier(), context, uniformsStage
+            );
+            emitString(SEMICOLON, uniformsStage);
+            emitLineEnd(uniformsStage, false);
         }
 
-        emitLineBegin(implicitUniformsStage);
-        emitVariableDeclaration(
-            &shaderPort, _syntax->getUniformQualifier(), context, implicitUniformsStage
-        );
-        emitString(SEMICOLON, implicitUniformsStage);
-        emitLineEnd(implicitUniformsStage, false);
+        if (!uniformBlock.empty())
+            emitLineBreak(uniformsStage);
     };
 
-    const VariableBlock& privateUniforms = pixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS);
-    if (!privateUniforms.empty())
-    {
-        for (size_t i = 0; i < privateUniforms.size(); ++i)
-            emitImplicitUniform(*privateUniforms[i]);
-        emitLineBreak(implicitUniformsStage);
-    }
+    emitUniformBlock(pixelStage.getUniformBlock(HW::PRIVATE_UNIFORMS));
+    emitUniformBlock(pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS));
 
-    const VariableBlock& publicUniforms = pixelStage.getUniformBlock(HW::PUBLIC_UNIFORMS);
-    bool emittedPublicSamplers = false;
-    for (size_t i = 0; i < publicUniforms.size(); ++i)
-    {
-        const ShaderPort* const shaderPort = publicUniforms[i];
-
-        if (shaderPort->getType() == Type::FILENAME)
-        {
-            emitImplicitUniform(*shaderPort);
-            emittedPublicSamplers = true;
-        }
-    }
-
-    if (emittedPublicSamplers)
-        emitLineBreak(implicitUniformsStage);
-
-    replaceTokens(_tokenSubstitutions, implicitUniformsStage);
+    replaceTokens(_tokenSubstitutions, uniformsStage);
 
     return shader;
 }
