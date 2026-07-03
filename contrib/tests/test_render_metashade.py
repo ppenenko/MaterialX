@@ -10,6 +10,9 @@ import pytest
 import MaterialX as mx
 from test_render import run_render_test_file, add_additional_test_streams
 
+_SOURCE_CODE_NODE_PASSTHRUS = "source_code_node_passthrus"
+_METASHADE_REF_DIR = Path("contrib") / "tests" / "metashade_ref"
+
 
 def get_schlick_test_files():
     """Get list of .mtlx files that directly or transitively test Schlick BSDF."""
@@ -48,9 +51,9 @@ def output_dir(request, repo_root) -> Path:
     """Override output_dir to place Metashade results under their own root."""
     opt = request.config.getoption("--output-dir")
     if opt:
-        path = Path(opt) / "metashade_schlick"
+        path = Path(opt) / "metashade" / _SOURCE_CODE_NODE_PASSTHRUS
     else:
-        path = repo_root / "contrib" / "renders" / "metashade_schlick"
+        path = repo_root / "contrib" / "renders" / "metashade" / _SOURCE_CODE_NODE_PASSTHRUS
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -65,30 +68,22 @@ class TestRenderMetashadeSchlickOverride:
         """Create a custom search path including standard library source files and Metashade overrides."""
         custom_sp = mx.FileSearchPath(search_path.asString())
         
-        # 1. Add the specific standard library folder needed by the Schlick BSDF implementation.
+        # Add the specific standard library folder needed by the Schlick BSDF implementation.
         # Find pbrlib/genglsl under the search_path directories to match standard library include resolution.
         import os
         sep = ';' if os.name == 'nt' else ':'
+
         for p_str in search_path.asString().split(sep):
             p = Path(p_str)
             pbrlib_genglsl = p / "libraries" / "pbrlib" / "genglsl"
             if pbrlib_genglsl.exists():
                 custom_sp.append(pbrlib_genglsl.as_posix())
                 break
-            # Fallback if standard libraries are in checkout
+
             pbrlib_genglsl_local = p / "pbrlib" / "genglsl"
             if pbrlib_genglsl_local.exists():
                 custom_sp.append(pbrlib_genglsl_local.as_posix())
                 break
-            
-        # 2. Add Metashade override path
-        metashade_mtlx_path = repo_root / "contrib" / "tests" / "metashade_ref"
-        if not metashade_mtlx_path.exists():
-            pytest.fail(
-                f"Metashade override directory not found: {metashade_mtlx_path}. "
-                "Ensure the metashade_ref directory is present in contrib/tests."
-            )
-        custom_sp.append(metashade_mtlx_path.as_posix())
 
         return custom_sp
 
@@ -97,19 +92,22 @@ class TestRenderMetashadeSchlickOverride:
         """Create a custom stdlib document with Metashade Schlick override loaded first."""
         lib = mx.createDocument()
         
-        # 1. Load Metashade Schlick override first
-        override_mtlx = (
-            repo_root / "contrib" / "tests" / "metashade_ref"
-            / "mx_generalized_schlick_bsdf_metashade_genglsl_impl.mtlx"
+        metashade_ref = repo_root / _METASHADE_REF_DIR
+        override_sp = mx.FileSearchPath(metashade_ref.as_posix())
+
+        # Load Metashade overrides first so they take priority by insertion order
+        mx.loadLibraries([_SOURCE_CODE_NODE_PASSTHRUS], override_sp, lib)
+        override_dir = metashade_ref / _SOURCE_CODE_NODE_PASSTHRUS
+        assert lib.getChildren(), (
+            f"loadLibraries loaded nothing from {override_dir}"
         )
-        if not override_mtlx.exists():
-            pytest.fail(
-                f"Metashade Schlick override file not found: {override_mtlx}. "
-                "The test cannot validate override behavior without it."
-            )
-        mx.readFromXmlFile(lib, override_mtlx.as_posix())
-            
-        # 2. Load standard libraries second
+
+        # Expose the override .glsl files to the shader generator
+        schlick_search_path.append(
+            (metashade_ref / _SOURCE_CODE_NODE_PASSTHRUS).as_posix()
+        )
+
+        # Load standard libraries second
         library_folders = mx.getDefaultDataLibraryFolders()
         mx.loadLibraries(library_folders, schlick_search_path, lib)
         return lib
