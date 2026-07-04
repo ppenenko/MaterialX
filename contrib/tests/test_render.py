@@ -21,51 +21,56 @@ def get_repo_root() -> Path:
     return Path(__file__).parent.parent.parent
 
 
-def get_stdlib_files():
+def collect_mtlx_files(
+    materials_root: Path,
+    subdirs: list[str] | None = None,
+    exclude_underscore: bool = False,
+) -> list:
+    """Collect .mtlx files under *materials_root* as pytest params.
+
+    Args:
+        materials_root: Base directory whose relative paths become test IDs.
+        subdirs: If given, only search these subdirectories (each must exist).
+                 If *None*, search *materials_root* itself.
+        exclude_underscore: Skip files whose name starts with ``_``.
     """
-    Get list of stdlib .mtlx files for parametrization.
-    
-    Fast collection - just globs for files, no parsing.
-    """
-    repo_root = get_repo_root()
-    materials_root = repo_root / "resources" / "Materials"
-    
-    test_dirs = [
-        materials_root / "TestSuite",
-        materials_root / "Examples",
-    ]
-    
+    if not materials_root.exists():
+        return []
+
+    roots = (
+        [materials_root / d for d in subdirs] if subdirs else [materials_root]
+    )
+
     files = []
-    for test_dir in test_dirs:
-        if test_dir.exists():
-            for mtlx_file in sorted(test_dir.rglob("*.mtlx")):
-                if not mtlx_file.name.startswith("_"):
-                    rel_path = mtlx_file.relative_to(materials_root)
-                    file_id = str(rel_path).replace("\\", "/")
-                    files.append(pytest.param(mtlx_file, id=file_id))
-    
+    for root in roots:
+        if not root.exists():
+            continue
+        for mtlx_file in sorted(root.rglob("*.mtlx")):
+            if exclude_underscore and mtlx_file.name.startswith("_"):
+                continue
+            rel_path = mtlx_file.relative_to(materials_root)
+            file_id = str(rel_path).replace("\\", "/")
+            files.append(pytest.param(mtlx_file, id=file_id))
+
     return files
+
+
+def get_stdlib_files():
+    """Stdlib .mtlx files (TestSuite + Examples)."""
+    materials_root = get_repo_root() / "resources" / "Materials"
+    return collect_mtlx_files(
+        materials_root,
+        subdirs=["TestSuite", "Examples"],
+        exclude_underscore=True,
+    )
 
 
 def get_adsk_files():
-    """
-    Get list of adsk .mtlx files for parametrization.
-    
-    Fast collection - just globs for files, no parsing.
-    """
-    repo_root = get_repo_root()
-    materials_dir = repo_root / "contrib" / "adsk" / "resources" / "Materials"
-    
-    if not materials_dir.exists():
-        return []
-    
-    files = []
-    for mtlx_file in sorted(materials_dir.rglob("*.mtlx")):
-        rel_path = mtlx_file.relative_to(materials_dir)
-        file_id = str(rel_path).replace("\\", "/")
-        files.append(pytest.param(mtlx_file, id=file_id))
-    
-    return files
+    """Autodesk contributed .mtlx files."""
+    materials_dir = (
+        get_repo_root() / "contrib" / "adsk" / "resources" / "Materials"
+    )
+    return collect_mtlx_files(materials_dir)
 
 
 _SKIP_PATTERNS = {
@@ -174,6 +179,8 @@ def add_additional_test_streams(mesh):
         for i in range(n):
             d[i*4], d[i*4+1], d[i*4+2], d[i*4+3] = uv[i*2], uv[i*2+1], 1.0, 1.0
     _add_stream_if_missing(mesh, f"i_{GEOMPROP}_geompropvalue_color4", GEOMPROP, 1, 4, fill_color4)
+
+
 def find_renderable_elements(doc):
     """
     Find all renderable elements in a document.
