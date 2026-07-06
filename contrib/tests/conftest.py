@@ -181,13 +181,36 @@ def renderer(glsl_renderer):
     return glsl_renderer
 
 
-def get_output_path_for_file(mtlx_file: Path, output_dir: Path) -> Path:
-    """Derive the output directory path for a given material file.
+@pytest.fixture(scope="session")
+def stdlib_env(renderer, stdlib, search_path, output_dir, assert_image_matches_baseline):
+    """RenderEnvironment for standard library materials tests."""
+    from test_render import RenderEnvironment
+    return RenderEnvironment(
+        renderer=renderer,
+        data_library=stdlib,
+        search_path=search_path,
+        output_dir=output_dir,
+        assert_image_matches_baseline=assert_image_matches_baseline
+    )
 
-    Uses a flat layout (just the file stem) to match MaterialXTest's
-    output convention and enable baseline image comparisons.
-    """
-    return output_dir / mtlx_file.stem
+
+@pytest.fixture(scope="session")
+def adsk_env(renderer, data_library, search_path, output_dir, assert_image_matches_baseline):
+    """RenderEnvironment for Autodesk materials tests."""
+    from test_render import RenderEnvironment
+    adsk_output = output_dir / "adsk"
+    adsk_output.mkdir(parents=True, exist_ok=True)
+    return RenderEnvironment(
+        renderer=renderer,
+        data_library=data_library,
+        search_path=search_path,
+        output_dir=adsk_output,
+        assert_image_matches_baseline=assert_image_matches_baseline,
+        flat_layout=False
+    )
+
+
+# (Deleted get_output_path_for_file helper as logreport now queries env.get_output_path() directly)
 
 
 from collections import defaultdict
@@ -227,11 +250,27 @@ def pytest_runtest_logreport(report):
             return
             
         mtlx_file = funcargs.get("mtlx_file")
-        output_dir = funcargs.get("output_dir")
-        baseline_dir = funcargs.get("baseline_dir")
-        
-        if not mtlx_file or not output_dir:
+        if not mtlx_file:
             return
+            
+        # Extract the RenderEnvironment from funcargs
+        from test_render import RenderEnvironment
+        env = None
+        for arg_val in funcargs.values():
+            if isinstance(arg_val, RenderEnvironment):
+                env = arg_val
+                break
+        if not env:
+            return
+            
+        output_dir = env.output_dir
+        
+        # Resolve baseline_dir using global config option
+        baseline_dir = None
+        if _pytest_config:
+            baseline_dir_opt = _pytest_config.getoption("--baseline-dir")
+            if baseline_dir_opt:
+                baseline_dir = Path(baseline_dir_opt)
             
         # Extract subtest name from report context
         context = getattr(report, "context", None)
@@ -239,7 +278,7 @@ def pytest_runtest_logreport(report):
         if not subtest_name:
             return
             
-        output_path = get_output_path_for_file(mtlx_file, output_dir)
+        output_path = env.get_output_path(mtlx_file)
         if not output_path or not output_path.exists():
             return
             
@@ -423,11 +462,12 @@ def assert_image_matches_baseline(baseline_dir, flip_threshold, output_dir):
     """
     Fixture that returns a function to assert a rendered image matches its baseline.
     """
-    def _assert(rendered_file: Path):
+    def _assert(rendered_file: Path, base_dir: Path | None = None):
         if not (baseline_dir and rendered_file):
             return
             
-        rel_rendered = rendered_file.relative_to(output_dir)
+        rel_base = base_dir or output_dir
+        rel_rendered = rendered_file.relative_to(rel_base)
         baseline_file = baseline_dir / rel_rendered
         
         # Generate heatmap in the same directory as rendered file
