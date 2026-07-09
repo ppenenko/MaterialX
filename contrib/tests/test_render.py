@@ -21,6 +21,98 @@ def get_repo_root() -> Path:
     return Path(__file__).parent.parent.parent
 
 
+def _get_options_mtlx_path() -> Path:
+    return (
+        get_repo_root()
+        / "resources"
+        / "Materials"
+        / "TestSuite"
+        / "_options.mtlx"
+    )
+
+
+def parse_options_mtlx(options_path: Path | None = None) -> dict:
+    """Parse ``_options.mtlx`` and return the test-suite configuration.
+
+    Returns a dict with keys ``renderTestPaths``, ``renderTestExcludeFiles``,
+    ``overrideFiles``, and ``envSampleCount``.
+    """
+    if options_path is None:
+        options_path = _get_options_mtlx_path()
+
+    try:
+        doc = mx.createDocument()
+        mx.readFromXmlFile(doc, str(options_path))
+        nodedef = doc.getNodeDef("TestSuiteOptions")
+
+        def _split(name: str) -> list[str]:
+            raw = nodedef.getInput(name).getValueString()
+            return [s.strip() for s in raw.split(",") if s.strip()]
+
+        return {
+            "renderTestPaths": _split("renderTestPaths"),
+            "renderTestExcludeFiles": _split("renderTestExcludeFiles"),
+            "overrideFiles": _split("overrideFiles"),
+            "envSampleCount": nodedef.getInput("envSampleCount").getValue(),
+        }
+    except Exception as exc:
+        raise RuntimeError(
+            f"Failed to parse _options.mtlx at {options_path}"
+        ) from exc
+
+
+def collect_render_test_files(
+    options: dict | None = None,
+    repo_root: Path | None = None,
+) -> list:
+    """Collect ``.mtlx`` files matching ``_options.mtlx`` render test scope.
+
+    Mirrors the C++ ``ShaderRenderTester::collectTestFiles()`` logic:
+    walk each ``renderTestPaths`` entry, apply ``overrideFiles`` as an include
+    filter (when non-empty) or ``renderTestExcludeFiles`` as an exclude filter.
+    """
+    if options is None:
+        options = parse_options_mtlx()
+    if repo_root is None:
+        repo_root = get_repo_root()
+
+    render_paths = options["renderTestPaths"]
+    exclude_files = set(options["renderTestExcludeFiles"])
+    override_files = set(options["overrideFiles"])
+
+    files: list = []
+    materials_root = repo_root / "resources" / "Materials"
+
+    def _accept(mtlx_file: Path) -> bool:
+        """Apply ``overrideFiles`` as an include filter (when non-empty)
+        or ``renderTestExcludeFiles`` as an exclude filter, mirroring C++
+        ``ShaderRenderTester::collectTestFiles()``."""
+        if override_files:
+            return mtlx_file.name in override_files
+        return mtlx_file.name not in exclude_files
+
+    for rel_root in render_paths:
+        root = repo_root / rel_root
+        if root.is_file():
+            if root.suffix == ".mtlx" and _accept(root):
+                rel_path = root.relative_to(materials_root)
+                file_id = str(rel_path).replace("\\", "/")
+                files.append(pytest.param(root, id=file_id))
+        elif root.is_dir():
+            for mtlx_file in sorted(root.rglob("*.mtlx")):
+                if not _accept(mtlx_file):
+                    continue
+                rel_path = mtlx_file.relative_to(materials_root)
+                file_id = str(rel_path).replace("\\", "/")
+                files.append(pytest.param(mtlx_file, id=file_id))
+
+    assert files, (
+        f"collect_render_test_files found no .mtlx files. "
+        f"renderTestPaths={render_paths}, repo_root={repo_root}"
+    )
+    return files
+
+
 def collect_mtlx_files(
     materials_root: Path,
     subdirs: list[str] | None = None,
@@ -345,8 +437,9 @@ class TestRenderStdlibMaterials:
     """
     Test rendering of standard MaterialX library materials.
     
-    Covers resources/Materials/TestSuite and resources/Materials/Examples,
-    matching the same test cases run by MaterialXTest/Catch2/CTest.
+    Covers all ``.mtlx`` files under ``resources/Materials/TestSuite`` and
+    ``resources/Materials/Examples`` (a superset of the curated paths in
+    ``_options.mtlx`` used by the C++ MaterialXTest suite).
     """
     
     @pytest.mark.parametrize("mtlx_file", get_stdlib_files())
