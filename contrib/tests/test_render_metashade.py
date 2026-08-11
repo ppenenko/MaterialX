@@ -26,11 +26,16 @@ class _RefPaths:
     """Paths for Metashade reference data.
 
     ``LIBRARIES`` is always repo-relative (committed reference inputs).
+    ``METASHADE_LIBRARIES`` points to hand-written library files inside
+    the Metashade submodule (e.g. the Standard Surface nodegraph).
     ``ENV_SUBPATH`` is the environment subpath for render output,
     relative to ``output_root``.
     """
     ROOT = Path("tests") / "metashade_ref"
     LIBRARIES = Path("contrib") / ROOT / "libraries"
+    METASHADE_LIBRARIES = (
+        Path("contrib") / "metashade" / "tests" / "mtlx" / "libraries"
+    )
     ENV_SUBPATH = ROOT / "renders"
 
 
@@ -71,12 +76,20 @@ class MetashadeOverrideTestBase:
         libraries_dir = repo_root / _RefPaths.LIBRARIES
         override_sp = mx.FileSearchPath(libraries_dir.as_posix())
 
-        # Load Metashade overrides first so they take priority by insertion order
+        # Load generated overrides (nodedef, impl, GLSL)
         mx.loadLibraries([subdir], override_sp, lib)
         override_dir = libraries_dir / subdir
         assert lib.getChildren(), (
             f"loadLibraries loaded nothing from {override_dir}"
         )
+
+        # Load hand-written library files (e.g. the SS nodegraph) separately;
+        # loadLibraries stops at the first matching subdir, so a single call
+        # with both paths would skip the second root.
+        metashade_libs = repo_root / _RefPaths.METASHADE_LIBRARIES
+        if (metashade_libs / subdir).exists():
+            metashade_sp = mx.FileSearchPath(metashade_libs.as_posix())
+            mx.loadLibraries([subdir], metashade_sp, lib)
 
         # Expose the override .glsl files to the shader generator
         override_search_path.append(override_dir.as_posix())
@@ -209,4 +222,38 @@ class TestRenderMetashadeBrokenSchlick(MetashadeOverrideTestBase):
     @pytest.mark.parametrize("mtlx_file", _get_schlick_test_files())
     def test_render_file(self, mtlx_file: Path, subtests, override_env):
         """Test rendering with Broken Schlick override."""
+        override_env.run_test(mtlx_file, subtests)
+
+
+_STANDARD_SURFACE_TEST_PATHS = (
+    "Examples/StandardSurface/standard_surface_default.mtlx",
+    "Examples/StandardSurface/standard_surface_plastic.mtlx",
+)
+
+
+def _get_standard_surface_test_files():
+    """Collect .mtlx files that exercise Standard Surface (Tier 1)."""
+    from test_render import get_repo_root
+    materials_root = get_repo_root() / "resources" / "Materials"
+    files = []
+    for rel in _STANDARD_SURFACE_TEST_PATHS:
+        mtlx_file = materials_root / rel
+        if mtlx_file.exists():
+            files.append(pytest.param(mtlx_file, id=rel))
+    return files
+
+
+class TestRenderMetashadeStandardSurface(MetashadeOverrideTestBase):
+    """Test rendering with the Metashade Standard Surface override.
+
+    Replaces the entire ``ND_standard_surface_surfaceshader`` implementation
+    with a Metashade-generated diffuse + specular shader (Oren-Nayar +
+    dielectric BSDF layering).  Scoped to Tier 1 Standard Surface assets
+    where visual comparison against the C++ nodegraph baseline is meaningful.
+    """
+    SUBDIR = "standard_surface"
+
+    @pytest.mark.parametrize("mtlx_file", _get_standard_surface_test_files())
+    def test_render_file(self, mtlx_file: Path, subtests, override_env):
+        """Test rendering with Metashade Standard Surface override."""
         override_env.run_test(mtlx_file, subtests)
