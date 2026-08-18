@@ -11,7 +11,6 @@ struct lightshader { vec3 intensity; vec3 direction; };
 #define material surfaceshader
 
 // Uniform block: PrivateUniforms
-uniform float u_alphaThreshold = 0.001000;
 uniform mat4 u_envMatrix = mat4(-1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, -1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000);
 uniform sampler2D u_envRadiance;
 uniform float u_envLightIntensity = 1.000000;
@@ -24,50 +23,103 @@ uniform vec3 u_viewPosition = vec3(0.0);
 // Uniform block: PublicUniforms
 uniform surfaceshader backsurfaceshader;
 uniform displacementshader displacementshader1;
-uniform float SR_glass_base = 0.000000;
-uniform vec3 SR_glass_base_color = vec3(0.800000, 0.800000, 0.800000);
-uniform float SR_glass_diffuse_roughness = 0.000000;
-uniform float SR_glass_metalness = 0.000000;
-uniform float SR_glass_specular = 1.000000;
-uniform vec3 SR_glass_specular_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_specular_roughness = 0.010000;
-uniform float SR_glass_specular_IOR = 1.520000;
-uniform float SR_glass_specular_anisotropy = 0.000000;
-uniform float SR_glass_specular_rotation = 0.000000;
-uniform float SR_glass_transmission = 1.000000;
-uniform vec3 SR_glass_transmission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_transmission_depth = 0.000000;
-uniform vec3 SR_glass_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
-uniform float SR_glass_transmission_scatter_anisotropy = 0.000000;
-uniform float SR_glass_transmission_dispersion = 0.000000;
-uniform float SR_glass_transmission_extra_roughness = 0.000000;
-uniform float SR_glass_subsurface = 0.000000;
-uniform vec3 SR_glass_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_subsurface_scale = 1.000000;
-uniform float SR_glass_subsurface_anisotropy = 0.000000;
-uniform float SR_glass_sheen = 0.000000;
-uniform vec3 SR_glass_sheen_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_sheen_roughness = 0.300000;
-uniform float SR_glass_coat = 0.000000;
-uniform vec3 SR_glass_coat_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_coat_roughness = 0.100000;
-uniform float SR_glass_coat_anisotropy = 0.000000;
-uniform float SR_glass_coat_rotation = 0.000000;
-uniform float SR_glass_coat_IOR = 1.500000;
-uniform float SR_glass_coat_affect_color = 0.000000;
-uniform float SR_glass_coat_affect_roughness = 0.000000;
-uniform float SR_glass_thin_film_thickness = 0.000000;
-uniform float SR_glass_thin_film_IOR = 1.500000;
-uniform float SR_glass_emission = 0.000000;
-uniform vec3 SR_glass_emission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_opacity = vec3(1.000000, 1.000000, 1.000000);
-uniform bool SR_glass_thin_walled = false;
+uniform int geomprop_UV0_index = 0;
+uniform sampler2D diffuse1_file;
+uniform int diffuse1_layer = 0;
+uniform vec3 diffuse1_default = vec3(0.000000, 0.000000, 0.000000);
+uniform int diffuse1_uaddressmode = 2;
+uniform int diffuse1_vaddressmode = 2;
+uniform int diffuse1_filtertype = 1;
+uniform int diffuse1_framerange = 0;
+uniform int diffuse1_frameoffset = 0;
+uniform int diffuse1_frameendaction = 0;
+uniform vec2 diffuse1_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 diffuse1_uv_offset = vec2(0.000000, 0.000000);
+uniform sampler2D metallic1_file;
+uniform int metallic1_layer = 0;
+uniform float metallic1_default = 0.000000;
+uniform int metallic1_uaddressmode = 2;
+uniform int metallic1_vaddressmode = 2;
+uniform int metallic1_filtertype = 1;
+uniform int metallic1_framerange = 0;
+uniform int metallic1_frameoffset = 0;
+uniform int metallic1_frameendaction = 0;
+uniform vec2 metallic1_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 metallic1_uv_offset = vec2(0.000000, 0.000000);
+uniform sampler2D roughness1_file;
+uniform int roughness1_layer = 0;
+uniform float roughness1_default = 0.000000;
+uniform int roughness1_uaddressmode = 2;
+uniform int roughness1_vaddressmode = 2;
+uniform int roughness1_filtertype = 1;
+uniform int roughness1_framerange = 0;
+uniform int roughness1_frameoffset = 0;
+uniform int roughness1_frameendaction = 0;
+uniform vec2 roughness1_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 roughness1_uv_offset = vec2(0.000000, 0.000000);
+uniform sampler2D sss1_file;
+uniform int sss1_layer = 0;
+uniform float sss1_default = 0.000000;
+uniform int sss1_uaddressmode = 2;
+uniform int sss1_vaddressmode = 2;
+uniform int sss1_filtertype = 1;
+uniform int sss1_framerange = 0;
+uniform int sss1_frameoffset = 0;
+uniform int sss1_frameendaction = 0;
+uniform vec2 sss1_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 sss1_uv_offset = vec2(0.000000, 0.000000);
+uniform sampler2D normal1_file;
+uniform int normal1_layer = 0;
+uniform vec3 normal1_default = vec3(0.000000, 0.000000, 0.000000);
+uniform int normal1_uaddressmode = 2;
+uniform int normal1_vaddressmode = 2;
+uniform int normal1_filtertype = 1;
+uniform int normal1_framerange = 0;
+uniform int normal1_frameoffset = 0;
+uniform int normal1_frameendaction = 0;
+uniform vec2 normal1_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 normal1_uv_offset = vec2(0.000000, 0.000000);
+uniform float mtlxnormalmap3_scale = 1.000000;
+uniform float Queen_W_base = 1.000000;
+uniform float Queen_W_diffuse_roughness = 0.000000;
+uniform float Queen_W_specular = 1.000000;
+uniform vec3 Queen_W_specular_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Queen_W_specular_IOR = 1.500000;
+uniform float Queen_W_specular_anisotropy = 0.000000;
+uniform float Queen_W_specular_rotation = 0.000000;
+uniform float Queen_W_transmission = 0.000000;
+uniform vec3 Queen_W_transmission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Queen_W_transmission_depth = 0.000000;
+uniform vec3 Queen_W_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
+uniform float Queen_W_transmission_scatter_anisotropy = 0.000000;
+uniform float Queen_W_transmission_dispersion = 0.000000;
+uniform float Queen_W_transmission_extra_roughness = 0.000000;
+uniform float Queen_W_subsurface_scale = 0.001000;
+uniform float Queen_W_subsurface_anisotropy = 0.000000;
+uniform float Queen_W_sheen = 0.000000;
+uniform vec3 Queen_W_sheen_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Queen_W_sheen_roughness = 0.300000;
+uniform float Queen_W_coat = 0.000000;
+uniform vec3 Queen_W_coat_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Queen_W_coat_roughness = 0.100000;
+uniform float Queen_W_coat_anisotropy = 0.000000;
+uniform float Queen_W_coat_rotation = 0.000000;
+uniform float Queen_W_coat_IOR = 1.500000;
+uniform float Queen_W_coat_affect_color = 0.000000;
+uniform float Queen_W_coat_affect_roughness = 0.000000;
+uniform float Queen_W_thin_film_thickness = 0.000000;
+uniform float Queen_W_thin_film_IOR = 1.500000;
+uniform float Queen_W_emission = 0.000000;
+uniform vec3 Queen_W_emission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 Queen_W_opacity = vec3(1.000000, 1.000000, 1.000000);
+uniform bool Queen_W_thin_walled = false;
 
 in VertexData
 {
     vec3 normalWorld;
     vec3 tangentWorld;
+    vec2 texcoord_0;
+    vec3 bitangentWorld;
     vec3 positionWorld;
 } vd;
 
@@ -869,6 +921,92 @@ vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         tint = mx_square(tint);
     }
     return mx_environment_radiance(N, V, X, alpha, distribution, fd) * tint;
+}
+
+vec2 mx_transform_uv(vec2 uv, vec2 uv_scale, vec2 uv_offset)
+{
+    uv = uv * uv_scale + uv_offset;
+    return vec2(uv.x, 1.0 - uv.y);
+}
+
+void mx_image_color3(sampler2D tex_sampler, int layer, vec3 defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out vec3 result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).rgb;
+}
+
+
+void mx_image_float(sampler2D tex_sampler, int layer, float defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out float result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).r;
+}
+
+
+void mx_image_vector3(sampler2D tex_sampler, int layer, vec3 defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out vec3 result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).rgb;
+}
+
+void NG_separate3_color3(vec3 in1, out float outr, out float outg, out float outb)
+{
+    const int N_extract_0_index_tmp = 0;
+    float N_extract_0_out = in1[N_extract_0_index_tmp];
+    const int N_extract_1_index_tmp = 1;
+    float N_extract_1_out = in1[N_extract_1_index_tmp];
+    const int N_extract_2_index_tmp = 2;
+    float N_extract_2_out = in1[N_extract_2_index_tmp];
+    outr = N_extract_0_out;
+    outg = N_extract_1_out;
+    outb = N_extract_2_out;
+}
+
+void NG_srgb_texture_to_lin_rec709_color3(vec3 in1, out vec3 out1)
+{
+    const float bias_in2_tmp = 0.055000;
+    vec3 bias_out = in1 + bias_in2_tmp;
+    const float linSeg_in2_tmp = 12.920000;
+    vec3 linSeg_out = in1 / linSeg_in2_tmp;
+    float colorSeparate_outr = 0.0;
+    float colorSeparate_outg = 0.0;
+    float colorSeparate_outb = 0.0;
+    NG_separate3_color3(in1, colorSeparate_outr, colorSeparate_outg, colorSeparate_outb);
+    const float max_in2_tmp = 0.000000;
+    vec3 max_out = max(bias_out, max_in2_tmp);
+    const float isAboveR_value2_tmp = 0.040450;
+    const float isAboveR_in1_tmp = 1.000000;
+    const float isAboveR_in2_tmp = 0.000000;
+    float isAboveR_out = (colorSeparate_outr > isAboveR_value2_tmp) ? isAboveR_in1_tmp : isAboveR_in2_tmp;
+    const float isAboveG_value2_tmp = 0.040450;
+    const float isAboveG_in1_tmp = 1.000000;
+    const float isAboveG_in2_tmp = 0.000000;
+    float isAboveG_out = (colorSeparate_outg > isAboveG_value2_tmp) ? isAboveG_in1_tmp : isAboveG_in2_tmp;
+    const float isAboveB_value2_tmp = 0.040450;
+    const float isAboveB_in1_tmp = 1.000000;
+    const float isAboveB_in2_tmp = 0.000000;
+    float isAboveB_out = (colorSeparate_outb > isAboveB_value2_tmp) ? isAboveB_in1_tmp : isAboveB_in2_tmp;
+    const float scale_in2_tmp = 1.055000;
+    vec3 scale_out = max_out / scale_in2_tmp;
+    vec3 isAbove_out = vec3(isAboveR_out,isAboveG_out,isAboveB_out);
+    const float powSeg_in2_tmp = 2.400000;
+    vec3 powSeg_out = pow(scale_out, vec3(powSeg_in2_tmp));
+    vec3 mix_out = mix(linSeg_out, powSeg_out, isAbove_out);
+    out1 = mix_out;
+}
+
+void mx_normalmap_vector2(vec3 value, vec2 normal_scale, vec3 N, vec3 T, vec3 B, out vec3 result)
+{
+    value = (dot(value, value) == 0.0) ? vec3(0.0, 0.0, 1.0) : value * 2.0 - 1.0;
+    value = T * value.x * normal_scale.x +
+            B * value.y * normal_scale.y +
+            N * value.z;
+    result = normalize(value);
+}
+
+void mx_normalmap_float(vec3 value, float normal_scale, vec3 N, vec3 T, vec3 B, out vec3 result)
+{
+    mx_normalmap_vector2(value, vec2(normal_scale), N, T, B, result);
 }
 
 void mx_roughness_anisotropy(float roughness, float anisotropy, out vec2 result)
@@ -1814,14 +1952,25 @@ void main()
 {
     vec3 geomprop_Nworld_out1 = normalize(vd.normalWorld);
     vec3 geomprop_Tworld_out1 = normalize(vd.tangentWorld);
-    surfaceshader SR_glass_out = surfaceshader(vec3(0.0),vec3(0.0));
-    NG_metashade_standard_surface(SR_glass_base, SR_glass_base_color, SR_glass_diffuse_roughness, SR_glass_metalness, SR_glass_specular, SR_glass_specular_color, SR_glass_specular_roughness, SR_glass_specular_IOR, SR_glass_specular_anisotropy, SR_glass_specular_rotation, SR_glass_transmission, SR_glass_transmission_color, SR_glass_transmission_depth, SR_glass_transmission_scatter, SR_glass_transmission_scatter_anisotropy, SR_glass_transmission_dispersion, SR_glass_transmission_extra_roughness, SR_glass_subsurface, SR_glass_subsurface_color, SR_glass_subsurface_radius, SR_glass_subsurface_scale, SR_glass_subsurface_anisotropy, SR_glass_sheen, SR_glass_sheen_color, SR_glass_sheen_roughness, SR_glass_coat, SR_glass_coat_color, SR_glass_coat_roughness, SR_glass_coat_anisotropy, SR_glass_coat_rotation, SR_glass_coat_IOR, geomprop_Nworld_out1, SR_glass_coat_affect_color, SR_glass_coat_affect_roughness, SR_glass_thin_film_thickness, SR_glass_thin_film_IOR, SR_glass_emission, SR_glass_emission_color, SR_glass_opacity, SR_glass_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, SR_glass_out);
-    material Glass_out = SR_glass_out;
-    float outAlpha = clamp(1.0 - dot(Glass_out.transparency, vec3(0.3333)), 0.0, 1.0);
-    out1 = vec4(Glass_out.color, outAlpha);
-    if (outAlpha < u_alphaThreshold)
-    {
-        discard;
-    }
+    vec2 geomprop_UV0_out1 = vd.texcoord_0.xy;
+    vec3 geomprop_Bworld_out1 = normalize(vd.bitangentWorld);
+    vec3 diffuse1_out = vec3(0.0);
+    mx_image_color3(diffuse1_file, diffuse1_layer, diffuse1_default, geomprop_UV0_out1, diffuse1_uaddressmode, diffuse1_vaddressmode, diffuse1_filtertype, diffuse1_framerange, diffuse1_frameoffset, diffuse1_frameendaction, diffuse1_uv_scale, diffuse1_uv_offset, diffuse1_out);
+    float metallic1_out = 0.0;
+    mx_image_float(metallic1_file, metallic1_layer, metallic1_default, geomprop_UV0_out1, metallic1_uaddressmode, metallic1_vaddressmode, metallic1_filtertype, metallic1_framerange, metallic1_frameoffset, metallic1_frameendaction, metallic1_uv_scale, metallic1_uv_offset, metallic1_out);
+    float roughness1_out = 0.0;
+    mx_image_float(roughness1_file, roughness1_layer, roughness1_default, geomprop_UV0_out1, roughness1_uaddressmode, roughness1_vaddressmode, roughness1_filtertype, roughness1_framerange, roughness1_frameoffset, roughness1_frameendaction, roughness1_uv_scale, roughness1_uv_offset, roughness1_out);
+    float sss1_out = 0.0;
+    mx_image_float(sss1_file, sss1_layer, sss1_default, geomprop_UV0_out1, sss1_uaddressmode, sss1_vaddressmode, sss1_filtertype, sss1_framerange, sss1_frameoffset, sss1_frameendaction, sss1_uv_scale, sss1_uv_offset, sss1_out);
+    vec3 normal1_out = vec3(0.0);
+    mx_image_vector3(normal1_file, normal1_layer, normal1_default, geomprop_UV0_out1, normal1_uaddressmode, normal1_vaddressmode, normal1_filtertype, normal1_framerange, normal1_frameoffset, normal1_frameendaction, normal1_uv_scale, normal1_uv_offset, normal1_out);
+    vec3 diffuse1_out_cm_out = vec3(0.0);
+    NG_srgb_texture_to_lin_rec709_color3(diffuse1_out, diffuse1_out_cm_out);
+    vec3 mtlxnormalmap3_out = vec3(0.0);
+    mx_normalmap_float(normal1_out, mtlxnormalmap3_scale, geomprop_Nworld_out1, geomprop_Tworld_out1, geomprop_Bworld_out1, mtlxnormalmap3_out);
+    surfaceshader Queen_W_out = surfaceshader(vec3(0.0),vec3(0.0));
+    NG_metashade_standard_surface(Queen_W_base, diffuse1_out_cm_out, Queen_W_diffuse_roughness, metallic1_out, Queen_W_specular, Queen_W_specular_color, roughness1_out, Queen_W_specular_IOR, Queen_W_specular_anisotropy, Queen_W_specular_rotation, Queen_W_transmission, Queen_W_transmission_color, Queen_W_transmission_depth, Queen_W_transmission_scatter, Queen_W_transmission_scatter_anisotropy, Queen_W_transmission_dispersion, Queen_W_transmission_extra_roughness, sss1_out, diffuse1_out_cm_out, diffuse1_out_cm_out, Queen_W_subsurface_scale, Queen_W_subsurface_anisotropy, Queen_W_sheen, Queen_W_sheen_color, Queen_W_sheen_roughness, Queen_W_coat, Queen_W_coat_color, Queen_W_coat_roughness, Queen_W_coat_anisotropy, Queen_W_coat_rotation, Queen_W_coat_IOR, geomprop_Nworld_out1, Queen_W_coat_affect_color, Queen_W_coat_affect_roughness, Queen_W_thin_film_thickness, Queen_W_thin_film_IOR, Queen_W_emission, Queen_W_emission_color, Queen_W_opacity, Queen_W_thin_walled, mtlxnormalmap3_out, geomprop_Tworld_out1, Queen_W_out);
+    material M_Queen_W_out = Queen_W_out;
+    out1 = vec4(M_Queen_W_out.color, 1.0);
 }
 

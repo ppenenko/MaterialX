@@ -24,50 +24,75 @@ uniform vec3 u_viewPosition = vec3(0.0);
 // Uniform block: PublicUniforms
 uniform surfaceshader backsurfaceshader;
 uniform displacementshader displacementshader1;
-uniform float SR_glass_base = 0.000000;
-uniform vec3 SR_glass_base_color = vec3(0.800000, 0.800000, 0.800000);
-uniform float SR_glass_diffuse_roughness = 0.000000;
-uniform float SR_glass_metalness = 0.000000;
-uniform float SR_glass_specular = 1.000000;
-uniform vec3 SR_glass_specular_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_specular_roughness = 0.010000;
-uniform float SR_glass_specular_IOR = 1.520000;
-uniform float SR_glass_specular_anisotropy = 0.000000;
-uniform float SR_glass_specular_rotation = 0.000000;
-uniform float SR_glass_transmission = 1.000000;
-uniform vec3 SR_glass_transmission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_transmission_depth = 0.000000;
-uniform vec3 SR_glass_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
-uniform float SR_glass_transmission_scatter_anisotropy = 0.000000;
-uniform float SR_glass_transmission_dispersion = 0.000000;
-uniform float SR_glass_transmission_extra_roughness = 0.000000;
-uniform float SR_glass_subsurface = 0.000000;
-uniform vec3 SR_glass_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_subsurface_scale = 1.000000;
-uniform float SR_glass_subsurface_anisotropy = 0.000000;
-uniform float SR_glass_sheen = 0.000000;
-uniform vec3 SR_glass_sheen_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_sheen_roughness = 0.300000;
-uniform float SR_glass_coat = 0.000000;
-uniform vec3 SR_glass_coat_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_coat_roughness = 0.100000;
-uniform float SR_glass_coat_anisotropy = 0.000000;
-uniform float SR_glass_coat_rotation = 0.000000;
-uniform float SR_glass_coat_IOR = 1.500000;
-uniform float SR_glass_coat_affect_color = 0.000000;
-uniform float SR_glass_coat_affect_roughness = 0.000000;
-uniform float SR_glass_thin_film_thickness = 0.000000;
-uniform float SR_glass_thin_film_IOR = 1.500000;
-uniform float SR_glass_emission = 0.000000;
-uniform vec3 SR_glass_emission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_opacity = vec3(1.000000, 1.000000, 1.000000);
-uniform bool SR_glass_thin_walled = false;
+uniform int geomprop_UV0_index = 0;
+uniform sampler2D mtlximage21_file;
+uniform int mtlximage21_layer = 0;
+uniform float mtlximage21_default = 0.000000;
+uniform int mtlximage21_uaddressmode = 2;
+uniform int mtlximage21_vaddressmode = 2;
+uniform int mtlximage21_filtertype = 1;
+uniform int mtlximage21_framerange = 0;
+uniform int mtlximage21_frameoffset = 0;
+uniform int mtlximage21_frameendaction = 0;
+uniform vec2 mtlximage21_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 mtlximage21_uv_offset = vec2(0.000000, 0.000000);
+uniform sampler2D mtlximage20_file;
+uniform int mtlximage20_layer = 0;
+uniform vec3 mtlximage20_default = vec3(0.000000, 0.000000, 0.000000);
+uniform int mtlximage20_uaddressmode = 2;
+uniform int mtlximage20_vaddressmode = 2;
+uniform int mtlximage20_filtertype = 1;
+uniform int mtlximage20_framerange = 0;
+uniform int mtlximage20_frameoffset = 0;
+uniform int mtlximage20_frameendaction = 0;
+uniform vec2 mtlximage20_uv_scale = vec2(1.000000, 1.000000);
+uniform vec2 mtlximage20_uv_offset = vec2(0.000000, 0.000000);
+uniform float mtlxnormalmap15_scale = 1.000000;
+uniform float Pawn_Top_W_base = 1.000000;
+uniform vec3 Pawn_Top_W_base_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Pawn_Top_W_diffuse_roughness = 0.000000;
+uniform float Pawn_Top_W_metalness = 0.000000;
+uniform float Pawn_Top_W_specular = 1.000000;
+uniform vec3 Pawn_Top_W_specular_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Pawn_Top_W_specular_IOR = 1.500000;
+uniform float Pawn_Top_W_specular_anisotropy = 0.000000;
+uniform float Pawn_Top_W_specular_rotation = 0.000000;
+uniform float Pawn_Top_W_transmission = 1.000000;
+uniform vec3 Pawn_Top_W_transmission_color = vec3(1.000000, 1.000000, 0.828000);
+uniform float Pawn_Top_W_transmission_depth = 0.000000;
+uniform vec3 Pawn_Top_W_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
+uniform float Pawn_Top_W_transmission_scatter_anisotropy = 0.000000;
+uniform float Pawn_Top_W_transmission_dispersion = 0.000000;
+uniform float Pawn_Top_W_transmission_extra_roughness = 0.000000;
+uniform float Pawn_Top_W_subsurface = 0.000000;
+uniform vec3 Pawn_Top_W_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 Pawn_Top_W_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
+uniform float Pawn_Top_W_subsurface_scale = 0.003000;
+uniform float Pawn_Top_W_subsurface_anisotropy = 0.000000;
+uniform float Pawn_Top_W_sheen = 0.000000;
+uniform vec3 Pawn_Top_W_sheen_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Pawn_Top_W_sheen_roughness = 0.300000;
+uniform float Pawn_Top_W_coat = 0.000000;
+uniform vec3 Pawn_Top_W_coat_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float Pawn_Top_W_coat_roughness = 0.100000;
+uniform float Pawn_Top_W_coat_anisotropy = 0.000000;
+uniform float Pawn_Top_W_coat_rotation = 0.000000;
+uniform float Pawn_Top_W_coat_IOR = 1.500000;
+uniform float Pawn_Top_W_coat_affect_color = 0.000000;
+uniform float Pawn_Top_W_coat_affect_roughness = 0.000000;
+uniform float Pawn_Top_W_thin_film_thickness = 0.000000;
+uniform float Pawn_Top_W_thin_film_IOR = 1.500000;
+uniform float Pawn_Top_W_emission = 0.000000;
+uniform vec3 Pawn_Top_W_emission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 Pawn_Top_W_opacity = vec3(1.000000, 1.000000, 1.000000);
+uniform bool Pawn_Top_W_thin_walled = false;
 
 in VertexData
 {
     vec3 normalWorld;
     vec3 tangentWorld;
+    vec2 texcoord_0;
+    vec3 bitangentWorld;
     vec3 positionWorld;
 } vd;
 
@@ -869,6 +894,39 @@ vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         tint = mx_square(tint);
     }
     return mx_environment_radiance(N, V, X, alpha, distribution, fd) * tint;
+}
+
+vec2 mx_transform_uv(vec2 uv, vec2 uv_scale, vec2 uv_offset)
+{
+    uv = uv * uv_scale + uv_offset;
+    return vec2(uv.x, 1.0 - uv.y);
+}
+
+void mx_image_float(sampler2D tex_sampler, int layer, float defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out float result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).r;
+}
+
+
+void mx_image_vector3(sampler2D tex_sampler, int layer, vec3 defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out vec3 result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).rgb;
+}
+
+void mx_normalmap_vector2(vec3 value, vec2 normal_scale, vec3 N, vec3 T, vec3 B, out vec3 result)
+{
+    value = (dot(value, value) == 0.0) ? vec3(0.0, 0.0, 1.0) : value * 2.0 - 1.0;
+    value = T * value.x * normal_scale.x +
+            B * value.y * normal_scale.y +
+            N * value.z;
+    result = normalize(value);
+}
+
+void mx_normalmap_float(vec3 value, float normal_scale, vec3 N, vec3 T, vec3 B, out vec3 result)
+{
+    mx_normalmap_vector2(value, vec2(normal_scale), N, T, B, result);
 }
 
 void mx_roughness_anisotropy(float roughness, float anisotropy, out vec2 result)
@@ -1814,11 +1872,19 @@ void main()
 {
     vec3 geomprop_Nworld_out1 = normalize(vd.normalWorld);
     vec3 geomprop_Tworld_out1 = normalize(vd.tangentWorld);
-    surfaceshader SR_glass_out = surfaceshader(vec3(0.0),vec3(0.0));
-    NG_metashade_standard_surface(SR_glass_base, SR_glass_base_color, SR_glass_diffuse_roughness, SR_glass_metalness, SR_glass_specular, SR_glass_specular_color, SR_glass_specular_roughness, SR_glass_specular_IOR, SR_glass_specular_anisotropy, SR_glass_specular_rotation, SR_glass_transmission, SR_glass_transmission_color, SR_glass_transmission_depth, SR_glass_transmission_scatter, SR_glass_transmission_scatter_anisotropy, SR_glass_transmission_dispersion, SR_glass_transmission_extra_roughness, SR_glass_subsurface, SR_glass_subsurface_color, SR_glass_subsurface_radius, SR_glass_subsurface_scale, SR_glass_subsurface_anisotropy, SR_glass_sheen, SR_glass_sheen_color, SR_glass_sheen_roughness, SR_glass_coat, SR_glass_coat_color, SR_glass_coat_roughness, SR_glass_coat_anisotropy, SR_glass_coat_rotation, SR_glass_coat_IOR, geomprop_Nworld_out1, SR_glass_coat_affect_color, SR_glass_coat_affect_roughness, SR_glass_thin_film_thickness, SR_glass_thin_film_IOR, SR_glass_emission, SR_glass_emission_color, SR_glass_opacity, SR_glass_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, SR_glass_out);
-    material Glass_out = SR_glass_out;
-    float outAlpha = clamp(1.0 - dot(Glass_out.transparency, vec3(0.3333)), 0.0, 1.0);
-    out1 = vec4(Glass_out.color, outAlpha);
+    vec2 geomprop_UV0_out1 = vd.texcoord_0.xy;
+    vec3 geomprop_Bworld_out1 = normalize(vd.bitangentWorld);
+    float mtlximage21_out = 0.0;
+    mx_image_float(mtlximage21_file, mtlximage21_layer, mtlximage21_default, geomprop_UV0_out1, mtlximage21_uaddressmode, mtlximage21_vaddressmode, mtlximage21_filtertype, mtlximage21_framerange, mtlximage21_frameoffset, mtlximage21_frameendaction, mtlximage21_uv_scale, mtlximage21_uv_offset, mtlximage21_out);
+    vec3 mtlximage20_out = vec3(0.0);
+    mx_image_vector3(mtlximage20_file, mtlximage20_layer, mtlximage20_default, geomprop_UV0_out1, mtlximage20_uaddressmode, mtlximage20_vaddressmode, mtlximage20_filtertype, mtlximage20_framerange, mtlximage20_frameoffset, mtlximage20_frameendaction, mtlximage20_uv_scale, mtlximage20_uv_offset, mtlximage20_out);
+    vec3 mtlxnormalmap15_out = vec3(0.0);
+    mx_normalmap_float(mtlximage20_out, mtlxnormalmap15_scale, geomprop_Nworld_out1, geomprop_Tworld_out1, geomprop_Bworld_out1, mtlxnormalmap15_out);
+    surfaceshader Pawn_Top_W_out = surfaceshader(vec3(0.0),vec3(0.0));
+    NG_metashade_standard_surface(Pawn_Top_W_base, Pawn_Top_W_base_color, Pawn_Top_W_diffuse_roughness, Pawn_Top_W_metalness, Pawn_Top_W_specular, Pawn_Top_W_specular_color, mtlximage21_out, Pawn_Top_W_specular_IOR, Pawn_Top_W_specular_anisotropy, Pawn_Top_W_specular_rotation, Pawn_Top_W_transmission, Pawn_Top_W_transmission_color, Pawn_Top_W_transmission_depth, Pawn_Top_W_transmission_scatter, Pawn_Top_W_transmission_scatter_anisotropy, Pawn_Top_W_transmission_dispersion, Pawn_Top_W_transmission_extra_roughness, Pawn_Top_W_subsurface, Pawn_Top_W_subsurface_color, Pawn_Top_W_subsurface_radius, Pawn_Top_W_subsurface_scale, Pawn_Top_W_subsurface_anisotropy, Pawn_Top_W_sheen, Pawn_Top_W_sheen_color, Pawn_Top_W_sheen_roughness, Pawn_Top_W_coat, Pawn_Top_W_coat_color, Pawn_Top_W_coat_roughness, Pawn_Top_W_coat_anisotropy, Pawn_Top_W_coat_rotation, Pawn_Top_W_coat_IOR, geomprop_Nworld_out1, Pawn_Top_W_coat_affect_color, Pawn_Top_W_coat_affect_roughness, Pawn_Top_W_thin_film_thickness, Pawn_Top_W_thin_film_IOR, Pawn_Top_W_emission, Pawn_Top_W_emission_color, Pawn_Top_W_opacity, Pawn_Top_W_thin_walled, mtlxnormalmap15_out, geomprop_Tworld_out1, Pawn_Top_W_out);
+    material M_Pawn_Top_W_out = Pawn_Top_W_out;
+    float outAlpha = clamp(1.0 - dot(M_Pawn_Top_W_out.transparency, vec3(0.3333)), 0.0, 1.0);
+    out1 = vec4(M_Pawn_Top_W_out.color, outAlpha);
     if (outAlpha < u_alphaThreshold)
     {
         discard;

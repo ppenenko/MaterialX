@@ -11,7 +11,6 @@ struct lightshader { vec3 intensity; vec3 direction; };
 #define material surfaceshader
 
 // Uniform block: PrivateUniforms
-uniform float u_alphaThreshold = 0.001000;
 uniform mat4 u_envMatrix = mat4(-1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, -1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000);
 uniform sampler2D u_envRadiance;
 uniform float u_envLightIntensity = 1.000000;
@@ -24,50 +23,74 @@ uniform vec3 u_viewPosition = vec3(0.0);
 // Uniform block: PublicUniforms
 uniform surfaceshader backsurfaceshader;
 uniform displacementshader displacementshader1;
-uniform float SR_glass_base = 0.000000;
-uniform vec3 SR_glass_base_color = vec3(0.800000, 0.800000, 0.800000);
-uniform float SR_glass_diffuse_roughness = 0.000000;
-uniform float SR_glass_metalness = 0.000000;
-uniform float SR_glass_specular = 1.000000;
-uniform vec3 SR_glass_specular_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_specular_roughness = 0.010000;
-uniform float SR_glass_specular_IOR = 1.520000;
-uniform float SR_glass_specular_anisotropy = 0.000000;
-uniform float SR_glass_specular_rotation = 0.000000;
-uniform float SR_glass_transmission = 1.000000;
-uniform vec3 SR_glass_transmission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_transmission_depth = 0.000000;
-uniform vec3 SR_glass_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
-uniform float SR_glass_transmission_scatter_anisotropy = 0.000000;
-uniform float SR_glass_transmission_dispersion = 0.000000;
-uniform float SR_glass_transmission_extra_roughness = 0.000000;
-uniform float SR_glass_subsurface = 0.000000;
-uniform vec3 SR_glass_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_subsurface_scale = 1.000000;
-uniform float SR_glass_subsurface_anisotropy = 0.000000;
-uniform float SR_glass_sheen = 0.000000;
-uniform vec3 SR_glass_sheen_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_sheen_roughness = 0.300000;
-uniform float SR_glass_coat = 0.000000;
-uniform vec3 SR_glass_coat_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_coat_roughness = 0.100000;
-uniform float SR_glass_coat_anisotropy = 0.000000;
-uniform float SR_glass_coat_rotation = 0.000000;
-uniform float SR_glass_coat_IOR = 1.500000;
-uniform float SR_glass_coat_affect_color = 0.000000;
-uniform float SR_glass_coat_affect_roughness = 0.000000;
-uniform float SR_glass_thin_film_thickness = 0.000000;
-uniform float SR_glass_thin_film_IOR = 1.500000;
-uniform float SR_glass_emission = 0.000000;
-uniform vec3 SR_glass_emission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_opacity = vec3(1.000000, 1.000000, 1.000000);
-uniform bool SR_glass_thin_walled = false;
+uniform int geomprop_UV0_index = 0;
+uniform float tiling_vector2_in = 4.000000;
+uniform sampler2D image_color_file;
+uniform vec3 image_color_default = vec3(0.000000, 0.000000, 0.000000);
+uniform float image_color_rotation = 1.000000;
+uniform vec2 image_color_rotationrange = vec2(0.000000, 360.000000);
+uniform float image_color_scale = 1.000000;
+uniform vec2 image_color_scalerange = vec2(0.500000, 2.000000);
+uniform float image_color_offset = 1.000000;
+uniform vec2 image_color_offsetrange = vec2(0.000000, 1.000000);
+uniform float image_color_falloff = 0.750000;
+uniform float image_color_falloffcontrast = 0.500000;
+uniform vec3 image_color_lumacoeffs = vec3(0.272229, 0.674082, 0.053689);
+uniform sampler2D image_roughness_file;
+uniform vec3 image_roughness_default = vec3(0.000000, 0.000000, 0.000000);
+uniform float image_roughness_rotation = 1.000000;
+uniform vec2 image_roughness_rotationrange = vec2(0.000000, 360.000000);
+uniform float image_roughness_scale = 1.000000;
+uniform vec2 image_roughness_scalerange = vec2(0.500000, 2.000000);
+uniform float image_roughness_offset = 1.000000;
+uniform vec2 image_roughness_offsetrange = vec2(0.000000, 1.000000);
+uniform float image_roughness_falloff = 0.750000;
+uniform float image_roughness_falloffcontrast = 0.500000;
+uniform vec3 image_roughness_lumacoeffs = vec3(0.272229, 0.674082, 0.053689);
+uniform int image_roughness_float_index = 0;
+uniform float N_StandardSurface_base = 1.000000;
+uniform float N_StandardSurface_diffuse_roughness = 0.000000;
+uniform float N_StandardSurface_metalness = 0.000000;
+uniform float N_StandardSurface_specular = 1.000000;
+uniform vec3 N_StandardSurface_specular_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_specular_IOR = 1.500000;
+uniform float N_StandardSurface_specular_anisotropy = 0.000000;
+uniform float N_StandardSurface_specular_rotation = 0.000000;
+uniform float N_StandardSurface_transmission = 0.000000;
+uniform vec3 N_StandardSurface_transmission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_transmission_depth = 0.000000;
+uniform vec3 N_StandardSurface_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
+uniform float N_StandardSurface_transmission_scatter_anisotropy = 0.000000;
+uniform float N_StandardSurface_transmission_dispersion = 0.000000;
+uniform float N_StandardSurface_transmission_extra_roughness = 0.000000;
+uniform float N_StandardSurface_subsurface = 0.000000;
+uniform vec3 N_StandardSurface_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 N_StandardSurface_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_subsurface_scale = 1.000000;
+uniform float N_StandardSurface_subsurface_anisotropy = 0.000000;
+uniform float N_StandardSurface_sheen = 0.000000;
+uniform vec3 N_StandardSurface_sheen_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_sheen_roughness = 0.300000;
+uniform float N_StandardSurface_coat = 0.000000;
+uniform vec3 N_StandardSurface_coat_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_coat_roughness = 0.100000;
+uniform float N_StandardSurface_coat_anisotropy = 0.000000;
+uniform float N_StandardSurface_coat_rotation = 0.000000;
+uniform float N_StandardSurface_coat_IOR = 1.500000;
+uniform float N_StandardSurface_coat_affect_color = 0.000000;
+uniform float N_StandardSurface_coat_affect_roughness = 0.000000;
+uniform float N_StandardSurface_thin_film_thickness = 0.000000;
+uniform float N_StandardSurface_thin_film_IOR = 1.500000;
+uniform float N_StandardSurface_emission = 0.000000;
+uniform vec3 N_StandardSurface_emission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 N_StandardSurface_opacity = vec3(1.000000, 1.000000, 1.000000);
+uniform bool N_StandardSurface_thin_walled = false;
 
 in VertexData
 {
     vec3 normalWorld;
     vec3 tangentWorld;
+    vec2 texcoord_0;
     vec3 positionWorld;
 } vd;
 
@@ -869,6 +892,278 @@ vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         tint = mx_square(tint);
     }
     return mx_environment_radiance(N, V, X, alpha, distribution, fd) * tint;
+}
+
+void NG_convert_float_vector2(float in1, out vec2 out1)
+{
+    vec2 combine_out = vec2(in1,in1);
+    out1 = combine_out;
+}
+
+vec2 mx_transform_uv(vec2 uv, vec2 uv_scale, vec2 uv_offset)
+{
+    uv = uv * uv_scale + uv_offset;
+    return vec2(uv.x, 1.0 - uv.y);
+}
+// https://www.shadertoy.com/view/4djSRW
+vec2 mx_hextile_hash(vec2 p)
+{
+    vec3 p3 = fract(vec3(p.x, p.y, p.x) * vec3(0.1031, 0.1030, 0.0973));
+    p3 += dot(p3, vec3(p3.y, p3.z, p3.x) + 33.33);
+    return fract((vec2(p3.x, p3.x) + vec2(p3.y, p3.z)) * vec2(p3.z, p3.y));
+}
+
+// Christophe Schlick. “Fast Alternatives to Perlin’s Bias and Gain Functions”.
+// In Graphics Gems IV, Morgan Kaufmann, 1994, pages 401–403.
+// https://dept-info.labri.fr/~schlick/DOC/gem2.html
+float mx_schlick_gain(float x, float r)
+{
+    float rr = clamp(r, 0.001, 0.999);  // to avoid glitch
+    float a = (1.0 / rr - 2.0) * (1.0 - 2.0 * x);
+    return (x < 0.5) ? x / (a + 1.0) : (a - x) / (a - 1.0);
+}
+
+struct HextileData
+{
+    vec2 coords[3];
+    vec3 weights;
+    vec3 rotations;
+    vec2 ddx[3];
+    vec2 ddy[3];
+};
+
+// Helper function to compute blend weights with optional falloff
+vec3 mx_hextile_compute_blend_weights(vec3 luminance_weights, vec3 tile_weights, float falloff)
+{
+    vec3 w = luminance_weights * pow(tile_weights, vec3(7.0));
+    w /= (w.x + w.y + w.z);
+
+    if (falloff != 0.5)
+    {
+        w.x = mx_schlick_gain(w.x, falloff);
+        w.y = mx_schlick_gain(w.y, falloff);
+        w.z = mx_schlick_gain(w.z, falloff);
+        w /= (w.x + w.y + w.z);
+    }
+    return w;
+}
+
+// Morten S. Mikkelsen, Practical Real-Time Hex-Tiling, Journal of Computer Graphics
+// Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
+// http://jcgt.org/published/0011/03/05/
+HextileData mx_hextile_coord(
+    vec2 coord,
+    float rotation,
+    vec2 rotation_range,
+    float scale,
+    vec2 scale_range,
+    float offset,
+    vec2 offset_range)
+{
+    float sqrt3_2 = sqrt(3.0) * 2.0;
+
+    // scale coord to maintain the original fit
+    vec2 st = coord * sqrt3_2;
+
+    // skew input space into simplex triangle grid
+    // (1, 0, -tan(30), 2*tan(30))
+    mat2 to_skewed = mat2(1.0, 0.0, -0.57735027, 1.15470054);
+    vec2 st_skewed = mx_matrix_mul(to_skewed, st);
+
+    // barycentric weights
+    vec2 st_frac = fract(st_skewed);
+    vec3 temp = vec3(st_frac.x, st_frac.y, 0.0);
+    temp.z = 1.0 - temp.x - temp.y;
+
+    float s = step(0.0, -temp.z);
+    float s2 = 2.0 * s - 1.0;
+
+    float w1 = -temp.z * s2;
+    float w2 = s - temp.y * s2;
+    float w3 = s - temp.x * s2;
+
+    // vertex IDs
+    ivec2 base_id = ivec2(floor(st_skewed));
+    int si = int(s);
+    ivec2 id1 = base_id + ivec2(si, si);
+    ivec2 id2 = base_id + ivec2(si, 1 - si);
+    ivec2 id3 = base_id + ivec2(1 - si, si);
+
+    // tile center
+    mat2 inv_skewed = mat2(1.0, 0.0, 0.5, 1.0 / 1.15470054);
+    vec2 ctr1 = mx_matrix_mul(inv_skewed, vec2(id1) / vec2(sqrt3_2));
+    vec2 ctr2 = mx_matrix_mul(inv_skewed, vec2(id2) / vec2(sqrt3_2));
+    vec2 ctr3 = mx_matrix_mul(inv_skewed, vec2(id3) / vec2(sqrt3_2));
+
+    // reuse hash for performance
+    vec2 seed_offset = vec2(0.12345);  // to avoid some zeros
+    vec2 rand1 = mx_hextile_hash(vec2(id1) + seed_offset);
+    vec2 rand2 = mx_hextile_hash(vec2(id2) + seed_offset);
+    vec2 rand3 = mx_hextile_hash(vec2(id3) + seed_offset);
+
+    // randomized rotation matrix
+    vec2 rr = mx_radians(rotation_range);
+    vec3 rand_x = vec3(rand1.x, rand2.x, rand3.x);
+    vec3 rotations = mix(vec3(rr.x), vec3(rr.y), rand_x * rotation);
+    vec3 sin_r = sin(rotations);
+    vec3 cos_r = cos(rotations);
+    mat2 rm1 = mat2(cos_r.x, -sin_r.x, sin_r.x, cos_r.x);
+    mat2 rm2 = mat2(cos_r.y, -sin_r.y, sin_r.y, cos_r.y);
+    mat2 rm3 = mat2(cos_r.z, -sin_r.z, sin_r.z, cos_r.z);
+
+    // randomized scale
+    vec3 rand_y = vec3(rand1.y, rand2.y, rand3.y);
+    vec3 scales = mix(vec3(1.0), mix(vec3(scale_range.x), vec3(scale_range.y), rand_y), scale);
+    vec2 scale1 = vec2(scales.x);
+    vec2 scale2 = vec2(scales.y);
+    vec2 scale3 = vec2(scales.z);
+
+    // randomized offset
+    vec2 offset1 = mix(vec2(offset_range.x), vec2(offset_range.y), rand1 * offset);
+    vec2 offset2 = mix(vec2(offset_range.x), vec2(offset_range.y), rand2 * offset);
+    vec2 offset3 = mix(vec2(offset_range.x), vec2(offset_range.y), rand3 * offset);
+
+    HextileData tile_data;
+    tile_data.weights = vec3(w1, w2, w3);
+    tile_data.rotations = rotations;
+
+    // get coord
+    tile_data.coords[0] = (mx_matrix_mul((coord - ctr1), rm1) / scale1) + ctr1 + offset1;
+    tile_data.coords[1] = (mx_matrix_mul((coord - ctr2), rm2) / scale2) + ctr2 + offset2;
+    tile_data.coords[2] = (mx_matrix_mul((coord - ctr3), rm3) / scale3) + ctr3 + offset3;
+
+    // derivatives
+    vec2 ddx = dFdx(coord);
+    vec2 ddy = dFdy(coord);
+    tile_data.ddx[0] = mx_matrix_mul(ddx, rm1) / scale1;
+    tile_data.ddx[1] = mx_matrix_mul(ddx, rm2) / scale2;
+    tile_data.ddx[2] = mx_matrix_mul(ddx, rm3) / scale3;
+    tile_data.ddy[0] = mx_matrix_mul(ddy, rm1) / scale1;
+    tile_data.ddy[1] = mx_matrix_mul(ddy, rm2) / scale2;
+    tile_data.ddy[2] = mx_matrix_mul(ddy, rm3) / scale3;
+
+    return tile_data;
+}
+
+// Morten S. Mikkelsen, Practical Real-Time Hex-Tiling, Journal of Computer Graphics
+// Techniques (JCGT), vol. 11, no. 2, 77-94, 2022
+// http://jcgt.org/published/0011/03/05/
+void mx_hextiledimage_color3(
+    sampler2D tex_sampler,
+    vec3 default_value,
+    vec2 tex_coord,
+    vec2 tiling,
+    float rotation,
+    vec2 rotation_range,
+    float scale,
+    vec2 scale_range,
+    float offset,
+    vec2 offset_range,
+    float falloff,
+    float falloff_contrast,
+    vec3 lumacoeffs,
+    out vec3 result
+)
+{
+    vec2 coord = mx_transform_uv(tex_coord, tiling, vec2(0.0));
+
+    HextileData tile_data = mx_hextile_coord(coord, rotation, rotation_range, scale, scale_range, offset, offset_range);
+
+    vec3 c1 = textureGrad(tex_sampler, tile_data.coords[0], tile_data.ddx[0], tile_data.ddy[0]).rgb;
+    vec3 c2 = textureGrad(tex_sampler, tile_data.coords[1], tile_data.ddx[1], tile_data.ddy[1]).rgb;
+    vec3 c3 = textureGrad(tex_sampler, tile_data.coords[2], tile_data.ddx[2], tile_data.ddy[2]).rgb;
+
+    // luminance as weights
+    vec3 cw = vec3(dot(c1, lumacoeffs), dot(c2, lumacoeffs), dot(c3, lumacoeffs));
+    cw = mix(vec3(1.0), cw, vec3(falloff_contrast));
+
+    vec3 w = mx_hextile_compute_blend_weights(cw, tile_data.weights, falloff);
+
+    // blend
+    result = w.x * c1 + w.y * c2 + w.z * c3;
+}
+
+void mx_hextiledimage_color4(
+    sampler2D tex_sampler,
+    vec4 default_value,
+    vec2 tex_coord,
+    vec2 tiling,
+    float rotation,
+    vec2 rotation_range,
+    float scale,
+    vec2 scale_range,
+    float offset,
+    vec2 offset_range,
+    float falloff,
+    float falloff_contrast,
+    vec3 lumacoeffs,
+    out vec4 result
+)
+{
+    vec2 coord = mx_transform_uv(tex_coord, tiling, vec2(0.0));
+
+    HextileData tile_data = mx_hextile_coord(coord, rotation, rotation_range, scale, scale_range, offset, offset_range);
+
+    vec4 c1 = textureGrad(tex_sampler, tile_data.coords[0], tile_data.ddx[0], tile_data.ddy[0]);
+    vec4 c2 = textureGrad(tex_sampler, tile_data.coords[1], tile_data.ddx[1], tile_data.ddy[1]);
+    vec4 c3 = textureGrad(tex_sampler, tile_data.coords[2], tile_data.ddx[2], tile_data.ddy[2]);
+
+    // luminance as weights
+    vec3 cw = vec3(dot(c1.rgb, lumacoeffs), dot(c2.rgb, lumacoeffs), dot(c3.rgb, lumacoeffs));
+    cw = mix(vec3(1.0), cw, vec3(falloff_contrast));
+
+    vec3 w = mx_hextile_compute_blend_weights(cw, tile_data.weights, falloff);
+    vec3 aw = mx_hextile_compute_blend_weights(vec3(1.0), tile_data.weights, falloff);
+
+    // blend
+    result.rgb = w.x * c1.rgb + w.y * c2.rgb + w.z * c3.rgb;
+    result.a = aw.x * c1.a + aw.y * c2.a + aw.z * c3.a;
+}
+
+void NG_separate3_color3(vec3 in1, out float outr, out float outg, out float outb)
+{
+    const int N_extract_0_index_tmp = 0;
+    float N_extract_0_out = in1[N_extract_0_index_tmp];
+    const int N_extract_1_index_tmp = 1;
+    float N_extract_1_out = in1[N_extract_1_index_tmp];
+    const int N_extract_2_index_tmp = 2;
+    float N_extract_2_out = in1[N_extract_2_index_tmp];
+    outr = N_extract_0_out;
+    outg = N_extract_1_out;
+    outb = N_extract_2_out;
+}
+
+void NG_srgb_texture_to_lin_rec709_color3(vec3 in1, out vec3 out1)
+{
+    const float bias_in2_tmp = 0.055000;
+    vec3 bias_out = in1 + bias_in2_tmp;
+    const float linSeg_in2_tmp = 12.920000;
+    vec3 linSeg_out = in1 / linSeg_in2_tmp;
+    float colorSeparate_outr = 0.0;
+    float colorSeparate_outg = 0.0;
+    float colorSeparate_outb = 0.0;
+    NG_separate3_color3(in1, colorSeparate_outr, colorSeparate_outg, colorSeparate_outb);
+    const float max_in2_tmp = 0.000000;
+    vec3 max_out = max(bias_out, max_in2_tmp);
+    const float isAboveR_value2_tmp = 0.040450;
+    const float isAboveR_in1_tmp = 1.000000;
+    const float isAboveR_in2_tmp = 0.000000;
+    float isAboveR_out = (colorSeparate_outr > isAboveR_value2_tmp) ? isAboveR_in1_tmp : isAboveR_in2_tmp;
+    const float isAboveG_value2_tmp = 0.040450;
+    const float isAboveG_in1_tmp = 1.000000;
+    const float isAboveG_in2_tmp = 0.000000;
+    float isAboveG_out = (colorSeparate_outg > isAboveG_value2_tmp) ? isAboveG_in1_tmp : isAboveG_in2_tmp;
+    const float isAboveB_value2_tmp = 0.040450;
+    const float isAboveB_in1_tmp = 1.000000;
+    const float isAboveB_in2_tmp = 0.000000;
+    float isAboveB_out = (colorSeparate_outb > isAboveB_value2_tmp) ? isAboveB_in1_tmp : isAboveB_in2_tmp;
+    const float scale_in2_tmp = 1.055000;
+    vec3 scale_out = max_out / scale_in2_tmp;
+    vec3 isAbove_out = vec3(isAboveR_out,isAboveG_out,isAboveB_out);
+    const float powSeg_in2_tmp = 2.400000;
+    vec3 powSeg_out = pow(scale_out, vec3(powSeg_in2_tmp));
+    vec3 mix_out = mix(linSeg_out, powSeg_out, isAbove_out);
+    out1 = mix_out;
 }
 
 void mx_roughness_anisotropy(float roughness, float anisotropy, out vec2 result)
@@ -1814,14 +2109,19 @@ void main()
 {
     vec3 geomprop_Nworld_out1 = normalize(vd.normalWorld);
     vec3 geomprop_Tworld_out1 = normalize(vd.tangentWorld);
-    surfaceshader SR_glass_out = surfaceshader(vec3(0.0),vec3(0.0));
-    NG_metashade_standard_surface(SR_glass_base, SR_glass_base_color, SR_glass_diffuse_roughness, SR_glass_metalness, SR_glass_specular, SR_glass_specular_color, SR_glass_specular_roughness, SR_glass_specular_IOR, SR_glass_specular_anisotropy, SR_glass_specular_rotation, SR_glass_transmission, SR_glass_transmission_color, SR_glass_transmission_depth, SR_glass_transmission_scatter, SR_glass_transmission_scatter_anisotropy, SR_glass_transmission_dispersion, SR_glass_transmission_extra_roughness, SR_glass_subsurface, SR_glass_subsurface_color, SR_glass_subsurface_radius, SR_glass_subsurface_scale, SR_glass_subsurface_anisotropy, SR_glass_sheen, SR_glass_sheen_color, SR_glass_sheen_roughness, SR_glass_coat, SR_glass_coat_color, SR_glass_coat_roughness, SR_glass_coat_anisotropy, SR_glass_coat_rotation, SR_glass_coat_IOR, geomprop_Nworld_out1, SR_glass_coat_affect_color, SR_glass_coat_affect_roughness, SR_glass_thin_film_thickness, SR_glass_thin_film_IOR, SR_glass_emission, SR_glass_emission_color, SR_glass_opacity, SR_glass_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, SR_glass_out);
-    material Glass_out = SR_glass_out;
-    float outAlpha = clamp(1.0 - dot(Glass_out.transparency, vec3(0.3333)), 0.0, 1.0);
-    out1 = vec4(Glass_out.color, outAlpha);
-    if (outAlpha < u_alphaThreshold)
-    {
-        discard;
-    }
+    vec2 geomprop_UV0_out1 = vd.texcoord_0.xy;
+    vec2 tiling_vector2_out = vec2(0.0);
+    NG_convert_float_vector2(tiling_vector2_in, tiling_vector2_out);
+    vec3 image_color_out = vec3(0.0);
+    mx_hextiledimage_color3(image_color_file, image_color_default, geomprop_UV0_out1, tiling_vector2_out, image_color_rotation, image_color_rotationrange, image_color_scale, image_color_scalerange, image_color_offset, image_color_offsetrange, image_color_falloff, image_color_falloffcontrast, image_color_lumacoeffs, image_color_out);
+    vec3 image_roughness_out = vec3(0.0);
+    mx_hextiledimage_color3(image_roughness_file, image_roughness_default, geomprop_UV0_out1, tiling_vector2_out, image_roughness_rotation, image_roughness_rotationrange, image_roughness_scale, image_roughness_scalerange, image_roughness_offset, image_roughness_offsetrange, image_roughness_falloff, image_roughness_falloffcontrast, image_roughness_lumacoeffs, image_roughness_out);
+    vec3 image_color_out_cm_out = vec3(0.0);
+    NG_srgb_texture_to_lin_rec709_color3(image_color_out, image_color_out_cm_out);
+    float image_roughness_float_out = image_roughness_out[image_roughness_float_index];
+    surfaceshader N_StandardSurface_out = surfaceshader(vec3(0.0),vec3(0.0));
+    NG_metashade_standard_surface(N_StandardSurface_base, image_color_out_cm_out, N_StandardSurface_diffuse_roughness, N_StandardSurface_metalness, N_StandardSurface_specular, N_StandardSurface_specular_color, image_roughness_float_out, N_StandardSurface_specular_IOR, N_StandardSurface_specular_anisotropy, N_StandardSurface_specular_rotation, N_StandardSurface_transmission, N_StandardSurface_transmission_color, N_StandardSurface_transmission_depth, N_StandardSurface_transmission_scatter, N_StandardSurface_transmission_scatter_anisotropy, N_StandardSurface_transmission_dispersion, N_StandardSurface_transmission_extra_roughness, N_StandardSurface_subsurface, N_StandardSurface_subsurface_color, N_StandardSurface_subsurface_radius, N_StandardSurface_subsurface_scale, N_StandardSurface_subsurface_anisotropy, N_StandardSurface_sheen, N_StandardSurface_sheen_color, N_StandardSurface_sheen_roughness, N_StandardSurface_coat, N_StandardSurface_coat_color, N_StandardSurface_coat_roughness, N_StandardSurface_coat_anisotropy, N_StandardSurface_coat_rotation, N_StandardSurface_coat_IOR, geomprop_Nworld_out1, N_StandardSurface_coat_affect_color, N_StandardSurface_coat_affect_roughness, N_StandardSurface_thin_film_thickness, N_StandardSurface_thin_film_IOR, N_StandardSurface_emission, N_StandardSurface_emission_color, N_StandardSurface_opacity, N_StandardSurface_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, N_StandardSurface_out);
+    material M_OnyxHextiled_out = N_StandardSurface_out;
+    out1 = vec4(M_OnyxHextiled_out.color, 1.0);
 }
 

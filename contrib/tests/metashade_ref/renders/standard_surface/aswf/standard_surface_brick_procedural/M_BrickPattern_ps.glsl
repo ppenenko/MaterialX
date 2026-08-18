@@ -11,7 +11,6 @@ struct lightshader { vec3 intensity; vec3 direction; };
 #define material surfaceshader
 
 // Uniform block: PrivateUniforms
-uniform float u_alphaThreshold = 0.001000;
 uniform mat4 u_envMatrix = mat4(-1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, -1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000);
 uniform sampler2D u_envRadiance;
 uniform float u_envLightIntensity = 1.000000;
@@ -24,50 +23,120 @@ uniform vec3 u_viewPosition = vec3(0.0);
 // Uniform block: PublicUniforms
 uniform surfaceshader backsurfaceshader;
 uniform displacementshader displacementshader1;
-uniform float SR_glass_base = 0.000000;
-uniform vec3 SR_glass_base_color = vec3(0.800000, 0.800000, 0.800000);
-uniform float SR_glass_diffuse_roughness = 0.000000;
-uniform float SR_glass_metalness = 0.000000;
-uniform float SR_glass_specular = 1.000000;
-uniform vec3 SR_glass_specular_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_specular_roughness = 0.010000;
-uniform float SR_glass_specular_IOR = 1.520000;
-uniform float SR_glass_specular_anisotropy = 0.000000;
-uniform float SR_glass_specular_rotation = 0.000000;
-uniform float SR_glass_transmission = 1.000000;
-uniform vec3 SR_glass_transmission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_transmission_depth = 0.000000;
-uniform vec3 SR_glass_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
-uniform float SR_glass_transmission_scatter_anisotropy = 0.000000;
-uniform float SR_glass_transmission_dispersion = 0.000000;
-uniform float SR_glass_transmission_extra_roughness = 0.000000;
-uniform float SR_glass_subsurface = 0.000000;
-uniform vec3 SR_glass_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_subsurface_scale = 1.000000;
-uniform float SR_glass_subsurface_anisotropy = 0.000000;
-uniform float SR_glass_sheen = 0.000000;
-uniform vec3 SR_glass_sheen_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_sheen_roughness = 0.300000;
-uniform float SR_glass_coat = 0.000000;
-uniform vec3 SR_glass_coat_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_coat_roughness = 0.100000;
-uniform float SR_glass_coat_anisotropy = 0.000000;
-uniform float SR_glass_coat_rotation = 0.000000;
-uniform float SR_glass_coat_IOR = 1.500000;
-uniform float SR_glass_coat_affect_color = 0.000000;
-uniform float SR_glass_coat_affect_roughness = 0.000000;
-uniform float SR_glass_thin_film_thickness = 0.000000;
-uniform float SR_glass_thin_film_IOR = 1.500000;
-uniform float SR_glass_emission = 0.000000;
-uniform vec3 SR_glass_emission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_opacity = vec3(1.000000, 1.000000, 1.000000);
-uniform bool SR_glass_thin_walled = false;
+uniform int geomprop_UV0_index = 0;
+uniform float node_convert_1_in = 3.000000;
+uniform vec3 node_rgbtohsv_12_in = vec3(0.661876, 0.190880, 0.000000);
+uniform sampler2D node_tiledimage_float_26_file;
+uniform float node_tiledimage_float_26_default = 0.000000;
+uniform vec2 node_tiledimage_float_26_uvoffset = vec2(0.000000, 0.000000);
+uniform vec2 node_tiledimage_float_26_realworldimagesize = vec2(1.000000, 1.000000);
+uniform vec2 node_tiledimage_float_26_realworldtilesize = vec2(1.000000, 1.000000);
+uniform int node_tiledimage_float_26_filtertype = 1;
+uniform int node_tiledimage_float_26_framerange = 0;
+uniform int node_tiledimage_float_26_frameoffset = 0;
+uniform int node_tiledimage_float_26_frameendaction = 0;
+uniform sampler2D node_tiledimage_float_7_file;
+uniform float node_tiledimage_float_7_default = 0.000000;
+uniform vec2 node_tiledimage_float_7_uvoffset = vec2(0.000000, 0.000000);
+uniform vec2 node_tiledimage_float_7_realworldimagesize = vec2(1.000000, 1.000000);
+uniform vec2 node_tiledimage_float_7_realworldtilesize = vec2(1.000000, 1.000000);
+uniform int node_tiledimage_float_7_filtertype = 1;
+uniform int node_tiledimage_float_7_framerange = 0;
+uniform int node_tiledimage_float_7_frameoffset = 0;
+uniform int node_tiledimage_float_7_frameendaction = 0;
+uniform sampler2D node_tiledimage_float_24_file;
+uniform float node_tiledimage_float_24_default = 0.000000;
+uniform vec2 node_tiledimage_float_24_uvoffset = vec2(0.000000, 0.000000);
+uniform vec2 node_tiledimage_float_24_realworldimagesize = vec2(1.000000, 1.000000);
+uniform vec2 node_tiledimage_float_24_realworldtilesize = vec2(1.000000, 1.000000);
+uniform int node_tiledimage_float_24_filtertype = 1;
+uniform int node_tiledimage_float_24_framerange = 0;
+uniform int node_tiledimage_float_24_frameoffset = 0;
+uniform int node_tiledimage_float_24_frameendaction = 0;
+uniform sampler2D node_tiledimage_float_10_file;
+uniform float node_tiledimage_float_10_default = 0.000000;
+uniform vec2 node_tiledimage_float_10_uvoffset = vec2(0.000000, 0.000000);
+uniform vec2 node_tiledimage_float_10_realworldimagesize = vec2(1.000000, 1.000000);
+uniform vec2 node_tiledimage_float_10_realworldtilesize = vec2(1.000000, 1.000000);
+uniform int node_tiledimage_float_10_filtertype = 1;
+uniform int node_tiledimage_float_10_framerange = 0;
+uniform int node_tiledimage_float_10_frameoffset = 0;
+uniform int node_tiledimage_float_10_frameendaction = 0;
+uniform sampler2D node_tiledimage_float_22_file;
+uniform float node_tiledimage_float_22_default = 0.000000;
+uniform vec2 node_tiledimage_float_22_uvoffset = vec2(0.000000, 0.000000);
+uniform vec2 node_tiledimage_float_22_realworldimagesize = vec2(1.000000, 1.000000);
+uniform vec2 node_tiledimage_float_22_realworldtilesize = vec2(1.000000, 1.000000);
+uniform int node_tiledimage_float_22_filtertype = 1;
+uniform int node_tiledimage_float_22_framerange = 0;
+uniform int node_tiledimage_float_22_frameoffset = 0;
+uniform int node_tiledimage_float_22_frameendaction = 0;
+uniform sampler2D node_tiledimage_vector3_27_file;
+uniform vec3 node_tiledimage_vector3_27_default = vec3(0.000000, 0.000000, 0.000000);
+uniform vec2 node_tiledimage_vector3_27_uvoffset = vec2(0.000000, 0.000000);
+uniform vec2 node_tiledimage_vector3_27_realworldimagesize = vec2(1.000000, 1.000000);
+uniform vec2 node_tiledimage_vector3_27_realworldtilesize = vec2(1.000000, 1.000000);
+uniform int node_tiledimage_vector3_27_filtertype = 1;
+uniform int node_tiledimage_vector3_27_framerange = 0;
+uniform int node_tiledimage_vector3_27_frameoffset = 0;
+uniform int node_tiledimage_vector3_27_frameendaction = 0;
+uniform float node_multiply_25_in1 = 0.083000;
+uniform float node_multiply_20_in1 = 0.787000;
+uniform vec3 node_multiply_9_in1 = vec3(0.263273, 0.263273, 0.263273);
+uniform float node_multiply_23_in1 = 0.248000;
+uniform float node_max_1_in2 = 0.000010;
+uniform float node_normalmap_3_scale = 1.000000;
+uniform float node_divide_21_in1 = 0.853000;
+uniform float node_subtract_18_in2 = 0.350000;
+uniform float node_multiply_14_in2 = 0.083000;
+uniform float node_combine3_color3_13_in2 = 0.000000;
+uniform vec3 node_mix_6_fg = vec3(0.563720, 0.563720, 0.563720);
+uniform vec3 node_clamp_0_low = vec3(0.000000, 0.000000, 0.000000);
+uniform vec3 node_clamp_0_high = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_base = 1.000000;
+uniform float N_StandardSurface_diffuse_roughness = 0.000000;
+uniform float N_StandardSurface_metalness = 0.000000;
+uniform float N_StandardSurface_specular = 1.000000;
+uniform vec3 N_StandardSurface_specular_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_specular_IOR = 1.500000;
+uniform float N_StandardSurface_specular_anisotropy = 0.000000;
+uniform float N_StandardSurface_specular_rotation = 0.000000;
+uniform float N_StandardSurface_transmission = 0.000000;
+uniform vec3 N_StandardSurface_transmission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_transmission_depth = 0.000000;
+uniform vec3 N_StandardSurface_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
+uniform float N_StandardSurface_transmission_scatter_anisotropy = 0.000000;
+uniform float N_StandardSurface_transmission_dispersion = 0.000000;
+uniform float N_StandardSurface_transmission_extra_roughness = 0.000000;
+uniform float N_StandardSurface_subsurface = 0.000000;
+uniform vec3 N_StandardSurface_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 N_StandardSurface_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_subsurface_scale = 1.000000;
+uniform float N_StandardSurface_subsurface_anisotropy = 0.000000;
+uniform float N_StandardSurface_sheen = 0.000000;
+uniform vec3 N_StandardSurface_sheen_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_sheen_roughness = 0.300000;
+uniform float N_StandardSurface_coat = 0.000000;
+uniform vec3 N_StandardSurface_coat_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float N_StandardSurface_coat_roughness = 0.100000;
+uniform float N_StandardSurface_coat_anisotropy = 0.000000;
+uniform float N_StandardSurface_coat_rotation = 0.000000;
+uniform float N_StandardSurface_coat_IOR = 1.500000;
+uniform float N_StandardSurface_coat_affect_color = 0.000000;
+uniform float N_StandardSurface_coat_affect_roughness = 0.000000;
+uniform float N_StandardSurface_thin_film_thickness = 0.000000;
+uniform float N_StandardSurface_thin_film_IOR = 1.500000;
+uniform float N_StandardSurface_emission = 0.000000;
+uniform vec3 N_StandardSurface_emission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 N_StandardSurface_opacity = vec3(1.000000, 1.000000, 1.000000);
+uniform bool N_StandardSurface_thin_walled = false;
 
 in VertexData
 {
+    vec2 texcoord_0;
     vec3 normalWorld;
     vec3 tangentWorld;
+    vec3 bitangentWorld;
     vec3 positionWorld;
 } vd;
 
@@ -869,6 +938,170 @@ vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         tint = mx_square(tint);
     }
     return mx_environment_radiance(N, V, X, alpha, distribution, fd) * tint;
+}
+
+void NG_convert_float_vector2(float in1, out vec2 out1)
+{
+    vec2 combine_out = vec2(in1,in1);
+    out1 = combine_out;
+}
+
+/*
+Color transform functions.
+
+These functions are modified versions of the color operators found in Open Shading Language:
+github.com/imageworks/OpenShadingLanguage/blob/master/src/liboslexec/opcolor.cpp
+
+It contains the subset of color operators needed to implement the MaterialX
+standard library. The modifications are for conversions from C++ to GLSL.
+
+Original copyright notice:
+------------------------------------------------------------------------
+Copyright (c) 2009-2010 Sony Pictures Imageworks Inc., et al.
+All Rights Reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+* Neither the name of Sony Pictures Imageworks nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+------------------------------------------------------------------------
+*/
+
+vec3 mx_hsvtorgb(vec3 hsv)
+{
+    // Reference for this technique: Foley & van Dam
+    float h = hsv.x; float s = hsv.y; float v = hsv.z;
+    if (s < 0.0001f) {
+      return vec3 (v, v, v);
+    } else {
+        h = 6.0f * (h - floor(h));  // expand to [0..6)
+        int hi = int(trunc(h));
+        float f = h - float(hi);
+        float p = v * (1.0f-s);
+        float q = v * (1.0f-s*f);
+        float t = v * (1.0f-s*(1.0f-f));
+        if (hi == 0)
+            return vec3 (v, t, p);
+        else if (hi == 1)
+            return vec3 (q, v, p);
+        else if (hi == 2)
+            return vec3 (p, v, t);
+        else if (hi == 3)
+            return vec3 (p, q, v);
+        else if (hi == 4)
+            return vec3 (t, p, v);
+        return vec3 (v, p, q);
+    }
+}
+
+
+vec3 mx_rgbtohsv(vec3 c)
+{
+    // See Foley & van Dam
+    float r = c.x; float g = c.y; float b = c.z;
+    float mincomp = min (r, min(g, b));
+    float maxcomp = max (r, max(g, b));
+    float delta = maxcomp - mincomp;  // chroma
+    float h, s, v;
+    v = maxcomp;
+    if (maxcomp > 0.0f)
+        s = delta / maxcomp;
+    else s = 0.0f;
+    if (s <= 0.0f)
+        h = 0.0f;
+    else {
+        if      (r >= maxcomp) h = (g-b) / delta;
+        else if (g >= maxcomp) h = 2.0f + (b-r) / delta;
+        else                   h = 4.0f + (r-g) / delta;
+        h *= (1.0f/6.0f);
+        if (h < 0.0f)
+            h += 1.0f;
+    }
+    return vec3(h, s, v);
+}
+
+void mx_rgbtohsv_color3(vec3 _in, out vec3 result)
+{
+    result = mx_rgbtohsv(_in);
+}
+
+vec2 mx_transform_uv(vec2 uv, vec2 uv_scale, vec2 uv_offset)
+{
+    uv = uv * uv_scale + uv_offset;
+    return vec2(uv.x, 1.0 - uv.y);
+}
+
+void mx_image_float(sampler2D tex_sampler, int layer, float defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out float result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).r;
+}
+
+void NG_tiledimage_float(sampler2D file, float default1, vec2 texcoord, vec2 uvtiling, vec2 uvoffset, vec2 realworldimagesize, vec2 realworldtilesize, int filtertype, int framerange, int frameoffset, int frameendaction, out float out1)
+{
+    vec2 N_mult_float_out = texcoord * uvtiling;
+    vec2 N_sub_float_out = N_mult_float_out - uvoffset;
+    vec2 N_divtilesize_float_out = N_sub_float_out / realworldimagesize;
+    vec2 N_multtilesize_float_out = N_divtilesize_float_out * realworldtilesize;
+    float N_img_float_out = 0.0;
+    mx_image_float(file, 0, default1, N_multtilesize_float_out, 2, 2, filtertype, framerange, frameoffset, frameendaction, vec2(1.000000, 1.000000), vec2(0.000000, 0.000000), N_img_float_out);
+    out1 = N_img_float_out;
+}
+
+
+void mx_image_vector3(sampler2D tex_sampler, int layer, vec3 defaultval, vec2 texcoord, int uaddressmode, int vaddressmode, int filtertype, int framerange, int frameoffset, int frameendaction, vec2 uv_scale, vec2 uv_offset, out vec3 result)
+{
+    vec2 uv = mx_transform_uv(texcoord, uv_scale, uv_offset);
+    result = texture(tex_sampler, uv).rgb;
+}
+
+void NG_tiledimage_vector3(sampler2D file, vec3 default1, vec2 texcoord, vec2 uvtiling, vec2 uvoffset, vec2 realworldimagesize, vec2 realworldtilesize, int filtertype, int framerange, int frameoffset, int frameendaction, out vec3 out1)
+{
+    vec2 N_mult_vector3_out = texcoord * uvtiling;
+    vec2 N_sub_vector3_out = N_mult_vector3_out - uvoffset;
+    vec2 N_divtilesize_vector3_out = N_sub_vector3_out / realworldimagesize;
+    vec2 N_multtilesize_vector3_out = N_divtilesize_vector3_out * realworldtilesize;
+    vec3 N_img_vector3_out = vec3(0.0);
+    mx_image_vector3(file, 0, default1, N_multtilesize_vector3_out, 2, 2, filtertype, framerange, frameoffset, frameendaction, vec2(1.000000, 1.000000), vec2(0.000000, 0.000000), N_img_vector3_out);
+    out1 = N_img_vector3_out;
+}
+
+void mx_normalmap_vector2(vec3 value, vec2 normal_scale, vec3 N, vec3 T, vec3 B, out vec3 result)
+{
+    value = (dot(value, value) == 0.0) ? vec3(0.0, 0.0, 1.0) : value * 2.0 - 1.0;
+    value = T * value.x * normal_scale.x +
+            B * value.y * normal_scale.y +
+            N * value.z;
+    result = normalize(value);
+}
+
+void mx_normalmap_float(vec3 value, float normal_scale, vec3 N, vec3 T, vec3 B, out vec3 result)
+{
+    mx_normalmap_vector2(value, vec2(normal_scale), N, T, B, result);
+}
+
+
+void mx_hsvtorgb_color3(vec3 _in, out vec3 result)
+{
+    result = mx_hsvtorgb(_in);
 }
 
 void mx_roughness_anisotropy(float roughness, float anisotropy, out vec2 result)
@@ -1812,16 +2045,50 @@ void NG_metashade_standard_surface(float base, vec3 base_color, float diffuse_ro
 
 void main()
 {
+    vec2 geomprop_UV0_out1 = vd.texcoord_0.xy;
+    vec2 node_convert_1_out = vec2(0.0);
+    NG_convert_float_vector2(node_convert_1_in, node_convert_1_out);
+    vec3 node_rgbtohsv_12_out = vec3(0.0);
+    mx_rgbtohsv_color3(node_rgbtohsv_12_in, node_rgbtohsv_12_out);
     vec3 geomprop_Nworld_out1 = normalize(vd.normalWorld);
     vec3 geomprop_Tworld_out1 = normalize(vd.tangentWorld);
-    surfaceshader SR_glass_out = surfaceshader(vec3(0.0),vec3(0.0));
-    NG_metashade_standard_surface(SR_glass_base, SR_glass_base_color, SR_glass_diffuse_roughness, SR_glass_metalness, SR_glass_specular, SR_glass_specular_color, SR_glass_specular_roughness, SR_glass_specular_IOR, SR_glass_specular_anisotropy, SR_glass_specular_rotation, SR_glass_transmission, SR_glass_transmission_color, SR_glass_transmission_depth, SR_glass_transmission_scatter, SR_glass_transmission_scatter_anisotropy, SR_glass_transmission_dispersion, SR_glass_transmission_extra_roughness, SR_glass_subsurface, SR_glass_subsurface_color, SR_glass_subsurface_radius, SR_glass_subsurface_scale, SR_glass_subsurface_anisotropy, SR_glass_sheen, SR_glass_sheen_color, SR_glass_sheen_roughness, SR_glass_coat, SR_glass_coat_color, SR_glass_coat_roughness, SR_glass_coat_anisotropy, SR_glass_coat_rotation, SR_glass_coat_IOR, geomprop_Nworld_out1, SR_glass_coat_affect_color, SR_glass_coat_affect_roughness, SR_glass_thin_film_thickness, SR_glass_thin_film_IOR, SR_glass_emission, SR_glass_emission_color, SR_glass_opacity, SR_glass_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, SR_glass_out);
-    material Glass_out = SR_glass_out;
-    float outAlpha = clamp(1.0 - dot(Glass_out.transparency, vec3(0.3333)), 0.0, 1.0);
-    out1 = vec4(Glass_out.color, outAlpha);
-    if (outAlpha < u_alphaThreshold)
-    {
-        discard;
-    }
+    vec3 geomprop_Bworld_out1 = normalize(vd.bitangentWorld);
+    float node_tiledimage_float_26_out = 0.0;
+    NG_tiledimage_float(node_tiledimage_float_26_file, node_tiledimage_float_26_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_26_uvoffset, node_tiledimage_float_26_realworldimagesize, node_tiledimage_float_26_realworldtilesize, node_tiledimage_float_26_filtertype, node_tiledimage_float_26_framerange, node_tiledimage_float_26_frameoffset, node_tiledimage_float_26_frameendaction, node_tiledimage_float_26_out);
+    float node_tiledimage_float_7_out = 0.0;
+    NG_tiledimage_float(node_tiledimage_float_7_file, node_tiledimage_float_7_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_7_uvoffset, node_tiledimage_float_7_realworldimagesize, node_tiledimage_float_7_realworldtilesize, node_tiledimage_float_7_filtertype, node_tiledimage_float_7_framerange, node_tiledimage_float_7_frameoffset, node_tiledimage_float_7_frameendaction, node_tiledimage_float_7_out);
+    float node_tiledimage_float_24_out = 0.0;
+    NG_tiledimage_float(node_tiledimage_float_24_file, node_tiledimage_float_24_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_24_uvoffset, node_tiledimage_float_24_realworldimagesize, node_tiledimage_float_24_realworldtilesize, node_tiledimage_float_24_filtertype, node_tiledimage_float_24_framerange, node_tiledimage_float_24_frameoffset, node_tiledimage_float_24_frameendaction, node_tiledimage_float_24_out);
+    float node_tiledimage_float_10_out = 0.0;
+    NG_tiledimage_float(node_tiledimage_float_10_file, node_tiledimage_float_10_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_10_uvoffset, node_tiledimage_float_10_realworldimagesize, node_tiledimage_float_10_realworldtilesize, node_tiledimage_float_10_filtertype, node_tiledimage_float_10_framerange, node_tiledimage_float_10_frameoffset, node_tiledimage_float_10_frameendaction, node_tiledimage_float_10_out);
+    float node_tiledimage_float_22_out = 0.0;
+    NG_tiledimage_float(node_tiledimage_float_22_file, node_tiledimage_float_22_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_float_22_uvoffset, node_tiledimage_float_22_realworldimagesize, node_tiledimage_float_22_realworldtilesize, node_tiledimage_float_22_filtertype, node_tiledimage_float_22_framerange, node_tiledimage_float_22_frameoffset, node_tiledimage_float_22_frameendaction, node_tiledimage_float_22_out);
+    vec3 node_tiledimage_vector3_27_out = vec3(0.0);
+    NG_tiledimage_vector3(node_tiledimage_vector3_27_file, node_tiledimage_vector3_27_default, geomprop_UV0_out1, node_convert_1_out, node_tiledimage_vector3_27_uvoffset, node_tiledimage_vector3_27_realworldimagesize, node_tiledimage_vector3_27_realworldtilesize, node_tiledimage_vector3_27_filtertype, node_tiledimage_vector3_27_framerange, node_tiledimage_vector3_27_frameoffset, node_tiledimage_vector3_27_frameendaction, node_tiledimage_vector3_27_out);
+    float node_multiply_25_out = node_multiply_25_in1 * node_tiledimage_float_26_out;
+    float node_multiply_20_out = node_multiply_20_in1 * node_tiledimage_float_26_out;
+    vec3 node_multiply_9_out = node_multiply_9_in1 * node_tiledimage_float_7_out;
+    float node_multiply_23_out = node_multiply_23_in1 * node_tiledimage_float_24_out;
+    float node_max_1_out = max(node_tiledimage_float_10_out, node_max_1_in2);
+    vec3 node_normalmap_3_out = vec3(0.0);
+    mx_normalmap_float(node_tiledimage_vector3_27_out, node_normalmap_3_scale, geomprop_Nworld_out1, geomprop_Tworld_out1, geomprop_Bworld_out1, node_normalmap_3_out);
+    float node_add_19_out = node_multiply_25_out + node_tiledimage_float_7_out;
+    float node_divide_21_out = node_divide_21_in1 / node_max_1_out;
+    float node_subtract_18_out = node_add_19_out - node_subtract_18_in2;
+    float node_multiply_15_out = node_add_19_out * node_multiply_20_out;
+    float node_multiply_1_out = node_divide_21_out * node_tiledimage_float_22_out;
+    float node_multiply_14_out = node_subtract_18_out * node_multiply_14_in2;
+    vec3 node_combine3_color3_13_out = vec3(node_multiply_14_out,node_combine3_color3_13_in2,node_multiply_15_out);
+    vec3 node_add_16_out = node_combine3_color3_13_out + node_rgbtohsv_12_out;
+    vec3 node_hsvtorgb_17_out = vec3(0.0);
+    mx_hsvtorgb_color3(node_add_16_out, node_hsvtorgb_17_out);
+    vec3 node_mix_6_out = mix(node_hsvtorgb_17_out, node_mix_6_fg, node_multiply_23_out);
+    vec3 node_multiply_5_out = node_mix_6_out * node_tiledimage_float_7_out;
+    vec3 node_mix_8_out = mix(node_multiply_9_out, node_multiply_5_out, node_tiledimage_float_10_out);
+    vec3 node_clamp_0_out = clamp(node_mix_8_out, node_clamp_0_low, node_clamp_0_high);
+    surfaceshader N_StandardSurface_out = surfaceshader(vec3(0.0),vec3(0.0));
+    NG_metashade_standard_surface(N_StandardSurface_base, node_clamp_0_out, N_StandardSurface_diffuse_roughness, N_StandardSurface_metalness, N_StandardSurface_specular, N_StandardSurface_specular_color, node_multiply_1_out, N_StandardSurface_specular_IOR, N_StandardSurface_specular_anisotropy, N_StandardSurface_specular_rotation, N_StandardSurface_transmission, N_StandardSurface_transmission_color, N_StandardSurface_transmission_depth, N_StandardSurface_transmission_scatter, N_StandardSurface_transmission_scatter_anisotropy, N_StandardSurface_transmission_dispersion, N_StandardSurface_transmission_extra_roughness, N_StandardSurface_subsurface, N_StandardSurface_subsurface_color, N_StandardSurface_subsurface_radius, N_StandardSurface_subsurface_scale, N_StandardSurface_subsurface_anisotropy, N_StandardSurface_sheen, N_StandardSurface_sheen_color, N_StandardSurface_sheen_roughness, N_StandardSurface_coat, N_StandardSurface_coat_color, N_StandardSurface_coat_roughness, N_StandardSurface_coat_anisotropy, N_StandardSurface_coat_rotation, N_StandardSurface_coat_IOR, geomprop_Nworld_out1, N_StandardSurface_coat_affect_color, N_StandardSurface_coat_affect_roughness, N_StandardSurface_thin_film_thickness, N_StandardSurface_thin_film_IOR, N_StandardSurface_emission, N_StandardSurface_emission_color, N_StandardSurface_opacity, N_StandardSurface_thin_walled, node_normalmap_3_out, geomprop_Tworld_out1, N_StandardSurface_out);
+    material M_BrickPattern_out = N_StandardSurface_out;
+    out1 = vec4(M_BrickPattern_out.color, 1.0);
 }
 

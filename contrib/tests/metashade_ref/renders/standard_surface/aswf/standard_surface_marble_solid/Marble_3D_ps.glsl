@@ -11,7 +11,6 @@ struct lightshader { vec3 intensity; vec3 direction; };
 #define material surfaceshader
 
 // Uniform block: PrivateUniforms
-uniform float u_alphaThreshold = 0.001000;
 uniform mat4 u_envMatrix = mat4(-1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 0.000000, -1.000000, 0.000000, 0.000000, 0.000000, 0.000000, 1.000000);
 uniform sampler2D u_envRadiance;
 uniform float u_envLightIntensity = 1.000000;
@@ -24,50 +23,62 @@ uniform vec3 u_viewPosition = vec3(0.0);
 // Uniform block: PublicUniforms
 uniform surfaceshader backsurfaceshader;
 uniform displacementshader displacementshader1;
-uniform float SR_glass_base = 0.000000;
-uniform vec3 SR_glass_base_color = vec3(0.800000, 0.800000, 0.800000);
-uniform float SR_glass_diffuse_roughness = 0.000000;
-uniform float SR_glass_metalness = 0.000000;
-uniform float SR_glass_specular = 1.000000;
-uniform vec3 SR_glass_specular_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_specular_roughness = 0.010000;
-uniform float SR_glass_specular_IOR = 1.520000;
-uniform float SR_glass_specular_anisotropy = 0.000000;
-uniform float SR_glass_specular_rotation = 0.000000;
-uniform float SR_glass_transmission = 1.000000;
-uniform vec3 SR_glass_transmission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_transmission_depth = 0.000000;
-uniform vec3 SR_glass_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
-uniform float SR_glass_transmission_scatter_anisotropy = 0.000000;
-uniform float SR_glass_transmission_dispersion = 0.000000;
-uniform float SR_glass_transmission_extra_roughness = 0.000000;
-uniform float SR_glass_subsurface = 0.000000;
-uniform vec3 SR_glass_subsurface_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_subsurface_scale = 1.000000;
-uniform float SR_glass_subsurface_anisotropy = 0.000000;
-uniform float SR_glass_sheen = 0.000000;
-uniform vec3 SR_glass_sheen_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_sheen_roughness = 0.300000;
-uniform float SR_glass_coat = 0.000000;
-uniform vec3 SR_glass_coat_color = vec3(1.000000, 1.000000, 1.000000);
-uniform float SR_glass_coat_roughness = 0.100000;
-uniform float SR_glass_coat_anisotropy = 0.000000;
-uniform float SR_glass_coat_rotation = 0.000000;
-uniform float SR_glass_coat_IOR = 1.500000;
-uniform float SR_glass_coat_affect_color = 0.000000;
-uniform float SR_glass_coat_affect_roughness = 0.000000;
-uniform float SR_glass_thin_film_thickness = 0.000000;
-uniform float SR_glass_thin_film_IOR = 1.500000;
-uniform float SR_glass_emission = 0.000000;
-uniform vec3 SR_glass_emission_color = vec3(1.000000, 1.000000, 1.000000);
-uniform vec3 SR_glass_opacity = vec3(1.000000, 1.000000, 1.000000);
-uniform bool SR_glass_thin_walled = false;
+uniform vec3 add_xyz_in2 = vec3(1.000000, 1.000000, 1.000000);
+uniform float scale_pos_in2 = 4.000000;
+uniform float scale_xyz_in2 = 6.000000;
+uniform float noise_amplitude = 1.000000;
+uniform int noise_octaves = 3;
+uniform float noise_lacunarity = 2.000000;
+uniform float noise_diminish = 0.500000;
+uniform float scale_noise_in2 = 3.000000;
+uniform float scale_in2 = 0.500000;
+uniform float bias_in2 = 0.500000;
+uniform float power_in2 = 3.000000;
+uniform vec3 color_mix_fg = vec3(0.100000, 0.100000, 0.300000);
+uniform vec3 color_mix_bg = vec3(0.800000, 0.800000, 0.800000);
+uniform float SR_marble1_base = 1.000000;
+uniform float SR_marble1_diffuse_roughness = 0.000000;
+uniform float SR_marble1_metalness = 0.000000;
+uniform float SR_marble1_specular = 1.000000;
+uniform vec3 SR_marble1_specular_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float SR_marble1_specular_roughness = 0.100000;
+uniform float SR_marble1_specular_IOR = 1.500000;
+uniform float SR_marble1_specular_anisotropy = 0.000000;
+uniform float SR_marble1_specular_rotation = 0.000000;
+uniform float SR_marble1_transmission = 0.000000;
+uniform vec3 SR_marble1_transmission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float SR_marble1_transmission_depth = 0.000000;
+uniform vec3 SR_marble1_transmission_scatter = vec3(0.000000, 0.000000, 0.000000);
+uniform float SR_marble1_transmission_scatter_anisotropy = 0.000000;
+uniform float SR_marble1_transmission_dispersion = 0.000000;
+uniform float SR_marble1_transmission_extra_roughness = 0.000000;
+uniform float SR_marble1_subsurface = 0.400000;
+uniform vec3 SR_marble1_subsurface_radius = vec3(1.000000, 1.000000, 1.000000);
+uniform float SR_marble1_subsurface_scale = 1.000000;
+uniform float SR_marble1_subsurface_anisotropy = 0.000000;
+uniform float SR_marble1_sheen = 0.000000;
+uniform vec3 SR_marble1_sheen_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float SR_marble1_sheen_roughness = 0.300000;
+uniform float SR_marble1_coat = 0.000000;
+uniform vec3 SR_marble1_coat_color = vec3(1.000000, 1.000000, 1.000000);
+uniform float SR_marble1_coat_roughness = 0.100000;
+uniform float SR_marble1_coat_anisotropy = 0.000000;
+uniform float SR_marble1_coat_rotation = 0.000000;
+uniform float SR_marble1_coat_IOR = 1.500000;
+uniform float SR_marble1_coat_affect_color = 0.000000;
+uniform float SR_marble1_coat_affect_roughness = 0.000000;
+uniform float SR_marble1_thin_film_thickness = 0.000000;
+uniform float SR_marble1_thin_film_IOR = 1.500000;
+uniform float SR_marble1_emission = 0.000000;
+uniform vec3 SR_marble1_emission_color = vec3(1.000000, 1.000000, 1.000000);
+uniform vec3 SR_marble1_opacity = vec3(1.000000, 1.000000, 1.000000);
+uniform bool SR_marble1_thin_walled = false;
 
 in VertexData
 {
     vec3 normalWorld;
     vec3 tangentWorld;
+    vec3 positionObject;
     vec3 positionWorld;
 } vd;
 
@@ -869,6 +880,772 @@ vec3 mx_surface_transmission(vec3 N, vec3 V, vec3 X, vec2 alpha, int distributio
         tint = mx_square(tint);
     }
     return mx_environment_radiance(N, V, X, alpha, distribution, fd) * tint;
+}
+
+/*
+Noise Library.
+
+This library is a modified version of the noise library found in
+Open Shading Language:
+github.com/imageworks/OpenShadingLanguage/blob/master/src/include/OSL/oslnoise.h
+
+It contains the subset of noise types needed to implement the MaterialX
+standard library. The modifications are mainly conversions from C++ to GLSL.
+Produced results should be identical to the OSL noise functions.
+
+Original copyright notice:
+------------------------------------------------------------------------
+Copyright (c) 2009-2010 Sony Pictures Imageworks Inc., et al.
+All Rights Reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+* Neither the name of Sony Pictures Imageworks nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+------------------------------------------------------------------------
+*/
+
+float mx_select(bool b, float t, float f)
+{
+    return b ? t : f;
+}
+
+float mx_negate_if(float val, bool b)
+{
+    return b ? -val : val;
+}
+
+int mx_floor(float x)
+{
+    return int(floor(x));
+}
+
+// return mx_floor as well as the fractional remainder
+float mx_floorfrac(float x, out int i)
+{
+    i = mx_floor(x);
+    return x - float(i);
+}
+
+float mx_bilerp(float v0, float v1, float v2, float v3, float s, float t)
+{
+    float s1 = 1.0 - s;
+    return (1.0 - t) * (v0*s1 + v1*s) + t * (v2*s1 + v3*s);
+}
+vec3 mx_bilerp(vec3 v0, vec3 v1, vec3 v2, vec3 v3, float s, float t)
+{
+    float s1 = 1.0 - s;
+    return (1.0 - t) * (v0*s1 + v1*s) + t * (v2*s1 + v3*s);
+}
+float mx_trilerp(float v0, float v1, float v2, float v3, float v4, float v5, float v6, float v7, float s, float t, float r)
+{
+    float s1 = 1.0 - s;
+    float t1 = 1.0 - t;
+    float r1 = 1.0 - r;
+    return (r1*(t1*(v0*s1 + v1*s) + t*(v2*s1 + v3*s)) +
+            r*(t1*(v4*s1 + v5*s) + t*(v6*s1 + v7*s)));
+}
+vec3 mx_trilerp(vec3 v0, vec3 v1, vec3 v2, vec3 v3, vec3 v4, vec3 v5, vec3 v6, vec3 v7, float s, float t, float r)
+{
+    float s1 = 1.0 - s;
+    float t1 = 1.0 - t;
+    float r1 = 1.0 - r;
+    return (r1*(t1*(v0*s1 + v1*s) + t*(v2*s1 + v3*s)) +
+            r*(t1*(v4*s1 + v5*s) + t*(v6*s1 + v7*s)));
+}
+
+// 2 and 3 dimensional gradient functions - perform a dot product against a
+// randomly chosen vector. Note that the gradient vector is not normalized, but
+// this only affects the overall "scale" of the result, so we simply account for
+// the scale by multiplying in the corresponding "perlin" function.
+float mx_gradient_float(uint hash, float x, float y)
+{
+    // 8 possible directions (+-1,+-2) and (+-2,+-1)
+    uint h = hash & 7u;
+    float u = mx_select(h<4u, x, y);
+    float v = 2.0 * mx_select(h<4u, y, x);
+    // compute the dot product with (x,y).
+    return mx_negate_if(u, bool(h&1u)) + mx_negate_if(v, bool(h&2u));
+}
+float mx_gradient_float(uint hash, float x, float y, float z)
+{
+    // use vectors pointing to the edges of the cube
+    uint h = hash & 15u;
+    float u = mx_select(h<8u, x, y);
+    float v = mx_select(h<4u, y, mx_select((h==12u)||(h==14u), x, z));
+    return mx_negate_if(u, bool(h&1u)) + mx_negate_if(v, bool(h&2u));
+}
+vec3 mx_gradient_vec3(uvec3 hash, float x, float y)
+{
+    return vec3(mx_gradient_float(hash.x, x, y), mx_gradient_float(hash.y, x, y), mx_gradient_float(hash.z, x, y));
+}
+vec3 mx_gradient_vec3(uvec3 hash, float x, float y, float z)
+{
+    return vec3(mx_gradient_float(hash.x, x, y, z), mx_gradient_float(hash.y, x, y, z), mx_gradient_float(hash.z, x, y, z));
+}
+// Scaling factors to normalize the result of gradients above.
+// These factors were experimentally calculated to be:
+//    2D:   0.6616
+//    3D:   0.9820
+float mx_gradient_scale2d(float v) { return 0.6616 * v; }
+float mx_gradient_scale3d(float v) { return 0.9820 * v; }
+vec3 mx_gradient_scale2d(vec3 v) { return 0.6616 * v; }
+vec3 mx_gradient_scale3d(vec3 v) { return 0.9820 * v; }
+
+/// Bitwise circular rotation left by k bits (for 32 bit unsigned integers)
+uint mx_rotl32(uint x, int k)
+{
+    return (x<<k) | (x>>(32-k));
+}
+
+void mx_bjmix(inout uint a, inout uint b, inout uint c)
+{
+    a -= c; a ^= mx_rotl32(c, 4); c += b;
+    b -= a; b ^= mx_rotl32(a, 6); a += c;
+    c -= b; c ^= mx_rotl32(b, 8); b += a;
+    a -= c; a ^= mx_rotl32(c,16); c += b;
+    b -= a; b ^= mx_rotl32(a,19); a += c;
+    c -= b; c ^= mx_rotl32(b, 4); b += a;
+}
+
+// Mix up and combine the bits of a, b, and c (doesn't change them, but
+// returns a hash of those three original values).
+uint mx_bjfinal(uint a, uint b, uint c)
+{
+    c ^= b; c -= mx_rotl32(b,14);
+    a ^= c; a -= mx_rotl32(c,11);
+    b ^= a; b -= mx_rotl32(a,25);
+    c ^= b; c -= mx_rotl32(b,16);
+    a ^= c; a -= mx_rotl32(c,4);
+    b ^= a; b -= mx_rotl32(a,14);
+    c ^= b; c -= mx_rotl32(b,24);
+    return c;
+}
+
+// Convert a 32 bit integer into a floating point number in [0,1]
+float mx_bits_to_01(uint bits)
+{
+    return float(bits) / float(uint(0xffffffff));
+}
+
+float mx_fade(float t)
+{
+   return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+}
+
+uint mx_hash_int(int x)
+{
+    uint len = 1u;
+    uint seed = uint(0xdeadbeef) + (len << 2u) + 13u;
+    return mx_bjfinal(seed+uint(x), seed, seed);
+}
+
+uint mx_hash_int(int x, int y)
+{
+    uint len = 2u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z)
+{
+    uint len = 3u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z, int xx)
+{
+    uint len = 4u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    mx_bjmix(a, b, c);
+    a += uint(xx);
+    return mx_bjfinal(a, b, c);
+}
+
+uint mx_hash_int(int x, int y, int z, int xx, int yy)
+{
+    uint len = 5u;
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (len << 2u) + 13u;
+    a += uint(x);
+    b += uint(y);
+    c += uint(z);
+    mx_bjmix(a, b, c);
+    a += uint(xx);
+    b += uint(yy);
+    return mx_bjfinal(a, b, c);
+}
+
+uvec3 mx_hash_vec3(int x, int y)
+{
+    uint h = mx_hash_int(x, y);
+    // we only need the low-order bits to be random, so split out
+    // the 32 bit result into 3 parts for each channel
+    uvec3 result;
+    result.x = (h      ) & 0xFFu;
+    result.y = (h >> 8 ) & 0xFFu;
+    result.z = (h >> 16) & 0xFFu;
+    return result;
+}
+
+uvec3 mx_hash_vec3(int x, int y, int z)
+{
+    uint h = mx_hash_int(x, y, z);
+    // we only need the low-order bits to be random, so split out
+    // the 32 bit result into 3 parts for each channel
+    uvec3 result;
+    result.x = (h      ) & 0xFFu;
+    result.y = (h >> 8 ) & 0xFFu;
+    result.z = (h >> 16) & 0xFFu;
+    return result;
+}
+
+float mx_perlin_noise_float(vec2 p)
+{
+    int X, Y;
+    float fx = mx_floorfrac(p.x, X);
+    float fy = mx_floorfrac(p.y, Y);
+    float u = mx_fade(fx);
+    float v = mx_fade(fy);
+    float result = mx_bilerp(
+        mx_gradient_float(mx_hash_int(X  , Y  ), fx    , fy     ),
+        mx_gradient_float(mx_hash_int(X+1, Y  ), fx-1.0, fy     ),
+        mx_gradient_float(mx_hash_int(X  , Y+1), fx    , fy-1.0),
+        mx_gradient_float(mx_hash_int(X+1, Y+1), fx-1.0, fy-1.0),
+        u, v);
+    return mx_gradient_scale2d(result);
+}
+
+float mx_perlin_noise_float(vec3 p)
+{
+    int X, Y, Z;
+    float fx = mx_floorfrac(p.x, X);
+    float fy = mx_floorfrac(p.y, Y);
+    float fz = mx_floorfrac(p.z, Z);
+    float u = mx_fade(fx);
+    float v = mx_fade(fy);
+    float w = mx_fade(fz);
+    float result = mx_trilerp(
+        mx_gradient_float(mx_hash_int(X  , Y  , Z  ), fx    , fy    , fz     ),
+        mx_gradient_float(mx_hash_int(X+1, Y  , Z  ), fx-1.0, fy    , fz     ),
+        mx_gradient_float(mx_hash_int(X  , Y+1, Z  ), fx    , fy-1.0, fz     ),
+        mx_gradient_float(mx_hash_int(X+1, Y+1, Z  ), fx-1.0, fy-1.0, fz     ),
+        mx_gradient_float(mx_hash_int(X  , Y  , Z+1), fx    , fy    , fz-1.0),
+        mx_gradient_float(mx_hash_int(X+1, Y  , Z+1), fx-1.0, fy    , fz-1.0),
+        mx_gradient_float(mx_hash_int(X  , Y+1, Z+1), fx    , fy-1.0, fz-1.0),
+        mx_gradient_float(mx_hash_int(X+1, Y+1, Z+1), fx-1.0, fy-1.0, fz-1.0),
+        u, v, w);
+    return mx_gradient_scale3d(result);
+}
+
+vec3 mx_perlin_noise_vec3(vec2 p)
+{
+    int X, Y;
+    float fx = mx_floorfrac(p.x, X);
+    float fy = mx_floorfrac(p.y, Y);
+    float u = mx_fade(fx);
+    float v = mx_fade(fy);
+    vec3 result = mx_bilerp(
+        mx_gradient_vec3(mx_hash_vec3(X  , Y  ), fx    , fy     ),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y  ), fx-1.0, fy     ),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y+1), fx    , fy-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y+1), fx-1.0, fy-1.0),
+        u, v);
+    return mx_gradient_scale2d(result);
+}
+
+vec3 mx_perlin_noise_vec3(vec3 p)
+{
+    int X, Y, Z;
+    float fx = mx_floorfrac(p.x, X);
+    float fy = mx_floorfrac(p.y, Y);
+    float fz = mx_floorfrac(p.z, Z);
+    float u = mx_fade(fx);
+    float v = mx_fade(fy);
+    float w = mx_fade(fz);
+    vec3 result = mx_trilerp(
+        mx_gradient_vec3(mx_hash_vec3(X  , Y  , Z  ), fx    , fy    , fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y  , Z  ), fx-1.0, fy    , fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y+1, Z  ), fx    , fy-1.0, fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y+1, Z  ), fx-1.0, fy-1.0, fz     ),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y  , Z+1), fx    , fy    , fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y  , Z+1), fx-1.0, fy    , fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X  , Y+1, Z+1), fx    , fy-1.0, fz-1.0),
+        mx_gradient_vec3(mx_hash_vec3(X+1, Y+1, Z+1), fx-1.0, fy-1.0, fz-1.0),
+        u, v, w);
+    return mx_gradient_scale3d(result);
+}
+
+float mx_cell_noise_float(float p)
+{
+    int ix = mx_floor(p);
+    return mx_bits_to_01(mx_hash_int(ix));
+}
+
+float mx_cell_noise_float(vec2 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    return mx_bits_to_01(mx_hash_int(ix, iy));
+}
+
+float mx_cell_noise_float(vec3 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    return mx_bits_to_01(mx_hash_int(ix, iy, iz));
+}
+
+float mx_cell_noise_float(vec4 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    int iw = mx_floor(p.w);
+    return mx_bits_to_01(mx_hash_int(ix, iy, iz, iw));
+}
+
+vec3 mx_cell_noise_vec3(float p)
+{
+    int ix = mx_floor(p);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, 0)),
+            mx_bits_to_01(mx_hash_int(ix, 1)),
+            mx_bits_to_01(mx_hash_int(ix, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec2 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    return vec3(
+            mx_bits_to_01(mx_hash_int(ix, iy, 0)),
+            mx_bits_to_01(mx_hash_int(ix, iy, 1)),
+            mx_bits_to_01(mx_hash_int(ix, iy, 2))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec3 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (4u << 2u) + 13u;
+    a += uint(ix);
+    b += uint(iy);
+    c += uint(iz);
+    mx_bjmix(a, b, c);
+    return vec3(
+            mx_bits_to_01(mx_bjfinal(a,      b, c)),
+            mx_bits_to_01(mx_bjfinal(a + 1u, b, c)),
+            mx_bits_to_01(mx_bjfinal(a + 2u, b, c))
+    );
+}
+
+vec3 mx_cell_noise_vec3(vec4 p)
+{
+    int ix = mx_floor(p.x);
+    int iy = mx_floor(p.y);
+    int iz = mx_floor(p.z);
+    int iw = mx_floor(p.w);
+    uint a, b, c;
+    a = b = c = uint(0xdeadbeef) + (5u << 2u) + 13u;
+    a += uint(ix);
+    b += uint(iy);
+    c += uint(iz);
+    mx_bjmix(a, b, c);
+    a += uint(iw);
+    return vec3(
+            mx_bits_to_01(mx_bjfinal(a, b,      c)),
+            mx_bits_to_01(mx_bjfinal(a, b + 1u, c)),
+            mx_bits_to_01(mx_bjfinal(a, b + 2u, c))
+    );
+}
+
+float mx_fractal2d_noise_float(vec2 p, int octaves, float lacunarity, float diminish)
+{
+    float result = 0.0;
+    float amplitude = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amplitude * mx_perlin_noise_float(p);
+        amplitude *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec3 mx_fractal2d_noise_vec3(vec2 p, int octaves, float lacunarity, float diminish)
+{
+    vec3 result = vec3(0.0);
+    float amplitude = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amplitude * mx_perlin_noise_vec3(p);
+        amplitude *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec2 mx_fractal2d_noise_vec2(vec2 p, int octaves, float lacunarity, float diminish)
+{
+    return vec2(mx_fractal2d_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal2d_noise_float(p+vec2(19, 193), octaves, lacunarity, diminish));
+}
+
+vec4 mx_fractal2d_noise_vec4(vec2 p, int octaves, float lacunarity, float diminish)
+{
+    vec3  c = mx_fractal2d_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal2d_noise_float(p+vec2(19, 193), octaves, lacunarity, diminish);
+    return vec4(c, f);
+}
+
+float mx_fractal3d_noise_float(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    float result = 0.0;
+    float amplitude = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amplitude * mx_perlin_noise_float(p);
+        amplitude *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec3 mx_fractal3d_noise_vec3(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3 result = vec3(0.0);
+    float amplitude = 1.0;
+    for (int i = 0;  i < octaves; ++i)
+    {
+        result += amplitude * mx_perlin_noise_vec3(p);
+        amplitude *= diminish;
+        p *= lacunarity;
+    }
+    return result;
+}
+
+vec2 mx_fractal3d_noise_vec2(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    return vec2(mx_fractal3d_noise_float(p, octaves, lacunarity, diminish),
+                mx_fractal3d_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish));
+}
+
+vec4 mx_fractal3d_noise_vec4(vec3 p, int octaves, float lacunarity, float diminish)
+{
+    vec3  c = mx_fractal3d_noise_vec3(p, octaves, lacunarity, diminish);
+    float f = mx_fractal3d_noise_float(p+vec3(19, 193, 17), octaves, lacunarity, diminish);
+    return vec4(c, f);
+}
+
+vec2 mx_worley_cell_position(int x, int y, int xoff, int yoff, float jitter)
+{
+    vec3  tmp = mx_cell_noise_vec3(vec2(x+xoff, y+yoff));
+    vec2  off = vec2(tmp.x, tmp.y);
+
+    off -= 0.5f;
+    off *= jitter;
+    off += 0.5f;
+    
+    return vec2(float(x), float(y)) + off;
+}
+
+vec3 mx_worley_cell_position(int x, int y, int z, int xoff, int yoff, int zoff, float jitter)
+{
+    vec3  off = mx_cell_noise_vec3(vec3(x+xoff, y+yoff, z+zoff));
+
+    off -= 0.5f;
+    off *= jitter;
+    off += 0.5f;
+    
+    return vec3(float(x), float(y), float(z)) + off;
+}
+
+float mx_worley_distance(vec2 p, int x, int y, int xoff, int yoff, float jitter, int metric)
+{
+    vec2 cellpos = mx_worley_cell_position(x, y, xoff, yoff, jitter);
+    vec2 diff = cellpos - p;
+    if (metric == 2)
+        return abs(diff.x) + abs(diff.y);       // Manhattan distance
+    if (metric == 3)
+        return max(abs(diff.x), abs(diff.y));   // Chebyshev distance
+    // Either Euclidean or Distance^2
+    return dot(diff, diff);
+}
+
+float mx_worley_distance(vec3 p, int x, int y, int z, int xoff, int yoff, int zoff, float jitter, int metric)
+{
+    vec3 cellpos = mx_worley_cell_position(x, y, z, xoff, yoff, zoff, jitter);
+    vec3 diff = cellpos - p;
+    if (metric == 2)
+        return abs(diff.x) + abs(diff.y) + abs(diff.z); // Manhattan distance
+    if (metric == 3)
+        return max(max(abs(diff.x), abs(diff.y)), abs(diff.z)); // Chebyshev distance
+    // Either Euclidean or Distance^2
+    return dot(diff, diff);
+}
+
+float mx_worley_noise_float(vec2 p, float jitter, int style, int metric)
+{
+    int X, Y;
+    float dist;
+    vec2 localpos = vec2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
+    float sqdist = 1e6f;        // Some big number for jitter > 1 (not all GPUs may be IEEE)
+    vec2 minpos = vec2(0,0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
+            vec2 cellpos = mx_worley_cell_position(x, y, X, Y, jitter) - localpos;
+            if(dist < sqdist)
+            {
+                sqdist = dist;
+                minpos = cellpos;
+            }
+        }
+    }
+    if (style == 1)
+        return mx_cell_noise_float(minpos + p);
+    else
+    {
+        if (metric == 0)
+            sqdist = sqrt(sqdist);
+        return sqdist;
+    }
+}
+
+vec2 mx_worley_noise_vec2(vec2 p, float jitter, int style, int metric)
+{
+    int X, Y;
+    vec2 localpos = vec2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
+    vec2 sqdist = vec2(1e6f, 1e6f);
+    vec2 minpos = vec2(0,0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
+            vec2 cellpos = mx_worley_cell_position(x, y, X, Y, jitter) - localpos;
+            if (dist < sqdist.x)
+            {
+                sqdist.y = sqdist.x;
+                sqdist.x = dist;
+                minpos = cellpos;
+            }
+            else if (dist < sqdist.y)
+            {
+                sqdist.y = dist;
+            }
+        }
+    }
+    if (style == 1)
+    {
+        vec3 tmp = mx_cell_noise_vec3(minpos + p);
+        return vec2(tmp.x,tmp.y);
+    }
+    else
+    {
+        if (metric == 0)
+            sqdist = sqrt(sqdist);
+        return sqdist;
+    }
+}
+
+vec3 mx_worley_noise_vec3(vec2 p, float jitter, int style, int metric)
+{
+    int X, Y;
+    vec2 localpos = vec2(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y));
+    vec3 sqdist = vec3(1e6f, 1e6f, 1e6f);
+    vec2 minpos = vec2(0,0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            float dist = mx_worley_distance(localpos, x, y, X, Y, jitter, metric);
+            vec2 cellpos = mx_worley_cell_position(x, y, X, Y, jitter) - localpos;
+            if (dist < sqdist.x)
+            {
+                sqdist.z = sqdist.y;
+                sqdist.y = sqdist.x;
+                sqdist.x = dist;
+                minpos = cellpos;
+            }
+            else if (dist < sqdist.y)
+            {
+                sqdist.z = sqdist.y;
+                sqdist.y = dist;
+            }
+            else if (dist < sqdist.z)
+            {
+                sqdist.z = dist;
+            }
+        }
+    }
+    if (style == 1)
+        return mx_cell_noise_vec3(minpos + p);
+    else
+    {
+        if (metric == 0)
+            sqdist = sqrt(sqdist);
+        return sqdist;
+    }
+}
+
+float mx_worley_noise_float(vec3 p, float jitter, int style, int metric)
+{
+    int X, Y, Z;
+    vec3 localpos = vec3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
+    float sqdist = 1e6f;
+    vec3 minpos = vec3(0,0,0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            for (int z = -1; z <= 1; ++z)
+            {
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
+                vec3 cellpos = mx_worley_cell_position(x, y, z, X, Y, Z, jitter) - localpos;
+                if(dist < sqdist)
+                {
+                    sqdist = dist;
+                    minpos = cellpos;
+                }
+            }
+        }
+    }
+    if (style == 1)
+        return mx_cell_noise_float(minpos + p);
+    else
+    {
+        if (metric == 0)
+            sqdist = sqrt(sqdist);
+        return sqdist;
+    }
+}
+
+vec2 mx_worley_noise_vec2(vec3 p, float jitter, int style, int metric)
+{
+    int X, Y, Z;
+    vec3 localpos = vec3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
+    vec2 sqdist = vec2(1e6f, 1e6f);
+    vec3 minpos = vec3(0,0,0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            for (int z = -1; z <= 1; ++z)
+            {
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
+                vec3 cellpos = mx_worley_cell_position(x, y, z, X, Y, Z, jitter) - localpos;
+                if (dist < sqdist.x)
+                {
+                    sqdist.y = sqdist.x;
+                    sqdist.x = dist;
+                    minpos = cellpos;
+                }
+                else if (dist < sqdist.y)
+                {
+                    sqdist.y = dist;
+                }
+            }
+        }
+    }
+    if (style == 1)
+    {
+        vec3 tmp = mx_cell_noise_vec3(minpos + p);
+        return vec2(tmp.x,tmp.y);
+    }
+    else
+    {
+        if (metric == 0)
+            sqdist = sqrt(sqdist);
+        return sqdist;
+    }
+}
+
+vec3 mx_worley_noise_vec3(vec3 p, float jitter, int style, int metric)
+{
+    int X, Y, Z;
+    vec3 localpos = vec3(mx_floorfrac(p.x, X), mx_floorfrac(p.y, Y), mx_floorfrac(p.z, Z));
+    vec3 sqdist = vec3(1e6f, 1e6f, 1e6f);
+    vec3 minpos = vec3(0,0,0);
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            for (int z = -1; z <= 1; ++z)
+            {
+                float dist = mx_worley_distance(localpos, x, y, z, X, Y, Z, jitter, metric);
+                vec3 cellpos = mx_worley_cell_position(x, y, z, X, Y, Z, jitter) - localpos;
+                if (dist < sqdist.x)
+                {
+                    sqdist.z = sqdist.y;
+                    sqdist.y = sqdist.x;
+                    sqdist.x = dist;
+                    minpos = cellpos;
+                }
+                else if (dist < sqdist.y)
+                {
+                    sqdist.z = sqdist.y;
+                    sqdist.y = dist;
+                }
+                else if (dist < sqdist.z)
+                {
+                    sqdist.z = dist;
+                }
+            }
+        }
+    }
+    if (style == 1)
+        return mx_cell_noise_vec3(minpos + p);
+    else
+    {
+        if (metric == 0)
+            sqdist = sqrt(sqdist);
+        return sqdist;
+    }
+}
+
+void mx_fractal3d_float(float amplitude, int octaves, float lacunarity, float diminish, vec3 position, out float result)
+{
+    float value = mx_fractal3d_noise_float(position, octaves, lacunarity, diminish);
+    result = value * amplitude;
 }
 
 void mx_roughness_anisotropy(float roughness, float anisotropy, out vec2 result)
@@ -1814,14 +2591,22 @@ void main()
 {
     vec3 geomprop_Nworld_out1 = normalize(vd.normalWorld);
     vec3 geomprop_Tworld_out1 = normalize(vd.tangentWorld);
-    surfaceshader SR_glass_out = surfaceshader(vec3(0.0),vec3(0.0));
-    NG_metashade_standard_surface(SR_glass_base, SR_glass_base_color, SR_glass_diffuse_roughness, SR_glass_metalness, SR_glass_specular, SR_glass_specular_color, SR_glass_specular_roughness, SR_glass_specular_IOR, SR_glass_specular_anisotropy, SR_glass_specular_rotation, SR_glass_transmission, SR_glass_transmission_color, SR_glass_transmission_depth, SR_glass_transmission_scatter, SR_glass_transmission_scatter_anisotropy, SR_glass_transmission_dispersion, SR_glass_transmission_extra_roughness, SR_glass_subsurface, SR_glass_subsurface_color, SR_glass_subsurface_radius, SR_glass_subsurface_scale, SR_glass_subsurface_anisotropy, SR_glass_sheen, SR_glass_sheen_color, SR_glass_sheen_roughness, SR_glass_coat, SR_glass_coat_color, SR_glass_coat_roughness, SR_glass_coat_anisotropy, SR_glass_coat_rotation, SR_glass_coat_IOR, geomprop_Nworld_out1, SR_glass_coat_affect_color, SR_glass_coat_affect_roughness, SR_glass_thin_film_thickness, SR_glass_thin_film_IOR, SR_glass_emission, SR_glass_emission_color, SR_glass_opacity, SR_glass_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, SR_glass_out);
-    material Glass_out = SR_glass_out;
-    float outAlpha = clamp(1.0 - dot(Glass_out.transparency, vec3(0.3333)), 0.0, 1.0);
-    out1 = vec4(Glass_out.color, outAlpha);
-    if (outAlpha < u_alphaThreshold)
-    {
-        discard;
-    }
+    vec3 obj_pos_out = vd.positionObject;
+    float add_xyz_out = dot(obj_pos_out, add_xyz_in2);
+    vec3 scale_pos_out = obj_pos_out * scale_pos_in2;
+    float scale_xyz_out = add_xyz_out * scale_xyz_in2;
+    float noise_out = 0.0;
+    mx_fractal3d_float(noise_amplitude, noise_octaves, noise_lacunarity, noise_diminish, scale_pos_out, noise_out);
+    float scale_noise_out = noise_out * scale_noise_in2;
+    float sum_out = scale_xyz_out + scale_noise_out;
+    float sin_out = mx_sin(sum_out);
+    float scale_out = sin_out * scale_in2;
+    float bias_out = scale_out + bias_in2;
+    float power_out = pow(bias_out, power_in2);
+    vec3 color_mix_out = mix(color_mix_bg, color_mix_fg, power_out);
+    surfaceshader SR_marble1_out = surfaceshader(vec3(0.0),vec3(0.0));
+    NG_metashade_standard_surface(SR_marble1_base, color_mix_out, SR_marble1_diffuse_roughness, SR_marble1_metalness, SR_marble1_specular, SR_marble1_specular_color, SR_marble1_specular_roughness, SR_marble1_specular_IOR, SR_marble1_specular_anisotropy, SR_marble1_specular_rotation, SR_marble1_transmission, SR_marble1_transmission_color, SR_marble1_transmission_depth, SR_marble1_transmission_scatter, SR_marble1_transmission_scatter_anisotropy, SR_marble1_transmission_dispersion, SR_marble1_transmission_extra_roughness, SR_marble1_subsurface, color_mix_out, SR_marble1_subsurface_radius, SR_marble1_subsurface_scale, SR_marble1_subsurface_anisotropy, SR_marble1_sheen, SR_marble1_sheen_color, SR_marble1_sheen_roughness, SR_marble1_coat, SR_marble1_coat_color, SR_marble1_coat_roughness, SR_marble1_coat_anisotropy, SR_marble1_coat_rotation, SR_marble1_coat_IOR, geomprop_Nworld_out1, SR_marble1_coat_affect_color, SR_marble1_coat_affect_roughness, SR_marble1_thin_film_thickness, SR_marble1_thin_film_IOR, SR_marble1_emission, SR_marble1_emission_color, SR_marble1_opacity, SR_marble1_thin_walled, geomprop_Nworld_out1, geomprop_Tworld_out1, SR_marble1_out);
+    material Marble_3D_out = SR_marble1_out;
+    out1 = vec4(Marble_3D_out.color, 1.0);
 }
 
