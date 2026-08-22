@@ -112,6 +112,44 @@
                 "reveal": "always",
                 "panel": "shared"
             }
+        },
+        {
+            "label": "Run MaterialXTest [renderslang]",
+            "type": "shell",
+            "command": "\"${workspaceFolder}/build/bin/Debug/MaterialXTest.exe\"",
+            "args": [
+                "[renderslang]"
+            ],
+            "group": "test",
+            "problemMatcher": [],
+            "isBackground": false,
+            "dependsOn": "Build MaterialX Debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Run MaterialXTest [genslang]",
+            "type": "shell",
+            "command": "\"${workspaceFolder}/build/bin/Debug/MaterialXTest.exe\"",
+            "args": [
+                "[genslang]"
+            ],
+            "group": "test",
+            "problemMatcher": [],
+            "isBackground": false,
+            "dependsOn": "Build MaterialX Debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
         }
     ]
 }
