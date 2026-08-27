@@ -4,6 +4,8 @@ Shared render logic for pytest test suite.
 This module encapsulates the per-material render logic so it can be called from
 pytest test cases (parametrized tests).
 """
+import time
+
 import MaterialX as mx
 import MaterialX.PyMaterialXGenShader as mx_gen_shader
 from pathlib import Path
@@ -20,6 +22,7 @@ class RenderResult:
     error: Optional[str] = None
     shader_errors: Optional[str] = None
     shader_dump_paths: dict = field(default_factory=dict)
+    codegen_time_ms: Optional[float] = None
 
 
 def find_renderable_materials(doc) -> List:
@@ -101,12 +104,15 @@ def render_material(
             )
     
     # Generate shader
+    t0 = time.perf_counter()
     shader = renderer.generateShader(render_node, target_colorspace, target_distance_unit)
+    codegen_time_ms = (time.perf_counter() - t0) * 1000.0
     if not shader:
         return RenderResult(
             success=False,
             material_name=material_name,
-            shader_errors=renderer.getActiveShaderErrors()
+            shader_errors=renderer.getActiveShaderErrors(),
+            codegen_time_ms=codegen_time_ms,
         )
 
     context = renderer.getCodeGenerator().getContext()
@@ -122,6 +128,7 @@ def render_material(
             success=True,
             material_name=material_name,
             shader_dump_paths=shader_dump_paths,
+            codegen_time_ms=codegen_time_ms,
         )
 
     # Create program
@@ -131,6 +138,7 @@ def render_material(
             material_name=material_name,
             error="Failed to create GPU program",
             shader_dump_paths=shader_dump_paths,
+            codegen_time_ms=codegen_time_ms,
         )
     
     # Render
@@ -141,6 +149,7 @@ def render_material(
             material_name=material_name,
             error=str(errors),
             shader_dump_paths=shader_dump_paths,
+            codegen_time_ms=codegen_time_ms,
         )
     
     renderer.captureImage()
@@ -149,6 +158,7 @@ def render_material(
         success=True,
         material_name=material_name,
         shader_dump_paths=shader_dump_paths,
+        codegen_time_ms=codegen_time_ms,
     )
     
     if output_path:

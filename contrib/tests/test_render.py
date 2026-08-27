@@ -605,6 +605,12 @@ def _render_elements(
                 f"{result.error or result.shader_errors or 'Unknown error'}"
             )
 
+            if result.codegen_time_ms is not None:
+                print(
+                    f"  codegen: {result.codegen_time_ms:.1f} ms"
+                    f"  [{elem_name}]"
+                )
+
             if baseline_dir is not None:
                 _check_shader_baselines(result, baseline_dir)
 
